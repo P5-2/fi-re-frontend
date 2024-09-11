@@ -2,8 +2,8 @@
     <div class="header container">
         <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
             <div class="d-flex align-items-center">
-                <a href="/" style="margin-right:24px">
-                    <img src="@/assets/logo.png" width="200" height="46">
+                <a href="/" style="margin-right:36px">
+                    <img src="@/assets/header/logo.png" height="64">
                 </a>
                 <ul class="nav col-md-autojustify-content-center">
                     <li>
@@ -26,7 +26,7 @@
                     <div> <!-- 김곰돌 님 환영합니다 --></div>
                     <a href="/login">로그인</a>
                 </div>
-                <img class="member-img" src="@/assets/unknown.png" width="46" height="46">
+                <img class="member-img" src="@/assets/header/unknown.png" width="64" height="64">
             </div>
 
 
@@ -40,10 +40,12 @@ export default {
 </script>
 <style scoped>
     .header{
-        width : 1000px;
+        width : 1200px;
+        position :sticky;
+        top : 0px;
     }
     header{
-        width : 936px;
+        width : 1136px;
     }
     .member-wrapper{
         width : fit-content;
@@ -54,7 +56,7 @@ export default {
         display: inline-block;
         text-align: right;
         margin-right: 10px;
-        font-size: 10px;
+        font-size: 16px;
     }
     .member-img{
         border-radius: 20px;
@@ -64,7 +66,8 @@ export default {
     }
     .nav-item{
         border-radius: 20px;
-        width: 68px;
+        width: 84px;
+        font-size: large;
         text-align: center;
     }
 </style>
