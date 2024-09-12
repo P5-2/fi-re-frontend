@@ -12,5 +12,19 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  server: {
+    port: 9000,
+    proxy: {
+      '^/api': {
+        // replace with your target
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/oauth2.0': {
+        target: 'https://nid.naver.com',
+        changeOrigin: true,
+      }
+    }
   }
 })
