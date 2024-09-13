@@ -1,16 +1,16 @@
-
-import Login from "@/components/login/Login.vue"
+import Main from "@/pages/Main.vue"
 import NaverLogin from "@/components/login/naverLogin/NaverLogin.vue"
 
 
 export default [
     {
-        path: "/login",
-        name: "Login",
-        component: Login
-    },
+        path:'/',
+        name:"Main",
+        component: Main
+    }
+    ,
     {
-        path: '/naverLogin',
+        path: '/naver-login',
         name: 'NaverLogin',
         component: NaverLogin
     }
