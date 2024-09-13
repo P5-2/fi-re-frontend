@@ -20,16 +20,6 @@ export default {
             /* this.openPopup(url); */
             // 팝업 대신 페이지를 네이버 로그인 URL로 리다이렉트
             window.location.href = url;
-        },
-        openPopup(url) {
-            const popupHeight = '600';
-            const popupWidth = '600';
-            const popupX = window.screenX + (window.innerWidth / 2) - (popupWidth / 2);
-            const popupY = window.screenY + (window.innerHeight / 2) - (popupHeight / 2);
-            const popupOptions = `height=${popupHeight},width=${popupWidth},left=${popupX},top=${popupY},scrollbars=yes,resizable=yes`;
-
-            // 팝업을 열고 네이버 로그인 URL로 리다이렉트
-            window.open(url, '_blank', popupOptions);
         }
     }
 }
