@@ -40,6 +40,7 @@ export default {
 </script>
 <style scoped>
     .header{
+        background-color: #FeFeFe;
         width : 1200px;
         position :sticky;
         top : 0px;
