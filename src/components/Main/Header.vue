@@ -64,7 +64,6 @@ export default {
 }
 </script>
 <style scoped>
-<<<<<<< HEAD
     .header{
         background-color: #FeFeFe;
         width : 1200px;
@@ -97,44 +96,6 @@ export default {
         font-size: large;
         text-align: center;
     }
-=======
-.header {
-    width: 1200px;
-    position: sticky;
-    top: 0px;
-}
-
-header {
-    width: 1136px;
-}
-
-.member-wrapper {
-    width: fit-content;
-    display: inline-flex;
-    align-items: center;
-}
-
-.login-wrapper {
-    display: inline-block;
-    text-align: right;
-    margin-right: 10px;
-    font-size: 16px;
-}
-
-.member-img {
-    border-radius: 20px;
-}
-
-.nav-item:hover {
-    background-color: #dedede;
-}
-
-.nav-item {
-    border-radius: 20px;
-    width: 84px;
-    font-size: large;
-    text-align: center;
-}
 
 /* 로그인 버튼 */
 .login-btn {
@@ -191,5 +152,4 @@ header {
     font-size: 20px;
     cursor: pointer;
 }
->>>>>>> dev
 </style>
