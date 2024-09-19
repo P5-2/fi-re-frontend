@@ -1,9 +1,7 @@
 <template>
     <div id="Main">
         <Header></Header>
-        <div id="main">
-            <h1>메인화면</h1>
-        </div>
+        <RouterView/>
         <Remocon></Remocon>
         <Calculator></Calculator>
     </div>
@@ -13,6 +11,7 @@
 import Header from '@/components/main/Header.vue'
 import Remocon from '@/components/main/Remocon.vue';
 import Calculator from '@/components/main/Calculator.vue';
+import { RouterView } from 'vue-router';
 
 export default {
     name : "Main",
