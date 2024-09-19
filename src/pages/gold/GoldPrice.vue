@@ -9,9 +9,10 @@
 
     <button @click="fetchGoldData">Fetch Gold Data</button>
 
+    <!-- 금 시세 데이터가 있을 때만 데이터 출력 -->
     <div v-if="goldData.length">
       <h2>Gold Prices</h2>
-      <pre>{{ jsonData }}</pre> <!-- JSON 형식으로 데이터 출력 -->
+      <pre>{{ jsonData }}</pre> <!-- JSON 형식 데이터 출력 -->
     </div>
   </div>
 </template>
@@ -23,7 +24,7 @@ export default {
   data() {
     return {
       endBasDt: '', // 기준 날짜
-      numOfRows: 0, // 데이터 양
+      numOfRows: 0, // 데이터 양(일수)
       goldData: [], // 금 시세 데이터 배열
       jsonData: '', // JSON 형태로 저장할 데이터
     };
@@ -31,24 +32,23 @@ export default {
   methods: {
     async fetchGoldData() {
       try {
-        // 백엔드 API로부터 금 시세 데이터 요청
-        const response = await axios.get('/gold/info', {
+        // 백엔드 서버 URL 지정
+        const response = await axios.get('http://localhost:9000/gold/info', {
           params: {
             endBasDt: this.endBasDt,
             numOfRows: this.numOfRows,
           },
         });
 
-        // 받아온 금 시세 데이터
+        // 받아온 금 시세 데이터를 저장
         this.goldData = response.data;
 
-        // 데이터를 JSON 형태로 변환
+        // 데이터를 JSON 형식으로 변환하여 저장
         this.jsonData = JSON.stringify(this.goldData, null, 2);
 
-        // 로컬 스토리지에 JSON 데이터 저장
+        // 로컬 스토리지에 JSON 데이터를 저장
         localStorage.setItem('goldData', this.jsonData);
 
-        // 데이터 성공적으로 가져옴
         console.log('Gold data fetched and stored as JSON:', this.jsonData);
       } catch (error) {
         console.error('Error fetching gold data:', error);
@@ -56,19 +56,22 @@ export default {
     },
   },
   mounted() {
-    // 로컬 스토리지에서 JSON 데이터 로드
+    // 로컬 스토리지에서 저장된 금 시세 데이터를 불러오기
     const storedData = localStorage.getItem('goldData');
     if (storedData) {
       this.jsonData = storedData;
-      this.goldData = JSON.parse(storedData); // 로컬 스토리지에서 가져온 데이터를 객체로 파싱
+      this.goldData = JSON.parse(storedData);
     }
   },
 };
 </script>
 
+
 <style scoped>
 input {
   margin: 10px;
+  padding: 5px;
+  font-size: 1em;
 }
 
 button {
@@ -78,6 +81,7 @@ button {
   color: white;
   border: none;
   cursor: pointer;
+  font-size: 1em;
 }
 
 button:hover {
