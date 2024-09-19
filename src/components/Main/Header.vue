@@ -13,7 +13,7 @@
                         <a href="/fund" class="nav-item nav-link px-2 link-dark">펀드</a>
                     </li>
                     <li>
-                        <a href="/gold" class="nav-item nav-link px-2 link-dark">금</a>
+                        <a href="/goldPrice" class="nav-item nav-link px-2 link-dark">금</a>
                     </li>
                     <li>
                         <a href="/exchange" class="nav-item nav-link px-2 link-dark">외화</a>
