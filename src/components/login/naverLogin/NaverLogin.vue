@@ -7,13 +7,17 @@
 <script>
 import { onMounted } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
 
 export default {
     name: "NaverLogin",
 
     setup() {
+        const router = useRouter(); // Access Vue Router
+        const userStore = useUserStore(); // Pinia의 userStore 사용
+
         const handleNaverCallback = async (code, state) => {
-            //alert(handleNaverCallback);
             try {
                 alert('네이버 로그인 중...');
                 // 인증 코드를 서버에 전달하여 토큰 요청
@@ -21,22 +25,32 @@ export default {
                     // 서버에서 토큰 처리할 엔드포인트
                     params: { code, state },
                 });
-                console.log(response.data); // 서버에서 받은 토큰 정보 처리
 
-                const { access_token }= response.data;
-                console.log(access_token)
+                console.log(response.data); //서버에서 받은 토큰 정보 처리
+                // Object를 JSON 문자열로 변환하여 sessionStorage에 저장
+                sessionStorage.setItem("token", JSON.stringify(response.data));
 
-                // access_token을 서버로 보내어 프로필 정보 요청
-                const profileResponse = await axios.get('http://localhost:9000/naver/profile', {
+                // 저장된 accessToken을 꺼내서 findName 호출 시 Authorization 헤더에 추가
+                const tokenData = JSON.parse(sessionStorage.getItem("token"));
+                const accessToken = tokenData.accessToken;
+
+                const nameResponse = await axios.get("http://localhost:9000/naver/findname", {
                     headers: {
-                        Authorization: `Bearer ${access_token}`,
-                    },
+                        Authorization: `Bearer ${accessToken}` // Authorization 헤더에 accessToken 포함
+                    }
                 });
 
-                console.log(profileResponse.data); // 프로필 정보 처리
-                //alert('프로필 정보 가져오기 성공!');
+                const nickname = nameResponse.data;
+                sessionStorage.setItem("nickname", nickname);
 
+                // Pinia의 login 함수 호출
+                userStore.login(nickname); // 로그인 상태 업데이트
+                
                 alert('네이버 로그인 성공!');
+
+                // 성공하면 메인화면으로 고!
+                router.push('/');
+
             } catch (error) {
                 console.error('Error fetching the token:', error);
                 alert('네이버 로그인 실패!');
@@ -51,7 +65,7 @@ export default {
 
             if (code && state) {
                 // 서버로 인증 코드와 상태 값을 전달하여 토큰 요청
-                console.log(code, state);
+                console.log("code: " + code + ", state: " + state);
                 handleNaverCallback(code, state);
             } else {
                 alert('네이버 로그인에 실패하였습니다.');

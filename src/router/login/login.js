@@ -4,13 +4,13 @@ import NaverLogin from "@/components/login/naverLogin/NaverLogin.vue"
 
 export default [
     {
-        path:'/',
-        name:"Main",
+        path: '/',
+        name: "Main",
         component: Main
     }
     ,
     {
-        path: '/naver-login',
+        path: '/naver/callback',
         name: 'NaverLogin',
         component: NaverLogin
     }

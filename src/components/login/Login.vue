@@ -13,7 +13,7 @@ export default {
     methods: {
         doNaverLogin() {
             const clientId = 'wHXxK_xfYQJP4U42Ueey';
-            const redirectUri = 'http://localhost:5173/naver-login'; // 콜백 페이지 주소
+            const redirectUri = 'http://localhost:5173/naver/callback'; // 콜백 페이지 주소
             const state = Math.random().toString(36).substring(7); // CSRF 방지를 위한 난수
             const url = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`;
 
