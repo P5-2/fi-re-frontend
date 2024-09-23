@@ -3,6 +3,7 @@
         <h4>로그인</h4><br />
         <!-- 네이버 로그인 버튼 이미지 -->
         <img src="@/assets/login/naver_login_button.png" @click="doNaverLogin" style="width: 200px;" alt="네이버 로그인" />
+        <br /><br />
         <img
             src="@/assets/login/kakao_login_medium_narrow.png"
             @click="doKakaoLogin"
