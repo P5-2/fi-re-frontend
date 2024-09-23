@@ -30,7 +30,7 @@
       <div class="member-wrapper text-end">
         <div class="login-wrapper">
           <div v-if="userStore.isLoggedIn">
-            <b>{{ userStore.userName }}</b> 님<bt />
+            <b>{{ userStore.userName }}</b> 님<br />
             <p @click="logout">로그아웃</p>
           </div>
 
@@ -101,108 +101,109 @@ export default {
 
 <style scoped>
 .header {
-    width: 1200px;
-    position: sticky;
-    top: 0px;
+  background-color: #FeFeFe;
+  position: sticky;
+  top: 0px;
+  width: 1200px;
 }
 
 header {
-    width: 1136px;
+  width: 1176px;
 }
 
 .member-wrapper {
-    width: fit-content;
-    display: inline-flex;
-    align-items: center;
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
 }
 
 .login-wrapper {
-    display: inline-block;
-    text-align: right;
-    margin-right: 10px;
-    font-size: 16px;
+  display: inline-block;
+  text-align: right;
+  margin-right: 10px;
+  font-size: 16px;
 }
 
 .member-img {
-    border-radius: 20px;
+  border-radius: 20px;
 }
 
 .nav-item:hover {
-    background-color: #dedede;
+  background-color: #dedede;
 }
 
 .nav-item {
-    border-radius: 20px;
-    width: 84px;
-    font-size: large;
-    text-align: center;
+  border-radius: 20px;
+  width: 84px;
+  font-size: large;
+  text-align: center;
 }
 
 /* 로그인 버튼 */
 .login-btn {
-    background-color: #5A9;
-    /* 버튼 배경색 */
-    color: white;
-    /* 글자 색 */
-    border: none;
-    /* 테두리 제거 */
-    padding: 10px 20px;
-    /* 여백 */
-    font-size: 16px;
-    /* 폰트 크기 */
-    border-radius: 25px;
-    /* 모서리 둥글게 */
-    cursor: pointer;
-    /* 마우스 커서 변경 */
-    transition: background-color 0.3s ease;
-    /* 호버 시 부드러운 전환 */
+  background-color: #5A9;
+  /* 버튼 배경색 */
+  color: white;
+  /* 글자 색 */
+  border: none;
+  /* 테두리 제거 */
+  padding: 10px 20px;
+  /* 여백 */
+  font-size: 16px;
+  /* 폰트 크기 */
+  border-radius: 25px;
+  /* 모서리 둥글게 */
+  cursor: pointer;
+  /* 마우스 커서 변경 */
+  transition: background-color 0.3s ease;
+  /* 호버 시 부드러운 전환 */
 }
 
 .login-btn:hover {
-    background-color: #468a7f;
-    /* 호버 시 배경색 */
+  background-color: #468a7f;
+  /* 호버 시 배경색 */
 }
 
 .login-btn:active {
-    background-color: #3e6f69;
-    /* 클릭 시 배경색 */
+  background-color: #3e6f69;
+  /* 클릭 시 배경색 */
 }
 
 /* 모달 관련 스타일 */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    position: relative;
-    width: 500px;
-    /* 가로 길이 조정 */
-    min-height: 400px;
-    /* 세로 길이 조정 */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  position: relative;
+  width: 500px;
+  /* 가로 길이 조정 */
+  min-height: 400px;
+  /* 세로 길이 조정 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
 }
 </style>

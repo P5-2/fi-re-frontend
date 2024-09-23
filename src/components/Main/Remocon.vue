@@ -47,8 +47,9 @@ export default {
 <style scoped>
     #Remocon{
         position : fixed;
-        top : 25%;
+        top : 50%;
         right : 45px;
+        transform: translate(0, -50%);
     }
     ul, li{
         list-style: none;

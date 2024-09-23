@@ -9,10 +9,11 @@ import "bootstrap"
 //카카오 SDK를 초기화 하는 메서드
 window.Kakao.init("a2069fa41d81960a679ca66e6d2aa20a");
 
+const pinia = createPinia();
 const app = createApp(App)
 
 app.use(router)
-app.use(createPinia())
+app.use(pinia)
 
 app.mount('#app')
 
