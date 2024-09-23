@@ -4,9 +4,9 @@
       class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom"
     >
       <div class="d-flex align-items-center">
-        <a href="/" style="margin-right: 36px">
+        <router-link :to="{ name: 'HotItemList' }" style="margin-right: 36px">
           <img src="@/assets/header/logo.png" height="64" />
-        </a>
+        </router-link>
         <ul class="nav col-md-autojustify-content-center">
           <li>
             <a href="/savings" class="nav-item nav-link px-2 link-dark"
@@ -17,7 +17,7 @@
             <a href="/fund" class="nav-item nav-link px-2 link-dark">펀드</a>
           </li>
           <li>
-            <a href="/gold" class="nav-item nav-link px-2 link-dark">금</a>
+            <a href="/GoldPrice" class="nav-item nav-link px-2 link-dark">금</a>
           </li>
           <li>
             <a href="/exchange" class="nav-item nav-link px-2 link-dark"
@@ -50,13 +50,12 @@
   </div>
   <!-- 로그인 모달창 -->
   <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
-      <div class="modal-content" @click.stop>
-        <Login />
-        <button class="close-btn" @click="closeModal">닫기</button>
-      </div>
+    <div class="modal-content" @click.stop>
+      <Login />
+      <button class="close-btn" @click="closeModal">닫기</button>
     </div>
+  </div>
 </template>
-
 <script>
 import Login from '../login/Login.vue';
 import { useUserStore } from '@/stores/user';
@@ -100,7 +99,7 @@ export default {
 
 <style scoped>
 .header {
-  background-color: #FeFeFe;
+  background-color: #fefefe;
   position: sticky;
   top: 0px;
   width: 1200px;
@@ -140,7 +139,7 @@ header {
 
 /* 로그인 버튼 */
 .login-btn {
-  background-color: #5A9;
+  background-color: #5a9;
   /* 버튼 배경색 */
   color: white;
   /* 글자 색 */
