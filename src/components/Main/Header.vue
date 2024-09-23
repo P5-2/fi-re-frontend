@@ -29,10 +29,16 @@
 
       <div class="member-wrapper text-end">
         <div class="login-wrapper">
-          <div><!-- 김곰돌 님 환영합니다 --></div>
-          <!-- <a href="/login">로그인</a> -->
-          <button @click="openModal" class="login-btn">로그인</button>
+          <div v-if="userStore.isLoggedIn">
+            <b>{{ userStore.userName }}</b> 님<br />
+            <p @click="logout">로그아웃</p>
+          </div>
+
+          <div v-else>
+            <button @click="openModal" class="login-btn">로그인</button>
+          </div>
         </div>
+
         <img
           class="member-img"
           src="@/assets/header/unknown.png"
@@ -50,31 +56,46 @@
     </div>
   </div>
 </template>
-
 <script>
 import Login from '../login/Login.vue';
 import { useUserStore } from '@/stores/user';
 
+
 export default {
-  name: 'Header',
+  name: "Header",
   components: {
-    Login,
+    Login
   },
   data() {
     return {
-      isModalOpen: false, // 모달 상태
+      isModalOpen: false
+    };
+  },
+
+  setup() {
+    const userStore = useUserStore();
+    userStore.checkLoginStatus(); // 로그인 상태 확인
+    return {
+      userStore
     };
   },
   methods: {
+
     openModal() {
       this.isModalOpen = true;
     },
     closeModal() {
       this.isModalOpen = false;
     },
-  },
-};
+    logout() {
+      this.userStore.logout();
+      alert("로그아웃 되었습니다.");
+      this.$router.push('/'); // main 페이지로 이동
+    }
+  }
+}
 </script>
+
 
 <style scoped>
 .header {
@@ -83,26 +104,32 @@ export default {
   top: 0px;
   width: 1200px;
 }
+
 header {
   width: 1176px;
 }
+
 .member-wrapper {
   width: fit-content;
   display: inline-flex;
   align-items: center;
 }
+
 .login-wrapper {
   display: inline-block;
   text-align: right;
   margin-right: 10px;
   font-size: 16px;
 }
+
 .member-img {
   border-radius: 20px;
 }
+
 .nav-item:hover {
   background-color: #dedede;
 }
+
 .nav-item {
   border-radius: 20px;
   width: 84px;
@@ -112,22 +139,32 @@ header {
 
 /* 로그인 버튼 */
 .login-btn {
-  background-color: #5a9; /* 버튼 배경색 */
-  color: white; /* 글자 색 */
-  border: none; /* 테두리 제거 */
-  padding: 10px 20px; /* 여백 */
-  font-size: 16px; /* 폰트 크기 */
-  border-radius: 25px; /* 모서리 둥글게 */
-  cursor: pointer; /* 마우스 커서 변경 */
-  transition: background-color 0.3s ease; /* 호버 시 부드러운 전환 */
+  background-color: #5a9;
+  /* 버튼 배경색 */
+  color: white;
+  /* 글자 색 */
+  border: none;
+  /* 테두리 제거 */
+  padding: 10px 20px;
+  /* 여백 */
+  font-size: 16px;
+  /* 폰트 크기 */
+  border-radius: 25px;
+  /* 모서리 둥글게 */
+  cursor: pointer;
+  /* 마우스 커서 변경 */
+  transition: background-color 0.3s ease;
+  /* 호버 시 부드러운 전환 */
 }
 
 .login-btn:hover {
-  background-color: #468a7f; /* 호버 시 배경색 */
+  background-color: #468a7f;
+  /* 호버 시 배경색 */
 }
 
 .login-btn:active {
-  background-color: #3e6f69; /* 클릭 시 배경색 */
+  background-color: #3e6f69;
+  /* 클릭 시 배경색 */
 }
 
 /* 모달 관련 스타일 */
@@ -149,8 +186,10 @@ header {
   padding: 20px;
   border-radius: 8px;
   position: relative;
-  width: 500px; /* 가로 길이 조정 */
-  min-height: 400px; /* 세로 길이 조정 */
+  width: 500px;
+  /* 가로 길이 조정 */
+  min-height: 400px;
+  /* 세로 길이 조정 */
   display: flex;
   flex-direction: column;
   justify-content: center;
