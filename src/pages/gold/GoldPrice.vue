@@ -103,6 +103,10 @@ export default {
       predictedGoldData: [], //예측 금 값 데이터 배열
       predictedGoldJsonData: '',
       chart: null, // Chart.js 인스턴스
+      pointDate: '',
+      pointPrice: 0,
+      lastestDate: '',
+      lastestPrice: 0,
     };
   },
   methods: {
