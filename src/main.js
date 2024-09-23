@@ -1,14 +1,19 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router/index';
-import { createPinia } from 'pinia'
+import { createPinia } from 'pinia' // npm install pinia
+
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 
+//카카오 SDK를 초기화 하는 메서드
+window.Kakao.init("a2069fa41d81960a679ca66e6d2aa20a");
+
 const pinia = createPinia();
+const app = createApp(App)
 
-const app = createApp(App);
-
-app.use(pinia);
 app.use(router)
-app.mount('#app');
+app.use(pinia)
+
+app.mount('#app')
+
