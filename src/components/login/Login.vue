@@ -17,7 +17,6 @@ export default {
             const state = Math.random().toString(36).substring(7); // CSRF 방지를 위한 난수
             const url = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`;
 
-            /* this.openPopup(url); */
             // 팝업 대신 페이지를 네이버 로그인 URL로 리다이렉트
             window.location.href = url;
         }

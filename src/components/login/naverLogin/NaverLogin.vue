@@ -42,7 +42,7 @@ export default {
 
                 const nickname = nameResponse.data;
                 sessionStorage.setItem("nickname", nickname);
-
+                    
                 // Pinia의 login 함수 호출
                 userStore.login(nickname); // 로그인 상태 업데이트
                 
