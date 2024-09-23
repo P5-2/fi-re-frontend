@@ -1,51 +1,61 @@
 <template lang="">
-    <div class="header container">
-        <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
-            <div class="d-flex align-items-center">
-                <a href="/" style="margin-right:36px">
-                    <img src="@/assets/header/logo.png" height="64">
-                </a>
-                <ul class="nav col-md-autojustify-content-center">
-                    <li>
-                        <a href="/savings" class="nav-item nav-link px-2 link-dark">예적금</a>
-                    </li>
-                    <li>
-                        <a href="/fund" class="nav-item nav-link px-2 link-dark">펀드</a>
-                    </li>
-                    <li>
-                        <a href="/gold" class="nav-item nav-link px-2 link-dark">금</a>
-                    </li>
-                    <li>
-                        <a href="/exchange" class="nav-item nav-link px-2 link-dark">외화</a>
-                    </li>
-                </ul>
-            </div>
-            
-            <div class="member-wrapper text-end">
-                <div class="login-wrapper">
-                    <div v-if="userStore.isLoggedIn">
-                        <b>{{ userStore.userName }}</b> 님<bt/>
-                        <p @click="logout">로그아웃</p>
-                    </div>
-                    
-                    <div v-else>
-                        <button @click="openModal" class="login-btn">로그인</button>
-                    </div>
-                </div>
+  <div class="header container">
+    <header
+      class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom"
+    >
+      <div class="d-flex align-items-center">
+        <a href="/" style="margin-right: 36px">
+          <img src="@/assets/header/logo.png" height="64" />
+        </a>
+        <ul class="nav col-md-autojustify-content-center">
+          <li>
+            <a href="/savings" class="nav-item nav-link px-2 link-dark"
+              >예적금</a
+            >
+          </li>
+          <li>
+            <a href="/fund" class="nav-item nav-link px-2 link-dark">펀드</a>
+          </li>
+          <li>
+            <a href="/gold" class="nav-item nav-link px-2 link-dark">금</a>
+          </li>
+          <li>
+            <a href="/exchange" class="nav-item nav-link px-2 link-dark"
+              >외화</a
+            >
+          </li>
+        </ul>
+      </div>
 
-                <img class="member-img" src="@/assets/header/unknown.png" width="64" height="64">
-            </div>
-        </header>
+      <div class="member-wrapper text-end">
+        <div class="login-wrapper">
+          <div v-if="userStore.isLoggedIn">
+            <b>{{ userStore.userName }}</b> 님<bt />
+            <p @click="logout">로그아웃</p>
+          </div>
 
-        <!-- 로그인 모달창 -->
-        <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
-            <div class="modal-content" @click.stop>
-                <Login />
-                <button class="close-btn" @click="closeModal">닫기</button>
-            </div>
+          <div v-else>
+            <button @click="openModal" class="login-btn">로그인</button>
+          </div>
         </div>
-    </div>
 
+        <img
+          class="member-img"
+          src="@/assets/header/unknown.png"
+          width="64"
+          height="64"
+        />
+      </div>
+    </header>
+
+    <!-- 로그인 모달창 -->
+    <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <Login />
+        <button class="close-btn" @click="closeModal">닫기</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -54,37 +64,37 @@ import { useUserStore } from '@/stores/user';
 
 
 export default {
-    name: "Header",
-    components: {
-        Login
-    },
-    data() {
-        return {
-            isModalOpen: false
-        };
-    },
-    
-    setup() {
-        const userStore = useUserStore();
-        userStore.checkLoginStatus(); // 로그인 상태 확인
-        return {
-            userStore
-        };
-    },
-    methods: {
+  name: "Header",
+  components: {
+    Login
+  },
+  data() {
+    return {
+      isModalOpen: false
+    };
+  },
 
-        openModal() {
-            this.isModalOpen = true;
-        },
-        closeModal() {
-            this.isModalOpen = false;
-        },
-        logout() {
-            this.userStore.logout();
-            alert("로그아웃 되었습니다.");
-            this.$router.push('/'); // main 페이지로 이동
-        }
+  setup() {
+    const userStore = useUserStore();
+    userStore.checkLoginStatus(); // 로그인 상태 확인
+    return {
+      userStore
+    };
+  },
+  methods: {
+
+    openModal() {
+      this.isModalOpen = true;
+    },
+    closeModal() {
+      this.isModalOpen = false;
+    },
+    logout() {
+      this.userStore.logout();
+      alert("로그아웃 되었습니다.");
+      this.$router.push('/'); // main 페이지로 이동
     }
+  }
 }
 </script>
 
