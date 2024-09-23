@@ -45,12 +45,14 @@
 
         <div id="buttons">
             <button class="btn btn-secondary fs-5 left-btn">상품비교</button>
-            <button class="btn btn-success fs-5">수익계산</button>
+            <button class="btn btn-success fs-5" @click="calcBtn">수익계산</button>
         </div>
     </div>
 </template>
 <script>
+import { calculatorStore } from '@/stores/calculator';
 import axios from 'axios';
+import { mapActions } from 'pinia';
 
 export default {
     name : 'SavingsItemDetail',
@@ -69,6 +71,14 @@ export default {
         .catch((err)=>{
             console.log(err);
         })
+    },
+    methods : {
+        ...mapActions(calculatorStore, ['addSavings']),
+        calcBtn : function(){
+            this.savings.amount = 0;
+            this.addSavings(this.savings);
+            alert("상품을 계산기에 추가했습니다");
+        }
     }
 }
 </script>

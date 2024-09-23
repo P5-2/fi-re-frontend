@@ -17,7 +17,9 @@
                         <button type="button" class="x-btn btn-close" aria-label="Close" @click="removeSavings(savings.prdNo, index)"></button>
                         <b class="b-pname">{{savings.pname}}</b> <br> <hr>
                         이율 : <b>{{savings.minRate}}</b><br>
-                        투자금액 : <b>{{savings.subAmount}}</b>
+                        금액 : <b>{{savings.subAmount}}</b> <br>
+                        기간 : <b>{{savings.subPeriod}}개월</b> <br>
+                        투자금액 : <input type="text" v-model="temp_savingsAmounts[index]" @input="setSavingsAmountHandler(savings.prdNo, temp_savingsAmounts[index])">
                     </li>
                 </ol>
             </div>
@@ -27,7 +29,7 @@
                     <li class="savingWrapper">
                         <button type="button" class="x-btn btn-close" aria-label="Close" @click="removeFund(fund.prdNo, index)"></button>
                         <b class="b-pname">{{fund.pname}}</b> <br> <hr>
-                        이율 : <b>{{fund.rate}}</b> <br>
+                        누적이율 : <b>{{fund.rate}}</b> <br>
                         투자금액 : <input type="text" v-model="temp_fundAmounts[index]" @input="setFundAmountHandler(fund.prdNo, temp_fundAmounts[index])">
                     </li>
                 </ol>
@@ -65,6 +67,7 @@ export default {
             temp_month : 0,
             temp_gold : 0,
             temp_monthlySave : 0,
+            temp_savingsAmounts : [],
             temp_fundAmounts : [],
         }
     },
@@ -75,7 +78,8 @@ export default {
         this.temp_month = this.month;
         this.temp_gold = this.gold;
         this.temp_monthlySave = this.monthly_save;
-        this.temp_fundAmounts = this.fundlist.map((fund)=>{return fund.subAmount});
+        this.temp_savingsAmounts = this.savingslist.map((savings)=>{return savings.amount})
+        this.temp_fundAmounts = this.fundlist.map((fund)=>{return fund.amount});
     },
     methods:{
         btnClick : function(){
@@ -96,7 +100,6 @@ export default {
                 this.clicked = true;
                 keyframes = {
                     transform : ["translate(-50%, 0)"]
-
                 };
                 wrapper.animate(keyframes, this.options);
                 setTimeout(function(){
@@ -106,7 +109,7 @@ export default {
             }
             
         },
-        ...mapActions(calculatorStore, ['calculate', 'setMonth', 'setGold', 'setMonthlySave', 'setFundAmount', 'removeSavings', 'removeFund']),
+        ...mapActions(calculatorStore, ['calculate', 'setMonth', 'setGold', 'setMonthlySave', 'setFundAmount', 'setSavingsAmount', 'removeSavings', 'removeFund']),
         cal_click : function(){
             let result = this.calculate();
             console.log(result);
@@ -123,9 +126,11 @@ export default {
             this.setMonthlySave(this.temp_monthlySave);
         },
         setFundAmountHandler : function(prdNo, amount){
-            console.log(prdNo + " " + amount);
             this.setFundAmount(prdNo, amount);
         },
+        setSavingsAmountHandler : function(prdNo, amount){
+            this.setSavingsAmount(prdNo, amount);
+        }
     }
 }
 </script>

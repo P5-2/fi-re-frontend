@@ -11,7 +11,6 @@
 import Header from '@/components/main/Header.vue'
 import Remocon from '@/components/main/Remocon.vue';
 import Calculator from '@/components/main/Calculator.vue';
-import { RouterView } from 'vue-router';
 
 export default {
     name : "Main",
