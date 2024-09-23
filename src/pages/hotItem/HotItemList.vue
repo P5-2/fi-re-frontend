@@ -15,42 +15,34 @@
 </template>
 <script>
 import HotItem from '@/components/hotItem/HotItem.vue';
+import axios from 'axios';
 
 export default {
     name : 'HotItemList',
     components : { HotItem },
     data(){
         return{
-            savingsHotItemList : [
-                {
-                    pname : "KB마이핏통장",
-                    minRate : 1.5
-                },
-                {
-                    pname : "KB내맘대로적금",
-                    minRate : 2.3
-                },
-                {
-                    pname : "주택청약종합저축",
-                    minRate : 2.8
-                }
-            ],
-            fundHotItemList : [
-                {
-                    pname : "슈퍼아시아 리치투게더",
-                    minRate : 1.5
-                },
-                {
-                    pname : "KB 증권투자신탁",
-                    minRate : 2.3
-                },
-                {
-                    pname : "삼성 EMP 증권투자신탁",
-                    minRate : 2.8
-                }
-            ],
+            savingsHotItemList : [],
+            fundHotItemList : [],
             itemToggle : true
         }
+    },
+    created(){
+        axios.get("http://localhost:9000/finance/savings/hot")
+        .then((res)=>{
+            this.savingsHotItemList = res.data;
+        })
+        .catch((err)=>{
+            console.log(err);
+        })
+
+        axios.get("http://localhost:9000/finance/fund/hot")
+        .then((res)=>{
+            this.fundHotItemList = res.data;
+        })
+        .catch((err)=>{
+            console.log(err);
+        })
     },
     methods : {
         arrowClick(){

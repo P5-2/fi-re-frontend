@@ -1,22 +1,30 @@
 <template>
     <div id="hotItem">
-        <div class="itemTitleWrapper" v-if="toggle">
-            <div class="itemTitleLeft"></div>
-            <div class="itemTitle">
-                예적금 Hot
+        <div v-if="toggle">
+            <div class="itemTitleWrapper">
+                <div class="itemTitleLeft"></div>
+                <div class="itemTitle">
+                    예적금 Hot
+                </div>
+                <div class="itemTitleRight"></div>
             </div>
-            <div class="itemTitleRight"></div>
-        </div>
-        <div class="itemTitleWrapper" v-else>
-            <div class="fundTitleLeft"></div>
-            <div class="itemTitle fundTitle">
-                펀드 Hot
+            <div class="itemWrapper" @click="savingsItemClick">
+                <p class="itemName fs-4">{{ pname }}</p>
+                <p class="itemRate fs-3">연 {{ minRate }}%</p>
             </div>
-            <div class="fundTitleRight"></div>
         </div>
-        <div class="itemWrapper">
-            <p class="itemName fs-4">{{ pname }}</p>
-            <p class="itemRate fs-3">연 {{ minRate }}%</p>
+        <div v-else>
+            <div class="itemTitleWrapper">
+                <div class="fundTitleLeft"></div>
+                <div class="itemTitle fundTitle">
+                    펀드 Hot
+                </div>
+                <div class="fundTitleRight"></div>
+            </div>
+            <div class="itemWrapper" @click="fundItemClick">
+                <p class="itemName fs-4">{{ pname }}</p>
+                <p class="itemRate fs-5">3개월 누적 이익<br> <span class="fs-3">{{ rate }}%</span></p>
+            </div>
         </div>
     </div>
 </template>
@@ -27,7 +35,17 @@ export default {
         return {
         }
     },
-    props : ['pname', 'minRate', 'toggle'],
+    props : ['prdNo', 'pname', 'minRate', 'toggle', 'rate'],
+    methods : {
+        savingsItemClick(){
+            this.$router.push('/itemDetail/savings/'+this.prdNo)
+            console.log(this.prdNo);
+        },
+        fundItemClick(){
+            this.$router.push('/itemDetail/fund/'+this.prdNo)
+            console.log(this.prdNo);
+        }
+    }
 }
 </script>
 <style scoped>
@@ -87,8 +105,10 @@ export default {
         background-color: #e2e2e2;
     }
     .itemName{
-        margin-top: 40px;
-        margin-bottom: 60px;
+        width: 240px;
+        height: 80px;
+        margin-top: 30px;
+        margin-bottom: 30px;
     }
     .fundTitle{
         background-color: #FA5454;
