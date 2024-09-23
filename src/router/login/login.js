@@ -1,17 +1,16 @@
-
-import Login from "@/components/login/Login.vue"
-import NaverLogin from "@/components/login/naverLogin/NaverLogin.vue"
+import NaverLogin from "@/components/login/naverLogin/NaverLogin.vue";
+import KakaoLogin from "@/components/login/kakaoLogin/KakaoLogin.vue";
 
 
 export default [
-    {
-        path: "/login",
-        name: "Login",
-        component: Login
-    },
-    {
-        path: '/naverLogin',
-        name: 'NaverLogin',
-        component: NaverLogin
-    }
-]
+  {
+    path: "/naver/callback",
+    name: "NaverLogin",
+    component: NaverLogin,
+  },
+  {
+    path: "/kakao/callback",
+    name: "KakaoLogin",
+    component: KakaoLogin,
+  },
+];
