@@ -47,15 +47,14 @@
         />
       </div>
     </header>
-
-    <!-- 로그인 모달창 -->
-    <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
+  </div>
+  <!-- 로그인 모달창 -->
+  <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <Login />
         <button class="close-btn" @click="closeModal">닫기</button>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
