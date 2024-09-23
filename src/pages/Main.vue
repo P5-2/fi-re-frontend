@@ -1,10 +1,7 @@
 <template>
     <div id="Main">
         <Header></Header>
-        <div id="main">
-            <h1>메인화면</h1>
-        </div>
-        <router-view />
+        <RouterView />
         <Remocon></Remocon>
         <Calculator></Calculator>
     </div>
