@@ -9,9 +9,9 @@
         </router-link>
         <ul class="nav col-md-autojustify-content-center">
           <li>
-            <a href="/savings" class="nav-item nav-link px-2 link-dark"
-              >예적금</a
-            >
+            <router-link to="/savings" class="nav-item nav-link px-2 link-dark">
+              예적금
+            </router-link>
           </li>
           <li>
             <a href="/fund" class="nav-item nav-link px-2 link-dark">펀드</a>

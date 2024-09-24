@@ -1,4 +1,4 @@
-import SavingsList from "@/pages/list/savings/SavingsList";
+import SavingsList from "@/pages/list/savings/SavingsList.vue";
 
 export default [
   {
