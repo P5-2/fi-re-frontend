@@ -3,8 +3,7 @@
 
         <!-- 각 펀드 항목을 반복적으로 출력 -->
         <div v-if="paginatedFunds.length">
-            <Fund v-for="fund in paginatedFunds" :key="fund.prdNo" :fund="fund"
-                @click.native="fundItemClick(fund.prdNo)" />
+            <Fund v-for="fund in paginatedFunds" :key="fund.prdNo" :fund="fund"/>
         </div>
         <!-- 데이터가 없을 때 표시할 메시지 -->
         <div v-else>

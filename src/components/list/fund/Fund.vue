@@ -2,10 +2,10 @@
     <div class="fund-item">
         <table class="fund-table">
             <tr>
-                <td colspan="3" class="fund-name">{{ fund.pname }} ({{ fund.region }})</td>
+                <td colspan="3" class="fund-name" @click.native="fundItemClick(fund.prdNo)">{{ fund.pname }} ({{ fund.region }})</td>
                 <td rowspan="2" class="button-section">
                     <button class="btn btn-secondary">상품비교</button>
-                    <button class="btn btn-success">수익계산</button>
+                    <button class="btn btn-success"  @click="calcBtn">수익계산</button>
                 </td>
                 
             </tr>
@@ -30,6 +30,9 @@
 </template>
 
 <script>
+import { calculatorStore } from '@/stores/calculator';
+import { mapActions } from 'pinia';
+
 export default {
     props: {
         fund: {
@@ -74,6 +77,16 @@ export default {
                 case 1: return '#DD1820';
                 default: return '#666';
             }
+        },
+        fundItemClick(prdNo) {
+            this.$router.push('/itemDetail/fund/' + prdNo);
+            console.log(prdNo);
+        },
+        ...mapActions(calculatorStore, ['addFund']),
+        calcBtn : function(){
+            this.fund.amount = 0;
+            this.addFund(this.fund);
+            alert("상품을 계산기에 추가했습니다");
         }
     }
 };
@@ -114,6 +127,12 @@ export default {
     font-size: 1.2rem;
     text-align: left;
     padding-bottom: 10px;
+    cursor: pointer;
+    transition: text-decoration 0.3s; /* 밑줄 전환 애니메이션 */
+}
+
+.fund-name:hover {
+    text-decoration: underline; /* 마우스 오버 시 밑줄 표시 */
 }
 
 .grade-section {
