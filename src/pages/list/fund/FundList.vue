@@ -1,85 +1,149 @@
 <template>
     <div>
-        
+
         <!-- 각 펀드 항목을 반복적으로 출력 -->
-        <div v-if="funds.length">
-            <div v-for="fund in funds" :key="fund.prdNo" class="fund-item" @click="fundItemClick">
-                <h2>{{ fund.pname }} ({{ fund.region }})</h2>
-                <p>수익률: {{ fund.rate }}%</p>
-                <p>위험 등급: {{ fund.dngrGrade }}</p>
-                <p>유형: {{ fund.type }}</p>
-                <p>기준 날짜: {{ formatDate(fund.bseDt) }}</p>
-            </div>
+        <div v-if="paginatedFunds.length">
+            <Fund v-for="fund in paginatedFunds" :key="fund.prdNo" :fund="fund"
+                @click.native="fundItemClick(fund.prdNo)" />
         </div>
         <!-- 데이터가 없을 때 표시할 메시지 -->
         <div v-else>
             <p>펀드 데이터를 가져오는 중입니다...</p>
+        </div>
+
+        <!-- 페이지네이션 컨트롤 -->
+        <div class="pagination">
+            <button @click="previousPage" :disabled="page === 1">이전</button>
+            <span>{{ page }} / {{ totalPages }}</span>
+            <button @click="nextPage" :disabled="page === totalPages">다음</button>
         </div>
     </div>
 </template>
 
 <script>
 import Fund from '@/components/list/fund/Fund.vue';
+
 export default {
+    components: {
+        Fund,
+    },
     data() {
         return {
-            funds: [],  // 펀드 데이터를 담을 배열
+            funds: [],           // 펀드 데이터를 담을 배열
+            page: 1,             // 현재 페이지
+            size: 5,            // 페이지당 항목 수
+            totalPages: 0        // 전체 페이지 수
         };
     },
-    created() {
-        this.fetchFunds();  // 컴포넌트가 생성될 때 API 호출
+
+    computed: {
+        paginatedFunds() {
+            return this.funds;
+        }
     },
-    
+
     methods: {
-        // API로부터 펀드 데이터를 가져오는 메소드
         async fetchFunds() {
             try {
-                const response = await fetch('http://localhost:9000/finance/fund/all');  // API 호출
-                this.funds = await response.json();  // 응답 데이터를 JSON 형태로 파싱
+                const response = await fetch(`http://localhost:9000/finance/fund/pageAll?page=${this.page}&size=${this.size}`);  // API 호출 시 페이지와 크기 전달
+                const data = await response.json();  // 응답 데이터를 JSON 형태로 파싱
+                this.funds = data.funds;             // 가져온 펀드 데이터를 저장
+                this.totalPages = data.totalPages;   // 전체 페이지 수 업데이트
             } catch (error) {
                 console.error('펀드 데이터를 가져오는 중 오류가 발생했습니다:', error);
             }
         },
-        // 날짜 포맷팅 메소드 (YYYY-MM-DD 형식)
-        formatDate(date) {
-            const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-            return new Date(date).toLocaleDateString('ko-KR', options);
+        fundItemClick(prdNo) {
+            this.$router.push('/itemDetail/fund/' + prdNo);
+            console.log(prdNo);
         },
-        fundItemClick(){
-            this.$router.push('/itemDetail/fund/'+this.prdNo)
-            console.log(this.prdNo);
+        previousPage() {
+            if (this.page > 1) {
+                this.page--;
+                this.fetchFunds();
+            }
+        },
+        nextPage() {
+            if (this.page < this.totalPages) {
+                this.page++;
+                this.fetchFunds();
+            }
         }
     },
+
+    mounted() {
+        this.fetchFunds();  // 컴포넌트가 마운트되면 펀드 데이터를 가져옴
+    }
 };
 </script>
 
-<style>
-body {
-    font-family: Arial, sans-serif;
-}
-
-h1 {
-    text-align: center;
-    margin-top: 20px;
-}
-
+<style scoped>
 .fund-item {
     border: 1px solid #ddd;
     padding: 20px;
-    margin: 10px auto;
+    margin: 20px auto;
     background-color: #f9f9f9;
     border-radius: 8px;
     max-width: 600px;
+    width: 90%;
 }
 
-.fund-item h2 {
-    margin: 0;
-    font-size: 1.5em;
-    color: #333;
+.fund-item h4 {
+    font-size: 1.2em;
+    margin-bottom: 15px;
 }
 
 .fund-item p {
-    margin: 5px 0;
-    color: #666;
+    margin-bottom: 10px;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.button-group button {
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.button-group .compare-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.button-group .calculate-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.pagination {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 100px;
+}
+
+.pagination button {
+    margin: 0 5px;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.pagination button:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    margin: 0 10px;
+    font-weight: bold;
 }
 </style>
