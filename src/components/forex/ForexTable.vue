@@ -1,6 +1,6 @@
 <template>
   <div class="exchange-rate-container">
-    <h2 class="main-currencies">주요 통화</h2>
+    <!-- <h2 class="main-currencies">주요 통화</h2> -->
     <div class="highlighted-currencies">
       <div class="currency-list">
         <div
@@ -8,16 +8,20 @@
           :key="currency.curUnit"
           class="currency-item"
         >
-          <h3>{{ currency.curNm }} ({{ currency.curUnit }})</h3>
-          <p>매도율: <strong>{{ formatCurrency(currency.ttb) }}</strong></p>
-          <p>매입율: <strong>{{ formatCurrency(currency.tts) }}</strong></p>
-          <p>기준율: <strong>{{ formatCurrency(currency.dealBasR) }}</strong></p>
-          <p>10일환가료율: <strong>{{ currency.tenDdEfeeR }}%</strong></p>
+          <div class="flag-container">
+            <img :src="getFlagUrl(currency.curUnit)" alt="국기" class="flag-icon" />
+          </div>
+          <div class="currency-info">
+            <h3>{{ currency.curNm }} ({{ currency.curUnit }})</h3>
+            <p>매도율: <strong>{{ formatCurrency(currency.ttb) }}</strong></p>
+            <p>매입율: <strong>{{ formatCurrency(currency.tts) }}</strong></p>
+            <p>기준율: <strong>{{ formatCurrency(currency.dealBasR) }}</strong></p>
+          </div>
         </div>
       </div>
     </div>
 
-    <h1 class="title">환율 데이터</h1>
+    <!-- <h1 class="title">환율 데이터</h1> -->
     <table class="exchange-rate-table">
       <thead>
         <tr>
@@ -26,7 +30,6 @@
           <th>매도율 (TTB)</th>
           <th>매입율 (TTS)</th>
           <th>기준율 (Deal Bas Rate)</th>
-          <th>10일환가료율</th>
         </tr>
       </thead>
       <tbody>
@@ -37,7 +40,6 @@
             <td>{{ formatCurrency(rate.ttb) }}</td>
             <td>{{ formatCurrency(rate.tts) }}</td>
             <td>{{ formatCurrency(rate.dealBasR) }}</td>
-            <td>{{ rate.tenDdEfeeR }}%</td>
           </tr>
         </template>
       </tbody>
@@ -52,44 +54,45 @@ export default {
   data() {
     return {
       exchangeRates: [],
-      mainCurrencies: [], // 주요 통화 리스트
+      mainCurrencies: [],
     };
   },
   mounted() {
     this.fetchExchangeRates();
   },
   computed: {
-    // 주요 통화 (USD, EUR, JPY)
     sortedExchangeRates() {
-      const majorCurrencies = ['USD', 'EUR', 'JPY'];
+      const majorCurrencies = ['USD', 'EUR', 'JPY(100)'];
       const majorRates = this.exchangeRates.filter(rate => majorCurrencies.includes(rate.curUnit));
       const otherRates = this.exchangeRates.filter(rate => !majorCurrencies.includes(rate.curUnit));
 
-      return [...majorRates, ...otherRates]; // 주요 통화를 먼저, 나머지를 그 다음에
+      return [...majorRates, ...otherRates];
     }
   },
   methods: {
     async fetchExchangeRates() {
       try {
-        // 오늘 날짜를 가져오고 하루 전 날짜를 계산
         const today = new Date();
         today.setDate(today.getDate());
-
-        // 날짜를 'yyyyMMdd' 형식으로 변환
         const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0'); // 0부터 시작하므로 +1
+        const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
         const formattedDate = `${year}${month}${day}`;
 
-        // API 호출
         const response = await axios.get(`http://localhost:9000/forex/date/${formattedDate}`);
         this.exchangeRates = response.data;
-
-        // 주요 통화 데이터를 설정
         this.mainCurrencies = response.data.filter(rate => ['USD', 'EUR', 'JPY(100)'].includes(rate.curUnit));
       } catch (error) {
         console.error('환율 데이터를 가져오는 중 오류 발생:', error);
       }
+    },
+    getFlagUrl(curUnit) {
+      const flags = {
+        'USD': 'https://flagcdn.com/us.svg',
+        'EUR': 'https://flagcdn.com/eu.svg',
+        'JPY(100)': 'https://flagcdn.com/jp.svg',
+      };
+      return flags[curUnit] || '';
     },
     formatCurrency(value) {
       return new Intl.NumberFormat().format(value);
@@ -100,7 +103,7 @@ export default {
 
 <style>
 .exchange-rate-container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
   background-color: #ffffff;
@@ -116,7 +119,7 @@ export default {
 }
 
 .highlighted-currencies {
-  background-color: #f9f9f9;
+  background-color: white;
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
@@ -124,20 +127,33 @@ export default {
 }
 
 .currency-list {
-  display: flex;
-  justify-content: space-around; /* 균등하게 배치 */
+  display: flex; /* 가로로 나열 */
   flex-wrap: wrap; /* 줄 바꿈 허용 */
+  justify-content: space-between; /* 균등하게 배치 */
 }
 
 .currency-item {
-  margin: 10px;
+  margin: 10px; /* 간격 설정 */
   padding: 15px;
+  background-color: #f5df65;
   border: 1px solid #ddd;
   border-radius: 8px;
-  width: 150px; /* 고정 너비 설정 */
-  text-align: center; /* 중앙 정렬 */
-  background-color: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: calc(33% - 20px); /* 3개가 한 줄에 배치되도록 조정 */
+  display: flex; /* 플렉스 박스 사용 */
+}
+
+.flag-container {
+  margin-right: 10px; /* 국기와 텍스트 사이의 간격 */
+}
+
+.flag-icon {
+  width: 60px; /* 국기 이미지 크기 조정 */
+  height: auto;
+}
+
+.currency-info {
+  display: flex;
+  flex-direction: column; /* 정보 세로 방향으로 정렬 */
 }
 
 .title {
@@ -151,7 +167,7 @@ export default {
 .exchange-rate-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 70px;
 }
 
 .exchange-rate-table th,
@@ -181,7 +197,7 @@ export default {
   }
 
   .currency-item {
-    width: 120px; /* 모바일에서의 너비 조정 */
+    width: 100%; /* 모바일에서 전체 너비 사용 */
   }
 }
 </style>
