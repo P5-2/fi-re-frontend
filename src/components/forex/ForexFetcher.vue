@@ -21,7 +21,7 @@ export default {
             try {
                 // 오늘 날짜를 가져오고 하루 전 날짜를 계산
                 const today = new Date();
-                today.setDate(today.getDate() - 1);
+                today.setDate(today.getDate());
 
                 // 날짜를 'yyyyMMdd' 형식으로 변환
                 const year = today.getFullYear();
