@@ -1,81 +1,81 @@
 <template>
-  <div class="savings-list">
-    <h1>예적금 상품 리스트</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>상품명</th>
-          <th>은행</th>
-          <th>유형</th>
-          <th>최소이율</th>
-          <th>최대이율</th>
-          <th>가입기간</th>
-          <th>상세보기</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="product in savingsProducts" :key="product.prdNo">
-          <td>{{ product.pname }}</td>
-          <td>
-            <img
-              :src="getBankLogo(product.bname)"
-              :alt="product.bname"
-              width="30"
-              height="30"
-            />
-            {{ product.bname }}
-          </td>
-          <td>{{ product.type }}</td>
-          <td>{{ product.minRate }}%</td>
-          <td>{{ product.maxRate }}%</td>
-          <td>{{ product.subPeriod }}개월</td>
-          <td>
-            <router-link
-              :to="{
-                name: 'SavingsItemDetail',
-                params: { prdNo: product.prdNo },
-              }"
-            >
-              상세보기
-            </router-link>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <div
+    class="savings-item"
+    @click="viewDetails"
+    style="
+      width: 1176px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+    "
+  >
+    <h2>{{ pname }}</h2>
+    <p>은행: {{ bname }}</p>
+    <p>금리: {{ minRate }}% ~ {{ maxRate }}%</p>
+    <p>가입기간: {{ subPeriod }}개월</p>
+    <p>설명: {{ description }}</p>
+    <!-- click.stop을 이용해 버튼 클릭 시 이벤트가 상위로 전파되지 않게 해서 상세페이지로 이동하지 않도록 함 -->
+    <div class="button-group" @click.stop>
+      <button @click="calculateProfit">수익 계산</button>
+      <button @click="addToCart">상품 담기</button>
+    </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import { useRouter } from "vue-router";
 
 export default {
-  name: "SavingsList",
-  data() {
-    return {
-      savingsProducts: [],
+  name: "Savings",
+  props: [
+    "prdNo",
+    "pname",
+    "bname",
+    "minRate",
+    "maxRate",
+    "subPeriod",
+    "description",
+  ],
+  setup(props) {
+    const router = useRouter();
+
+    const viewDetails = () => {
+      router.push("/itemDetail/savings/" + props.prdNo);
     };
-  },
-  created() {
-    this.fetchSavingsProducts();
-  },
-  methods: {
-    fetchSavingsProducts() {
-      axios
-        .get("http://localhost:9000/finance/savings/all")
-        .then((response) => {
-          this.savingsProducts = response.data;
-        })
-        .catch((error) => {
-          console.error("Error", error);
-        });
-    },
-    getBankLogo(bankName) {
-      return require(`@/assets/bank/${bankName}.png`);
-    },
+
+    const calculateProfit = (event) => {
+      event.stopPropagation();
+      // 수익계산 로직( 계산기 로직 불러오기?)
+      console.log("수익계산:", props.prdNo);
+    };
+
+    const addToCart = (event) => {
+      event.stopPropagation();
+      // 상품담기 로직
+      console.log("상품담기:", props.prdNo);
+    };
+
+    return {
+      viewDetails,
+      calculateProfit,
+      addToCart,
+    };
   },
 };
 </script>
 
 <style scoped>
-/* 스타일은 이전과 동일 */
+.savings-item:hover {
+  background-color: #f0f0f0;
+}
+
+.button-group {
+  margin-top: 10px;
+}
+
+button {
+  margin-right: 10px;
+}
 </style>
