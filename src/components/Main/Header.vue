@@ -26,13 +26,18 @@
           </li>
         </ul>
       </div>
+          
 
       <div class="member-wrapper text-end">
         <div class="login-wrapper">
-          <div><!-- 김곰돌 님 환영합니다 --></div>
-          <!-- <a href="/login">로그인</a> -->
-          <button @click="openModal" class="login-btn">로그인</button>
-        </div>
+          <div v-if="userStore.isLoggedIn">
+            <b>{{ userStore.userName }}</b> 님<br />
+            <p @click="logout">로그아웃</p>
+          </div>
+
+          <div v-else>
+            <button @click="openModal" class="login-btn">로그인</button>
+          </div>
         <img
           class="member-img"
           src="@/assets/header/unknown.png"

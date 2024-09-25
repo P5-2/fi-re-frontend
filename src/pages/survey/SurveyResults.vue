@@ -4,26 +4,27 @@
     <div class="result-summary">
       <p class="investment-style">
         님의 투자 성향은
-        <span :style="{ color: investmentStyleColor }"
-          ><strong>{{ investmentStyle }}</strong></span
-        >
+        <span :style="{ color: investmentStyleColor }">
+          <strong>{{ investmentStyle }}</strong>
+        </span>
         입니다.
-      </p>
-      <p>
-        총 점수: <strong>{{ totalScore }}</strong>
       </p>
     </div>
     <table class="score-table">
       <thead>
         <tr>
-          <th>점수대</th>
           <th>투자 성향</th>
+          <th>추천 상품</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(style, index) in investmentStyles" :key="index">
-          <td>{{ style.range }}</td>
+        <tr
+          v-for="(style, index) in investmentStyles"
+          :key="index"
+          :class="{ highlight: investmentStyle === style.type }"
+        >
           <td :style="{ backgroundColor: style.color }">{{ style.type }}</td>
+          <td>{{ style.recommendations }}</td>
         </tr>
       </tbody>
     </table>
@@ -35,6 +36,7 @@
 
 <script>
 import { computed } from 'vue';
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useSurveyStore } from '../../stores/surveyStore';
 
@@ -55,35 +57,57 @@ export default {
   },
   setup(props) {
     const router = useRouter();
-    const surveyStore = useSurveyStore(); // 스토어 초기화
+    const surveyStore = useSurveyStore();
+    onMounted(async () => {
+      // 설문 결과를 제출합니다.
+      await surveyStore.submitSurvey();
+
+      // 결과 페이지로 이동하는 추가 로직을 여기에 추가할 수 있습니다.
+    });
 
     const investmentStyles = [
-      { range: '0 - 20', type: '매우 보수적', color: '#ffcccc' }, // 연한 빨강
-      { range: '21 - 40', type: '보수적', color: '#ffe5b4' }, // 연한 오렌지
-      { range: '41 - 60', type: '중립적', color: '#ffffcc' }, // 연한 노랑
-      { range: '61 - 80', type: '적극적', color: '#cce5ff' }, // 연한 파랑
-      { range: '81 - 100', type: '매우 적극적', color: '#c2f0c2' }, // 연한 초록
+      {
+        type: '매우 보수적',
+        color: '#b3e6b3',
+        recommendations: '안전한 적금, 국채',
+      },
+      {
+        type: '보수적',
+        color: '#66b3ff',
+        recommendations: '채권형 펀드, 안정형 상품',
+      },
+      { type: '중립적', color: '#ffd700', recommendations: '혼합형 펀드, ETF' },
+      {
+        type: '적극적',
+        color: '#ffcc33',
+        recommendations: '주식형 펀드, 해외 주식',
+      },
+      {
+        type: '매우 적극적',
+        color: '#ff6666',
+        recommendations: '암호화폐, 레버리지 투자',
+      },
     ];
 
     const investmentStyle = computed(() => {
-      if (props.totalScore <= 20) return '매우 보수적';
-      if (props.totalScore <= 40) return '보수적';
-      if (props.totalScore <= 60) return '중립적';
-      if (props.totalScore <= 80) return '적극적';
+      if (props.totalScore <= 11) return '매우 보수적';
+      if (props.totalScore <= 16) return '보수적';
+      if (props.totalScore <= 21) return '중립적';
+      if (props.totalScore <= 26) return '적극적';
       return '매우 적극적';
     });
 
     const investmentStyleColor = computed(() => {
-      if (props.totalScore <= 20) return '#ff3333'; // 빨강
-      if (props.totalScore <= 40) return '#ff9900'; // 오렌지
-      if (props.totalScore <= 60) return '#ffcc00'; // 노랑
-      if (props.totalScore <= 80) return '#3399ff'; // 파랑
-      return '#33cc33'; // 초록
+      if (props.totalScore <= 11) return '#66cc66';
+      if (props.totalScore <= 16) return '#66b3ff';
+      if (props.totalScore <= 21) return '#ffd700';
+      if (props.totalScore <= 26) return '#ffcc33';
+      return '#ff6666';
     });
 
     const restartSurvey = () => {
       surveyStore.resetSurvey();
-      router.push({ name: 'StartSurvey' }); // 시작 페이지로 이동
+      router.push({ name: 'StartSurvey' });
     };
 
     return {
@@ -104,8 +128,8 @@ export default {
   background-color: #f9f9f9;
   margin: 20px 0;
   text-align: center;
-  max-width: 600px; /* 최대 너비 설정 */
-  margin: 0 auto; /* 중앙 정렬 */
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .result-summary {
@@ -113,32 +137,40 @@ export default {
 }
 
 .investment-style {
-  font-size: 18px; /* 질문 글자 크기 조정 */
-  font-weight: bold; /* 굵게 */
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .score-table {
-  width: 40%; /* 테이블 너비를 줄임 */
+  width: 80%;
   border-collapse: collapse;
-  margin: 0 auto; /* 중앙 정렬 */
+  margin: 0 auto;
   margin-bottom: 20px;
 }
 
 .score-table th,
 .score-table td {
   border: 1px solid #ccc;
-  padding: 5px; /* 패딩 조정 */
+  padding: 10px;
   text-align: center;
-  font-size: 16px; /* 글자 크기 조정 */
-  font-weight: bold; /* 굵게 */
+  font-size: 16px;
 }
 
 .score-table td {
-  font-weight: normal; /* 일반 텍스트로 설정 */
+  font-weight: normal;
 }
 
 .score-table th {
   background-color: #f0f0f0;
+}
+
+.highlight {
+  border: 2px solid #000; /* 강조를 위한 테두리 */
+  font-weight: bold; /* 하이라이트된 부분의 폰트 굵게 설정 */
+}
+
+.highlight td {
+  font-weight: bold; /* 하이라이트된 셀의 텍스트 굵게 설정 */
 }
 
 .btn {

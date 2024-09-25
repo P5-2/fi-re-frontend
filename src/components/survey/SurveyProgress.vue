@@ -28,7 +28,7 @@ export default {
   height: 20px; /* 높이 설정 */
   background-color: #e0e0e0; /* 배경색 설정 */
   border-radius: 5px; /* 모서리 둥글게 설정 */
-  overflow: hidden; /* 자식 요소가 넘치는 경우 숨김 처리 */
+  overflow: hidden;
 }
 
 .mm-progress {

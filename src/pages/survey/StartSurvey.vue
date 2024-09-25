@@ -18,7 +18,7 @@
             🔍 본 설문은 투자 성향을 분석하기 위한 것입니다.
           </li>
           <li class="list-group-item">
-            📈 설문에 소요되는 시간은 약 5분입니다.
+            📈 설문에 소요되는 시간은 약 2분입니다.
           </li>
           <li class="list-group-item">💡 모든 응답은 익명으로 처리됩니다.</li>
           <li class="list-group-item">

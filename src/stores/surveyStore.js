@@ -7,8 +7,10 @@ export const useSurveyStore = defineStore('survey', {
     total: 9, // 전체 페이지 수
     pages: [],
     results: Array(8).fill(0), // 각 페이지 점수 초기화
-    specificScores: { 3: 0, 5: 0 }, // 특정 페이지 점수 저장
+    specificScores: { 2: 0, 5: 0 }, // 특정 페이지 점수 저장
+    // 2: 기간 5: 금액
     totalScore: 0,
+    age: '',
     showResults: false,
     selectedOptions: Array(9).fill(null),
   }),
@@ -121,8 +123,8 @@ export const useSurveyStore = defineStore('survey', {
         this.selectedOptions[this.current] = index;
 
         // 특정 페이지 점수 업데이트
-        if (this.current === 2) {
-          this.specificScores[3] = selectedScore; // 3페이지 점수 저장
+        if (this.current === 1) {
+          this.specificScores[2] = selectedScore; // 3페이지 점수 저장
         } else if (this.current === 4) {
           this.specificScores[5] = selectedScore; // 5페이지 점수 저장
         }
@@ -139,13 +141,53 @@ export const useSurveyStore = defineStore('survey', {
       }
     },
     resetSurvey() {
-      this.current = 0; // 현재 페이지 초기화
-      this.results = Array(this.total).fill(0); // 결과 초기화
-      this.specificScores = { 3: 0, 5: 0 }; // 특정 점수 초기화
-      this.totalScore = 0; // 총점 초기화
-      this.showResults = false; // 결과 표시 상태 초기화
-      this.initializePages(); // 페이지 초기화
+      this.current = 0;
+      this.results = Array(this.total).fill(0);
+      this.specificScores = { 2: 0, 5: 0 };
+      this.totalScore = 0;
+      this.showResults = false;
+      this.age = ''; // 나이대 초기화
+      this.keywords = []; // 키워드 초기화
+      this.initializePages();
     },
+
+    async submitSurvey() {
+      try {
+        // 나이대 및 키워드 설정
+        const ageOption = this.selectedOptions[0]; // 첫 번째 질문의 선택된 옵션으로 나이대 결정
+        if (ageOption !== null) {
+          this.age = this.pages[0].options[ageOption].text; // 나이대 설정
+        }
+
+        // 키워드 설정 (예: 특정 점수에 따라)
+        const riskScore = this.specificScores[2]; // 2번 페이지 점수
+        const amountScore = this.specificScores[5]; // 5번 페이지 점수
+
+        if (riskScore >= 3) {
+          this.keywords.push('장기'); // 3점 이상이면 '장기'
+        } else {
+          this.keywords.push('단기'); //
+        }
+
+        if (amountScore >= 3) {
+          this.keywords.push('고액'); //3점 이상이면 '고액' 추가
+        } else {
+          this.keywords.push('소액'); // 그렇지 않으면 '소액' 추가
+        }
+
+        // POST 요청
+        await axios.post('http://localhost:9000/survey/result', {
+          totalScore: this.totalScore,
+          age: this.age,
+          keywords: this.keywords,
+        });
+
+        console.log('결과가 성공적으로 제출되었습니다.');
+      } catch (error) {
+        console.error('결과 제출에 실패했습니다:', error);
+      }
+    },
+
     nextPage() {
       if (this.current < this.total - 1) {
         this.current++;
@@ -156,18 +198,6 @@ export const useSurveyStore = defineStore('survey', {
     prevPage() {
       if (this.current > 0) {
         this.current--;
-      }
-    },
-    async submitSurvey() {
-      try {
-        await axios.post('/api/survey/submit', {
-          results: this.results,
-          specificScores: this.specificScores,
-          totalScore: this.totalScore,
-        });
-        console.log('결과가 성공적으로 제출되었습니다.');
-      } catch (error) {
-        console.error('결과 제출에 실패했습니다:', error);
       }
     },
   },
