@@ -40,12 +40,23 @@
     </div>
     <!-- 퀴즈 모달 창 -->
     <div v-if="isQuizOpen" class="modal-overlay" @click="closeQuiz">
-        <div class="modal-content">
-            <div class="quizTitle">
-                {{fnceDictNm}}
+        <div class="modal-content" @click.stop>
+            <div id="quizTitle">
+                <h2>오늘의 퀴즈</h2>
+                <hr>
             </div>
             <div class="quizContent">
                 {{ksdFnceDictDescContent}}
+            </div>
+            <div id="quizInput" class="form-group">
+                <input type="text" class="form-control" placeholder="위에서 설명하는 단어를 입력해주세요" v-model="answer">
+                <div id="btnWrapper">
+                    <button id="submit" class="btn btn-primary" @click="submitAnswer">제출</button>
+                    <button class="btn btn-secondary" @click="getAnswer">정답보기</button>
+                </div>
+            </div>
+            <div class="quizTitle">
+                정답 : <label id="answer">{{fnceDictNm}}</label>
             </div>
         </div>
     </div>
@@ -59,22 +70,17 @@ export default {
         return {
             isQuizOpen : false,
             fnceDictNm : "금융용어",
-            ksdFnceDictDescContent : "용어설명"
+            ksdFnceDictDescContent : "용어설명",
+            answer : ""
         }
     },
     methods : {
         openQuiz : async function(){
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = (today.getMonth() + 1).toString().padStart(2, '0');
-            const day = today.getDate().toString().padStart(2, '0');
-
-            const date = `${year}-${month}-${day}`;
+            const date = this.getDate();
             console.log(date);
             let res = await axios.get("http://localhost:9000/financeWord/get", {params : {date : date}});
 
             let data = res.data;
-
             this.fnceDictNm = data.fnceDictNm;
             this.ksdFnceDictDescContent = data.ksdFnceDictDescContent;
 
@@ -82,6 +88,42 @@ export default {
         },
         closeQuiz : function(){
             this.isQuizOpen = false;
+        },
+        getDate : function(){
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
+
+            const date = `${year}-${month}-${day}`;
+
+            return date;
+        },
+        getAnswer : function(){
+            if(confirm("정답을 보시겠습니까?")){
+                this.answerProcess();
+            }
+        },
+        answerProcess : function(){
+            let $answer = document.getElementById("answer");
+            $answer.style.display = "inline";
+
+            let $quizInput = document.getElementById("quizInput");
+            $quizInput.style.pointerEvents = "none";
+        },
+        submitAnswer : function(){
+            let myData = this.fnceDictNm + "(더미)";
+            console.log(myData);
+            if(myData.includes("(")){ //괄호가 있으면 괄호 뺴고 추출하기
+                myData = myData.substring(0, myData.indexOf("("));
+                console.log(myData);
+            }
+            if(myData === this.answer){
+                alert("정답입니다");
+                this.answerProcess();
+            }else{
+                alert("오답입니다")
+            }
         }
     }
 }
@@ -133,12 +175,22 @@ export default {
         padding: 20px;
         border-radius: 8px;
         position: relative;
-        width: 500px;
+        width: 700px;
         /* 가로 길이 조정 */
-        min-height: 400px;
+        min-height: 600px;
         /* 세로 길이 조정 */
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+    }
+    #quizTitle{
+        text-align: center;
+    }
+    .quizContent, #quizInput, #btnWrapper{
+        margin : 10px 0px 10px 0px;
+    }
+    #submit{
+        margin-right: 30px;
+    }
+    #answer{
+        font-weight: bold;
+        display: none;
     }
 </style>
