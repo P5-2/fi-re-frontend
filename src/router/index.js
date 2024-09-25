@@ -4,9 +4,9 @@ import login from '@/router/login/login.js';
 import HotItemList from '@/router/hotItem/hotItemList.js';
 import itemDetail from './itemDetail/itemDetail.js';
 import GoldPrice from '@/router/gold/gold.js';
+import fund from '@/router/list/fund.js';
 import Survey from './survey/survey.js';
 import Forex from '@/router/forex/forex.js';
-
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -14,6 +14,7 @@ const router = createRouter({
     ...HotItemList,
     ...itemDetail,
     ...GoldPrice,
+    ...fund,
     ...Survey,
     ...Forex,
   ],

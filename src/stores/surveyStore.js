@@ -4,15 +4,16 @@ import axios from 'axios';
 export const useSurveyStore = defineStore('survey', {
   state: () => ({
     current: 0,
-    total: 9, // 전체 페이지 수
+    total: 10, // 전체 페이지 수
     pages: [],
-    results: Array(8).fill(0), // 각 페이지 점수 초기화
-    specificScores: { 2: 0, 5: 0 }, // 특정 페이지 점수 저장
+    keywords: [],
+    results: Array(9).fill(0), // 각 페이지 점수 초기화
+    specificScores: { 3: 0, 6: 0 }, // 특정 페이지 점수 저장
     // 2: 기간 5: 금액
     totalScore: 0,
     age: '',
     showResults: false,
-    selectedOptions: Array(9).fill(null),
+    selectedOptions: Array(10).fill(null),
   }),
   actions: {
     async initializePages() {
@@ -22,11 +23,22 @@ export const useSurveyStore = defineStore('survey', {
         {
           question: '당신의 연령은 어떻게 됩니까?',
           options: [
-            { text: '19세 이하', score: 1 },
-            { text: '20세 ~ 40세', score: 2 },
-            { text: '41세 ~ 50세', score: 3 },
-            { text: '51세 ~ 60세', score: 4 },
-            { text: '60세 이상', score: 5 },
+            { text: '10대', score: 1 },
+            { text: '20대', score: 1 },
+            { text: '30대', score: 2 },
+            { text: '40대', score: 3 },
+            { text: '50대', score: 4 },
+            { text: '60대 이상', score: 5 },
+          ],
+        },
+        {
+          question: '당신의 자산은 어느 정도입니까?',
+          options: [
+            { text: '1000만 원 이하', score: 1 },
+            { text: '1000만 원 ~ 5000만 원', score: 2 },
+            { text: '5000만 원 ~ 1억 원', score: 3 },
+            { text: '1억 원 ~ 3억 원', score: 4 },
+            { text: '3억 원 이상', score: 5 },
           ],
         },
         {
@@ -116,6 +128,7 @@ export const useSurveyStore = defineStore('survey', {
         },
       ];
     },
+
     selectOption(index) {
       try {
         const selectedScore = this.pages[this.current].options[index].score;
@@ -123,10 +136,10 @@ export const useSurveyStore = defineStore('survey', {
         this.selectedOptions[this.current] = index;
 
         // 특정 페이지 점수 업데이트
-        if (this.current === 1) {
-          this.specificScores[2] = selectedScore; // 3페이지 점수 저장
-        } else if (this.current === 4) {
-          this.specificScores[5] = selectedScore; // 5페이지 점수 저장
+        if (this.current === 2) {
+          this.specificScores[3] = selectedScore; // 3페이지 점수 저장
+        } else if (this.current === 5) {
+          this.specificScores[6] = selectedScore; // 5페이지 점수 저장
         }
 
         // 총점 계산
@@ -143,9 +156,10 @@ export const useSurveyStore = defineStore('survey', {
     resetSurvey() {
       this.current = 0;
       this.results = Array(this.total).fill(0);
-      this.specificScores = { 2: 0, 5: 0 };
+      this.specificScores = { 3: 0, 6: 0 };
       this.totalScore = 0;
       this.showResults = false;
+      this.assets = 0;
       this.age = ''; // 나이대 초기화
       this.keywords = []; // 키워드 초기화
       this.initializePages();
@@ -155,11 +169,45 @@ export const useSurveyStore = defineStore('survey', {
       try {
         // 나이대 및 키워드 설정
         const ageOption = this.selectedOptions[0]; // 첫 번째 질문의 선택된 옵션으로 나이대 결정
+
+        this.assets = 0;
         if (ageOption !== null) {
-          this.age = this.pages[0].options[ageOption].text; // 나이대 설정
+          const selectedAge = this.pages[0].options[ageOption].score;
+
+          // 나이대 문자열 변환
+          if (selectedAge === 1) {
+            this.age = '10'; // 10대
+          } else if (selectedAge === 2) {
+            this.age = '20'; // 20대
+          } else if (selectedAge === 3) {
+            this.age = '30'; // 30대
+          } else if (selectedAge === 4) {
+            this.age = '40'; // 40대
+          } else if (selectedAge === 5) {
+            this.age = '60~'; // 60대 이상
+          }
         }
 
-        // 키워드 설정 (예: 특정 점수에 따라)
+        // 자산 설정
+        const assetOption = this.selectedOptions[1];
+        if (assetOption !== null) {
+          const selectedAsset = this.pages[1].options[assetOption].score;
+
+          // 자산 문자열 변환
+          if (selectedAsset === 1) {
+            this.assets = 1000;
+          } else if (selectedAsset === 2) {
+            this.assets = 5000;
+          } else if (selectedAsset === 3) {
+            this.assets = 10000;
+          } else if (selectedAsset === 4) {
+            this.assets = 30000;
+          } else if (selectedAsset === 5) {
+            this.assets = 50000;
+          }
+        }
+
+        // 키워드 설정
         const riskScore = this.specificScores[2]; // 2번 페이지 점수
         const amountScore = this.specificScores[5]; // 5번 페이지 점수
 
@@ -175,13 +223,21 @@ export const useSurveyStore = defineStore('survey', {
           this.keywords.push('소액'); // 그렇지 않으면 '소액' 추가
         }
 
-        // POST 요청
-        await axios.post('http://localhost:9000/survey/result', {
+        const postData = {
           totalScore: this.totalScore,
           age: this.age,
+          assets: this.assets,
           keywords: this.keywords,
-        });
+        };
 
+        const tokenData = JSON.parse(sessionStorage.getItem('token'));
+        const accessToken = tokenData.accessToken;
+
+        await axios.post('http://localhost:9000/survey/result', postData, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, // Authorization 헤더에 accessToken 포함
+          },
+        });
         console.log('결과가 성공적으로 제출되었습니다.');
       } catch (error) {
         console.error('결과 제출에 실패했습니다:', error);
