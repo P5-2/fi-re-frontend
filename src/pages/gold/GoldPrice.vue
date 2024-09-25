@@ -127,7 +127,7 @@ export default {
         });
         this.goldData = response.data;
 
-        // 최신 날짜 업데이트
+        //최신 날짜 업데이트
         if (this.goldData.length) {
           this.pointDate = this.goldData[0].basDt; // 최신 날짜
           this.pointPrice = this.goldData[0].clpr; // 최신 가격
