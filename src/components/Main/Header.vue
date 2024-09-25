@@ -9,9 +9,9 @@
         </router-link>
         <ul class="nav col-md-autojustify-content-center">
           <li>
-            <a href="/savings" class="nav-item nav-link px-2 link-dark"
-              >예적금</a
-            >
+            <router-link to="/savings" class="nav-item nav-link px-2 link-dark">
+              예적금
+            </router-link>
           </li>
           <li>
             <a href="/fund" class="nav-item nav-link px-2 link-dark">펀드</a>
@@ -48,6 +48,7 @@
       </div>
     </header>
   </div>
+
   <!-- 로그인 모달창 -->
   <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
     <div class="modal-content" @click.stop>
@@ -57,18 +58,17 @@
   </div>
 </template>
 <script>
-import Login from '../login/Login.vue';
-import { useUserStore } from '@/stores/user';
-
+import Login from "../login/Login.vue";
+import { useUserStore } from "@/stores/user";
 
 export default {
   name: "Header",
   components: {
-    Login
+    Login,
   },
   data() {
     return {
-      isModalOpen: false
+      isModalOpen: false,
     };
   },
 
@@ -76,11 +76,10 @@ export default {
     const userStore = useUserStore();
     userStore.checkLoginStatus(); // 로그인 상태 확인
     return {
-      userStore
+      userStore,
     };
   },
   methods: {
-
     openModal() {
       this.isModalOpen = true;
     },
@@ -90,12 +89,11 @@ export default {
     logout() {
       this.userStore.logout();
       alert("로그아웃 되었습니다.");
-      this.$router.push('/'); // main 페이지로 이동
-    }
-  }
-}
+      this.$router.push("/"); // main 페이지로 이동
+    },
+  },
+};
 </script>
-
 
 <style scoped>
 .header {
