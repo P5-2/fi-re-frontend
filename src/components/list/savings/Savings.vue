@@ -20,7 +20,7 @@
         수익 계산
       </button>
       <button @click.stop="addToCart" class="action-btn cart-btn">
-        상품 담기
+        상품 비교
       </button>
     </div>
   </div>
