@@ -55,22 +55,18 @@ export default {
   },
   methods: {
     ...mapActions(calculatorStore, ["addSavings"]),
-    calcBtn() {
-      const savingsProduct = {
+    calculateProfit() {
+      const savingsData = {
         prdNo: this.prdNo,
         pname: this.pname,
         bname: this.bname,
-        type: this.type,
         minRate: this.minRate,
         maxRate: this.maxRate,
         subPeriod: this.subPeriod,
         description: this.description,
-        target: this.target,
-        subAmount: this.subAmount,
-        benefit: this.benefit,
-        amount: 0,
+        amount: 0, // 초기 금액을 0으로 설정
       };
-      this.addSavings(savingsProduct);
+      this.addSavings(savingsData);
       alert("상품을 계산기에 추가했습니다");
     },
   },
