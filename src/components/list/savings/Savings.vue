@@ -27,7 +27,9 @@
 </template>
 
 <script>
+import { calculatorStore } from "@/stores/calculator";
 import { useRouter } from "vue-router";
+import { mapActions } from "pinia";
 
 export default {
   name: "Savings",
@@ -47,23 +49,30 @@ export default {
       router.push("/itemDetail/savings/" + props.prdNo);
     };
 
-    const calculateProfit = (event) => {
-      event.stopPropagation();
-      // 수익계산 로직( 계산기 로직 불러오기?)
-      console.log("수익계산:", props.prdNo);
-    };
-
-    const addToCart = (event) => {
-      event.stopPropagation();
-      // 상품담기 로직
-      console.log("상품담기:", props.prdNo);
-    };
-
     return {
       viewDetails,
-      calculateProfit,
-      addToCart,
     };
+  },
+  methods: {
+    ...mapActions(calculatorStore, ["addSavings"]),
+    calcBtn() {
+      const savingsProduct = {
+        prdNo: this.prdNo,
+        pname: this.pname,
+        bname: this.bname,
+        type: this.type,
+        minRate: this.minRate,
+        maxRate: this.maxRate,
+        subPeriod: this.subPeriod,
+        description: this.description,
+        target: this.target,
+        subAmount: this.subAmount,
+        benefit: this.benefit,
+        amount: 0,
+      };
+      this.addSavings(savingsProduct);
+      alert("상품을 계산기에 추가했습니다");
+    },
   },
 };
 </script>
