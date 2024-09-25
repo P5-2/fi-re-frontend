@@ -1,33 +1,42 @@
 <template>
-    <div class="fund-item">
-        <table class="fund-table">
-            <tr>
-                <td colspan="3" class="fund-name" @click.native="fundItemClick(fund.prdNo)">{{ fund.pname }} ({{ fund.region }})</td>
-                <td rowspan="2" class="button-section">
-                    <button class="btn btn-secondary">상품비교</button>
-                    <button class="btn btn-success"  @click="calcBtn">수익계산</button>
-                </td>
-                
-            </tr>
-            <tr>
-                <td><b>유형 :</b> {{ fund.type }}</td>
-                <td><b>기준가 :</b> {{ fund.nav }}</td>
-            </tr>
-            <tr>
-                <td colspan="2" class="label">수익률(3개월 기준)</td>
-                
-            </tr>
-            <tr>
-                <td class="value"><h1><b>{{ fund.rate }}%</b></h1></td> <td></td><td></td>
-                <td rowspan="2" class="grade-section">
-                    <div id="gradeIcon" :style="{ backgroundColor: gradeColor }">{{ gradeIconText }}</div>
-                    <div id="gradeText" :style="{ color: gradeColor }">{{ gradeText }}</div>
-                </td>
-                
-            </tr>
-        </table>
+    <div class="fund-card" @click="fundItemClick(fund.prdNo)">
+        <div class="fund-content">
+            <!-- 펀드 제목 섹션 -->
+            <h2 class="fund-title"><b>{{ fund.pname }}({{ fund.region }})</b></h2>
+
+            <!-- 왼쪽 정보 섹션 -->
+            <div class="fund-main-info">
+                <div class="fund-details">
+                    <p><b>유형:</b> {{ fund.type }}</p>
+                    <p><b>기준가:</b> {{ fund.nav }}</p>
+                </div>
+            </div>
+
+            <!-- 가운데 수익률 섹션 -->
+            <div class="fund-rate-section">
+                <p class="fund-rate-label">수익률(3개월 기준)</p>
+                <div class="fund-rate">
+                    <h1><b>{{ fund.rate }}%</b></h1>
+                </div>
+            </div>
+
+            <!-- 위험도 섹션 -->
+            <div class="grade-section">
+                <div class="grade-icon" :style="{ backgroundColor: gradeColor }">{{ gradeIconText }}</div>
+                <div class="grade-text" :style="{ color: gradeColor }">{{ gradeText }}</div>
+            </div>
+
+            <!-- 오른쪽 버튼 섹션 -->
+            <div class="fund-actions">
+                <div class="button-group">
+                    <button @click.stop="compareProduct" class="action-btn compare-btn">상품 비교</button>
+                    <button @click.stop="calcBtn" class="action-btn calc-btn">수익 계산</button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
+
 
 <script>
 import { calculatorStore } from '@/stores/calculator';
@@ -52,12 +61,8 @@ export default {
         }
     },
     methods: {
-        formatDate(date) {
-            const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-            return new Date(date).toLocaleDateString('ko-KR', options);
-        },
         getGradeText(grade) {
-            switch(grade) {
+            switch (grade) {
                 case 6: return '매우낮은위험';
                 case 5: return '낮은위험';
                 case 4: return '보통위험';
@@ -68,7 +73,7 @@ export default {
             }
         },
         getGradeColor(grade) {
-            switch(grade) {
+            switch (grade) {
                 case 6: return '#146138';
                 case 5: return '#1D9A58';
                 case 4: return '#FBBF0A';
@@ -80,123 +85,170 @@ export default {
         },
         fundItemClick(prdNo) {
             this.$router.push('/itemDetail/fund/' + prdNo);
-            console.log(prdNo);
+        },
+        compareProduct(event) {
+            event.stopPropagation();
+            console.log('상품비교:', this.fund.prdNo);
         },
         ...mapActions(calculatorStore, ['addFund']),
-        calcBtn : function(){
+        calcBtn(event) {
+            event.stopPropagation();
             this.fund.amount = 0;
             this.addFund(this.fund);
-            alert("상품을 계산기에 추가했습니다");
+            alert('상품을 계산기에 추가했습니다');
         }
     }
 };
 </script>
 
 <style scoped>
-.fund-item {
-    border: 1px solid #ddd;
-    padding: 20px;
-    margin: 10px auto;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    max-width: 600px;
+
+.fund-card {
+display: flex;
+justify-content: space-between;
+align-items: center;
+width: 65%;
+padding: 20px;
+margin: 20px auto; /* 가운데 정렬을 위해 auto 사용 */
+border: 1px solid #ddd;
+border-radius: 8px;
+background-color: #fff;
+cursor: pointer;
+transition: box-shadow 0.3s ease;
 }
 
-.fund-table {
-    width: 100%;
-    font-size: 1rem;
-    table-layout: fixed; /* 테이블의 고정 레이아웃 */
+.fund-card:hover {
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* 호버 시 그림자 효과 */
 }
 
-.fund-table td {
-    padding: 8px; /* 셀 간의 간격을 적절히 조정 */
-    vertical-align: middle;
+.fund-content {
+flex-grow: 1;
+display: flex;
+gap: 20px;
 }
 
-.label {
-    text-align: left;
-    font-weight: bold;
+.fund-title {
+width: 100%;
+font-size: 20px;
+color: #333;
+margin-bottom: 10px;
 }
 
-.value {
-    text-align: center;
+.fund-main-info {
+flex: 1;
+min-width: 150px;
 }
 
-.fund-name {
-    font-weight: bold;
-    font-size: 1.2rem;
-    text-align: left;
-    padding-bottom: 10px;
-    cursor: pointer;
-    transition: text-decoration 0.3s; /* 밑줄 전환 애니메이션 */
+.fund-details p {
+margin: 5px 0;
 }
 
-.fund-name:hover {
-    text-decoration: underline; /* 마우스 오버 시 밑줄 표시 */
+.fund-rate-section {
+flex: 1;
+min-width: 150px;
+text-align: center;
+}
+
+.fund-rate-label {
+font-weight: bold;
+margin-bottom: 5px;
+}
+
+.fund-rate {
+font-size: 24px;
+color: #0080ff;
 }
 
 .grade-section {
-    text-align: center;
-    vertical-align: middle;
-    width: 80px;
+flex: 1;
+min-width: 150px;
+text-align: center;
+display: flex;
+flex-direction: column;
+align-items: center;
 }
 
-#gradeIcon {
-    width: 50px;
-    height: 50px;
-    border-radius: 100%;
-    font-weight: 600;
-    text-align: center;
-    line-height: 50px;
-    font-size: 24px;
-    color: white;
-    margin: 0 auto;
+.grade-icon {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+font-weight: 600;
+text-align: center;
+line-height: 40px;
+font-size: 18px;
+color: white;
 }
 
-.button-section .btn {
-    text-align: right;
-    display: block;
-    margin: 5px 0;
-    width: 75%;
+.grade-text {
+font-weight: bold;
+margin-top: 5px;
+}
+
+.fund-actions {
+text-align: left;
+}
+
+.button-group {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+
+.action-btn {
+width: 120px;
+padding: 10px 15px;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+font-weight: bold;
+transition: background-color 0.3s ease;
+}
+
+.compare-btn {
+background-color: #f0f0f0;
+color: #333;
+}
+
+.compare-btn:hover {
+background-color: #e0e0e0;
+}
+
+.calc-btn {
+background-color: #0080ff;
+color: white;
+}
+
+.calc-btn:hover {
+background-color: #0066cc;
 }
 
 /* 각 위험 등급에 따른 색상 정의 */
 :root {
-    --grade-color: #146138;
+--grade-color: #146138;
 }
 
 [style*="background-color: #146138"] {
-    --grade-color: #146138;
+--grade-color: #146138;
 }
 
 [style*="background-color: #1D9A58"] {
-    --grade-color: #1D9A58;
+--grade-color: #1D9A58;
 }
 
 [style*="background-color: #FBBF0A"] {
-    --grade-color: #FBBF0A;
+--grade-color: #FBBF0A;
 }
 
 [style*="background-color: #F79E07"] {
-    --grade-color: #F79E07;
+--grade-color: #F79E07;
 }
 
 [style*="background-color: #EB5908"] {
-    --grade-color: #EB5908;
+--grade-color: #EB5908;
 }
 
 [style*="background-color: #DD1820"] {
-    --grade-color: #DD1820;
-}
-
-#buttons {
-    width: 80%;
-    margin: auto;
-    margin-top: 10px;
-    text-align: center;
-}
-
-.left-btn {
-    margin-right: 60px;
+--grade-color: #DD1820;
 }
 </style>

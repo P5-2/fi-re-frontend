@@ -16,6 +16,8 @@
             <span>{{ page }} / {{ totalPages }}</span>
             <button @click="nextPage" :disabled="page === totalPages">다음</button>
         </div>
+
+        
     </div>
 </template>
 
