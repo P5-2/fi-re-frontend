@@ -6,6 +6,7 @@ import itemDetail from "./itemDetail/itemDetail.js";
 import GoldPrice from "@/router/gold/gold.js";
 import Forex from "@/router/forex/forex.js";
 import SavingsList from "@/router/list/savingsList.js";
+import fund from "@/router/list/fund.js";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -14,8 +15,9 @@ const router = createRouter({
     ...HotItemList,
     ...itemDetail,
     ...GoldPrice,
-    ...SavingsList,
     ...Forex,
+    ...SavingsList,
+    ...fund,
   ],
 });
 
