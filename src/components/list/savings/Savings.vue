@@ -122,6 +122,7 @@ export default {
   font-size: 14px;
   color: #666;
   margin-top: 10px;
+  width: 660px;
 }
 
 .button-group {
