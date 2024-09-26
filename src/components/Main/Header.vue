@@ -4,20 +4,20 @@
       class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom"
     >
       <div class="d-flex align-items-center">
-        <router-link :to="{ name: 'HotItemList' }" style="margin-right: 36px">
+        <a href="/" style="margin-right: 36px">
           <img src="@/assets/header/logo.png" height="64" />
-        </router-link>
+        </a>
         <ul class="nav col-md-autojustify-content-center">
           <li>
-            <router-link to="/savings" class="nav-item nav-link px-2 link-dark">
-              예적금
-            </router-link>
+            <a href="/savings" class="nav-item nav-link px-2 link-dark"
+              >예적금</a
+            >
           </li>
           <li>
             <a href="/fund" class="nav-item nav-link px-2 link-dark">펀드</a>
           </li>
           <li>
-            <a href="/GoldPrice" class="nav-item nav-link px-2 link-dark">금</a>
+            <a href="/gold" class="nav-item nav-link px-2 link-dark">금</a>
           </li>
           <li>
             <a href="/exchange" class="nav-item nav-link px-2 link-dark"
@@ -48,32 +48,28 @@
       </div>
     </header>
   </div>
-
   <!-- 로그인 모달창 -->
   <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
-    <div class="modal-content" @click.stop>
-      <Login />
-      <button class="close-btn" @click="closeModal">닫기</button>
+      <div class="modal-content" @click.stop>
+        <Login />
+        <button class="close-btn" @click="closeModal">닫기</button>
+      </div>
     </div>
-  </div>
 </template>
+
 <script>
-<<<<<<< HEAD
 import Login from '../login/Login.vue';
 import { useUserStore } from '@/stores/user';
-=======
-import Login from "../login/Login.vue";
-import { useUserStore } from "@/stores/user";
->>>>>>> 033a2666797bf1763e4372404b2e14013ab95a83
+
 
 export default {
-  name: 'Header',
+  name: "Header",
   components: {
-    Login,
+    Login
   },
   data() {
     return {
-      isModalOpen: false,
+      isModalOpen: false
     };
   },
 
@@ -81,10 +77,11 @@ export default {
     const userStore = useUserStore();
     userStore.checkLoginStatus(); // 로그인 상태 확인
     return {
-      userStore,
+      userStore
     };
   },
   methods: {
+
     openModal() {
       this.isModalOpen = true;
     },
@@ -93,21 +90,17 @@ export default {
     },
     logout() {
       this.userStore.logout();
-<<<<<<< HEAD
-      alert('로그아웃 되었습니다.');
-      this.$router.push('/'); // main 페이지로 이동
-=======
       alert("로그아웃 되었습니다.");
-      this.$router.push("/"); // main 페이지로 이동
->>>>>>> 033a2666797bf1763e4372404b2e14013ab95a83
-    },
-  },
-};
+      this.$router.push('/'); // main 페이지로 이동
+    }
+  }
+}
 </script>
+
 
 <style scoped>
 .header {
-  background-color: #fefefe;
+  background-color: #FeFeFe;
   position: sticky;
   top: 0px;
   width: 1200px;
@@ -147,7 +140,7 @@ header {
 
 /* 로그인 버튼 */
 .login-btn {
-  background-color: #5a9;
+  background-color: #5A9;
   /* 버튼 배경색 */
   color: white;
   /* 글자 색 */
