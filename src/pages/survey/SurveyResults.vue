@@ -90,18 +90,18 @@ export default {
     ];
 
     const investmentStyle = computed(() => {
-      if (props.totalScore <= 11) return '매우 보수적';
-      if (props.totalScore <= 16) return '보수적';
-      if (props.totalScore <= 21) return '중립적';
-      if (props.totalScore <= 26) return '적극적';
+      if (props.totalScore <= 15) return '매우 보수적';
+      if (props.totalScore <= 21) return '보수적';
+      if (props.totalScore <= 27) return '중립적';
+      if (props.totalScore <= 33) return '적극적';
       return '매우 적극적';
     });
 
     const investmentStyleColor = computed(() => {
-      if (props.totalScore <= 11) return '#66cc66';
-      if (props.totalScore <= 16) return '#66b3ff';
-      if (props.totalScore <= 21) return '#ffd700';
-      if (props.totalScore <= 26) return '#ffcc33';
+      if (props.totalScore <= 15) return '#66cc66';
+      if (props.totalScore <= 21) return '#66b3ff';
+      if (props.totalScore <= 27) return '#ffd700';
+      if (props.totalScore <= 33) return '#ffcc33';
       return '#ff6666';
     });
 
