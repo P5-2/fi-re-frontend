@@ -58,9 +58,8 @@
 </template>
 
 <script>
-import Login from '../login/Login.vue';
-import { useUserStore } from '@/stores/user';
-
+import Login from "../login/Login.vue";
+import { useUserStore } from "@/stores/user";
 
 export default {
   name: "Header",
@@ -91,10 +90,10 @@ export default {
     logout() {
       this.userStore.logout();
       alert("로그아웃 되었습니다.");
-      this.$router.push('/'); // main 페이지로 이동
-    }
-  }
-}
+      this.$router.push("/"); // main 페이지로 이동
+    },
+  },
+};
 </script>
 
 
