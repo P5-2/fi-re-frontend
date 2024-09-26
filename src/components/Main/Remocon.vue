@@ -51,7 +51,7 @@
       <div class="quizContent">
         {{ ksdFnceDictDescContent }}
       </div>
-      <div id="quizInput" class="form-group">
+      <div v-if="!didQuiz" id="quizInput" class="form-group">
         <input
           type="text"
           class="form-control"
@@ -66,7 +66,7 @@
         </div>
       </div>
       <div class="quizTitle">
-        정답 : <label id="answer">{{ fnceDictNm }}</label>
+        정답 : <span v-if="didQuiz" id="answer">{{ fnceDictNm }}</span>
       </div>
     </div>
   </div>

@@ -21,7 +21,6 @@ const router = createRouter({
     ...SavingsList,
     ...fund,
     ...Survey,
-    ...Forex,
     ...RecommendationPage,
   ],
 });
