@@ -19,7 +19,7 @@
                 </a>
             </li>
             <li>
-                <a href="/">
+                <a href="/survey/start">
                     <img src="@/assets/remocon/survey.png" width="48" height="48"> <br>
                     설문조사
                 </a>

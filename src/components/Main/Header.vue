@@ -3,21 +3,21 @@
     <header
       class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom"
     >
-      <div class="d-flex align-items-center">
-        <a href="/" style="margin-right: 36px">
+    <div class="d-flex align-items-center">
+        <router-link :to="{ name: 'HotItemList' }" style="margin-right: 36px">
           <img src="@/assets/header/logo.png" height="64" />
-        </a>
+        </router-link>
         <ul class="nav col-md-autojustify-content-center">
           <li>
-            <a href="/savings" class="nav-item nav-link px-2 link-dark"
-              >예적금</a
-            >
+            <router-link to="/savings" class="nav-item nav-link px-2 link-dark">
+              예적금
+            </router-link>
           </li>
           <li>
             <a href="/fund" class="nav-item nav-link px-2 link-dark">펀드</a>
           </li>
           <li>
-            <a href="/gold" class="nav-item nav-link px-2 link-dark">금</a>
+            <a href="/GoldPrice" class="nav-item nav-link px-2 link-dark">금</a>
           </li>
           <li>
             <a href="/exchange" class="nav-item nav-link px-2 link-dark"
