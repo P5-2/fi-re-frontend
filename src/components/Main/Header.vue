@@ -7,7 +7,7 @@
         <router-link :to="{ name: 'HotItemList' }" style="margin-right: 36px">
           <img src="@/assets/header/logo.png" height="64" />
         </router-link>
-        <ul class="nav col-md-autojustify-content-center">
+        <ul class="nav col-md-auto justify-content-center">
           <li>
             <router-link to="/savings" class="nav-item nav-link px-2 link-dark">
               예적금
