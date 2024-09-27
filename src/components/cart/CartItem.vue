@@ -2,9 +2,15 @@
     <li class="cart-item">
         <div class="item-row">
             <div class="item-left">
+                <input
+                    type="checkbox"
+                    :value="item.prdNo"
+                    v-model="selectedItems"
+                />
+
                 <!-- Bank Icon Images -->
                 <div class="item-bank">
-                    <img class="bank-logo" :src="getBankLogo(item.bname, type)" alt="Logo" />
+                    <img class="bank-logo" :src="getBankLogo(item.bname, type)"  alt="Logo" />
                     <span v-if="type === 'saving'" class="bank-name">{{ item.bname }}</span>
                 </div>
 
@@ -29,15 +35,22 @@
                         <div class="grade-text" :style="{ color: gradeColor }">{{ gradeText }}</div>
                     </div>
                 </div>
-                <button @click="removeItem(item.prdNo)" class="remove-btn">삭제</button>
+                <!-- <button @click="removeItem(item.prdNo)" class="remove-btn">삭제</button> -->
             </div>
         </div>
+        
     </li>
+    
 </template>
 
 <script>
 export default {
     name: 'CartItem',
+    data() {
+        return {
+            selectedItems:[]
+        }
+    },
     props: {
         item: {
             type: Object,
@@ -62,14 +75,14 @@ export default {
     methods: {
         getBankLogo(bname, type) {
             if (type === 'fund') {
-                return '@/assets/cart/fund.png'; // 펀드 타입의 경우 기본 펀드 이미지 사용
+                return '/src/assets/cart/fund.png'; // 펀드 타입의 경우 기본 펀드 이미지 사용
             }
             switch (bname) {
-                case '국민은행': return '@/assets/cart/fund.png';
-                case '신한은행': return '@/assets/cart/fund.png';
-                case '우리은행': return '@/assets/cart/fund.png';
-                case '하나은행': return '@/assets/cart/fund.png';
-                default: return '@/assets/cart/fund.png';
+                case '국민은행': return '/src/assets/bank/국민은행.png';
+                case '신한은행': return '/src/assets/bank/신한은행.png';
+                case '우리은행': return '/src/assets/bank/우리은행.png';
+                case '하나은행': return '/src/assets/bank/하나은행.png';
+                default: return '/src/assets/cart/fund.png';
             }
         },
         getGradeText(grade) {
@@ -96,6 +109,12 @@ export default {
         },
         removeItem(prdNo) {
             this.$emit('remove-item', prdNo);
+        },
+        removeSelectedItems() {
+            // 선택된 항목을 삭제하고 부모 컴포넌트에 알림
+            this.$emit('remove-items', this.selectedItems);
+            // 삭제 후 선택된 항목 목록 초기화
+            this.selectedItems = [];
         }
     }
 }
