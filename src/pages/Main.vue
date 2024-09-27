@@ -25,6 +25,5 @@ export default {
 <style>
 #Main {
   text-align: center;
-  height: 2000px;
 }
 </style>

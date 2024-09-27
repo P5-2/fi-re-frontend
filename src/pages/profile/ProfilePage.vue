@@ -1,21 +1,23 @@
 <template>
   <div class="container mt-4">
     <div v-if="isLoading" class="loading">로딩 중...</div>
-    <div v-else class="row">
-      <div class="col-md-6">
-        <div class="profile-section p-4">
-          <UserProfile v-if="user" :user="user" />
-          <RiskChart v-if="user" :riskPoint="user.riskPoint" />
-          <FinancialGoals
-            v-if="user"
-            :goalAmount="user.goalAmount"
-            :currentAmount="user.assets"
-          />
+    <div v-else class="content-block">
+      <div class="row">
+        <div class="col-md-6 col-sm-12 mb-4">
+          <div class="profile-section p-4 card">
+            <UserProfile v-if="user" :user="user" />
+            <RiskChart v-if="user" :riskPoint="user.riskPoint" />
+            <FinancialGoals
+              v-if="user"
+              :goalAmount="user.goalAmount"
+              :currentAmount="user.assets"
+            />
+          </div>
         </div>
-      </div>
-      <div class="col-md-6">
-        <div class="news-section p-4">
-          <NewsSection v-if="news.length > 0" :news="news" />
+        <div class="col-md-6 col-sm-12 mb-4">
+          <div class="news-section p-4 card">
+            <NewsSection v-if="news.length > 0" :news="news" />
+          </div>
         </div>
       </div>
     </div>
@@ -71,7 +73,6 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      fetchData();
       userStore.checkLoginStatus(); // 로그인 상태 확인
 
       // 로그인 상태에 따라 알림 띄우기
@@ -79,6 +80,8 @@ export default defineComponent({
         alert('로그인이 필요합니다.');
         router.push('/'); // router 사용
       }
+
+      fetchData();
     });
 
     return {
@@ -91,9 +94,16 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif; /* 폰트 설정 */
+}
+
 .container {
   margin-top: 20px;
   padding: 20px; /* 패딩 추가 */
+  background-color: #ffe7a5;
 }
 
 .loading {
@@ -102,33 +112,38 @@ export default defineComponent({
   margin-top: 20px;
 }
 
+/* 전체 블록 스타일 */
+.content-block {
+  background-color: #ffffff; /* 부드러운 흰색 배경 */
+  border-radius: 15px; /* 둥근 모서리 */
+  padding: 20px; /* 내부 패딩 */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+}
+
 /* 카드 기본 스타일 */
 .card {
-  border: 1px solid #e0e0e0; /* 카드 테두리 색상 */
+  background-color: #ffffff; /* 흰색 배경 */
+  border: none; /* 테두리 제거 */
   border-radius: 10px; /* 모서리 둥글게 */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+  transition: transform 0.3s; /* 부드러운 변환 효과 */
+}
+
+.card:hover {
+  transform: translateY(-5px); /* 카드가 살짝 떠오르는 효과 */
 }
 
 /* 프로필 카드 스타일 */
 .user-profile {
-  background-color: #f8f9fa; /* 배경색 */
+  background-color: #ffffff; /* 흰색 배경 */
 }
 
 /* 뉴스 카드 스타일 */
 .news-block {
   padding: 20px;
-  background-color: #f8f9fa; /* 배경색 */
+  background-color: #ffffff; /* 흰색 배경 */
   border-radius: 10px; /* 모서리 둥글게 */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
-}
-
-/* 투자 성향 카드 스타일 */
-.risk-chart {
-  padding: 20px;
-  border: 1px solid #e0e0e0; /* 테두리 색상 */
-  border-radius: 10px; /* 모서리 둥글게 */
-  background-color: #ffffff; /* 배경색 */
-  margin: 20px 0; /* 간격 조정 */
 }
 
 /* 뉴스 제목 스타일 */

@@ -1,0 +1,204 @@
+<template>
+  <div class="recommend-container">
+    <h2 class="title">예적금 추천</h2>
+    <div class="deposit-section">
+      <div v-if="depositList && depositList.length > 0">
+        <div v-for="(deposit, index) in depositList" :key="index" class="deposit-card"
+          @click="savingsItemClick(deposit.depositEntity.prdNo)">
+          <img :src="getIcon(deposit.depositEntity.bname)" alt="Deposit Icon" class="icon" />
+          <div class="deposit-info">
+            <h3 class="deposit-name">{{ deposit.depositEntity.pname }}</h3>
+            <p class="deposit-rate">
+              기본 금리: <span class="rate">{{ deposit.depositEntity.minRate }}%</span>, 최고 <span class="rate">{{ deposit.depositEntity.maxRate }}%</span>
+            </p>
+            <p class="deposit-period">
+              기간: <span class="period">{{ deposit.depositEntity.subPeriod }}개월</span>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div v-else>
+        <div class="empty-message">
+          <p>추천할 예적금 상품이 없습니다.</p>
+          <p>더 나은 추천을 위해 간단한 설문조사를 진행해 주세요.</p>
+          <button @click="goToSurvey">설문조사 시작하기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
+
+import 국민은행Icon from '@/assets/bank/국민은행.png';
+import 우리은행Icon from '@/assets/bank/우리은행.png';
+import 신한은행Icon from '@/assets/bank/신한은행.png';
+import 하나은행Icon from '@/assets/bank/하나은행.png';
+
+export default {
+  name: "DepositRecommendations",
+  setup() {
+    const depositList = ref([]);
+    const router = useRouter();
+    const iconMap = {
+      '국민은행': 국민은행Icon,
+      '우리은행': 우리은행Icon,
+      '신한은행': 신한은행Icon,
+      '하나은행': 하나은행Icon,
+    };
+
+    const fetchDeposits = async () => {
+      const accessToken = getAccessToken();
+      const config = {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      };
+
+      try {
+        const response = await axios.get('http://localhost:9000/recommend/deposit', config);
+        depositList.value = response.data;
+      } catch (error) {
+        console.error("Error fetching deposits:", error);
+      }
+    };
+
+    const getAccessToken = () => {
+      const tokenData = JSON.parse(sessionStorage.getItem("token"));
+      return tokenData?.accessToken;
+    };
+
+    const goToSurvey = () => {
+      router.push('/survey/start');
+    };
+
+    const savingsItemClick = (prdNo) => {
+      router.push('/itemDetail/savings/' + prdNo);
+    };
+
+    const getIcon = (bname) => {
+      return iconMap[bname] || DefaultIcon; // 기본 아이콘
+    };
+
+    onMounted(() => {
+      fetchDeposits();
+    });
+
+    return {
+      depositList,
+      goToSurvey,
+      getIcon,
+      savingsItemClick,
+    };
+  }
+};
+</script>
+
+<style scoped>
+.recommend-container {
+  padding: 20px;
+  background-color: #e9ecef; /* 부드러운 회색 배경 */
+  border-radius: 16px; /* 부드러운 모서리 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 부드러운 그림자 */
+  max-width: 600px; /* 최대 너비 설정 */
+  margin: 0 auto; /* 중앙 정렬 */
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.deposit-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.deposit-card {
+  display: flex;
+  align-items: center;
+  border: none;
+  padding: 0.5em;
+  border-radius: 12px;
+  background-color: #ffffff;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  margin-bottom: 10px;
+}
+
+.deposit-card:hover {
+  transform: translateY(-2px); /* 카드 hover 효과 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* hover 시 그림자 증가 */
+}
+
+.icon {
+  width: 60px; /* 아이콘 크기 조정 */
+  height: auto;
+  margin-right: 20px; /* 오른쪽 여백 줄이기 */
+}
+
+.deposit-info {
+  flex-grow: 1; /* 남은 공간 차지 */
+  text-align: left; /* 텍스트 왼쪽 정렬 */
+}
+
+.deposit-name {
+  margin: 0;
+  font-size: 1.4em; /* 상품명 크기 조정 */
+  font-weight: 700;
+  color: #007BFF; /* 브랜드 색상 */
+}
+
+.deposit-rate,
+.deposit-period {
+  color: #555; /* 텍스트 색상 */
+  font-size: 0.9em; /* 텍스트 크기 조정 */
+  margin-bottom: 8px;
+}
+
+.rate {
+  font-weight: bold;
+  color: #333; /* 강조된 금리 색상 */
+}
+
+.period {
+  font-style: italic;
+  color: #007BFF; /* 기간 강조 색상 */
+}
+
+.empty-message {
+  color: #999;
+  font-style: italic;
+  text-align: center;
+  padding: 1em;
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+  background-color: #f8f9fa; /* 부드러운 배경색 추가 */
+}
+
+button {
+  background-color: #007BFF; /* 버튼 색상 */
+  color: white;
+  border: none;
+  padding: 0.6em 1.2em; /* 버튼 패딩 조정 */
+  font-size: 1em;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+  margin-top: 1em; /* 버튼과 텍스트 간 간격 */
+}
+
+button:hover {
+  background-color: #0056b3; /* 버튼 hover 색상 */
+  transform: scale(1.05); /* 버튼 hover 시 확대 효과 */
+}
+</style>

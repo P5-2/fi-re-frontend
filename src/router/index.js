@@ -8,6 +8,8 @@ import Forex from '@/router/forex/forex.js';
 import SavingsList from '@/router/list/savingsList.js';
 import fund from '@/router/list/fund.js';
 import Survey from './survey/survey.js';
+import RecommendationPage from "@/router/recommendation/recommendation.js";
+import Cart from "@/router/cart/cart.js";
 import profile from './profile/profile.js';
 
 const router = createRouter({
@@ -20,6 +22,8 @@ const router = createRouter({
     ...Forex,
     ...fund,
     ...Survey,
+    ...RecommendationPage,
+    ...Cart,
     ...SavingsList,
     ...profile,
   ],

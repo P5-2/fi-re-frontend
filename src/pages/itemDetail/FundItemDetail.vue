@@ -34,7 +34,7 @@
             </table>
         </div>
         <div id="buttons">
-            <button class="btn btn-secondary fs-5 left-btn">상품비교</button>
+            <button class="btn btn-secondary fs-5 left-btn" @click="compareProduct">상품비교</button>
             <button class="btn btn-success fs-5" @click="calcBtn">수익계산</button>
         </div>
     </div>
@@ -45,23 +45,23 @@ import axios from 'axios';
 import { mapActions } from 'pinia';
 
 export default {
-    name : 'FundItemDetail',
-    data(){
-        return{
-            fund : {}
+    name: 'FundItemDetail',
+    data() {
+        return {
+            fund: {}
         }
     },
-    created : async function(){
+    created: async function () {
         this.prdNo = this.$route.params.prdNo;
-        let res = await axios.get("http://localhost:9000/finance/fund/get", {params : {prdNo : this.prdNo}})
+        let res = await axios.get("http://localhost:9000/finance/fund/get", { params: { prdNo: this.prdNo } })
         this.fund = res.data;
     },
-    updated(){
+    updated() {
         let $gradeIcon = document.getElementById("gradeIcon");
         let $gradeText = document.getElementById("gradeText");
         let $dngr = document.getElementById("dngr");
 
-        switch(this.fund.dngrGrade){
+        switch (this.fund.dngrGrade) {
             case 6:
                 $gradeIcon.textContent = '6';
                 $gradeIcon.style.backgroundColor = '#146138';
@@ -95,7 +95,7 @@ export default {
                 $dngr.textContent = '성장추구형';
                 break;
             case 2:
-            $gradeIcon.textContent = '2';
+                $gradeIcon.textContent = '2';
                 $gradeIcon.style.backgroundColor = '#EB5908';
                 $gradeText.textContent = '높은위험';
                 $gradeText.style.color = '#EB5908';
@@ -103,7 +103,7 @@ export default {
                 $dngr.textContent = '성장추구형';
                 break;
             case 1:
-            $gradeIcon.textContent = '1';
+                $gradeIcon.textContent = '1';
                 $gradeIcon.style.backgroundColor = '#DD1820';
                 $gradeText.textContent = '매우높은위험';
                 $gradeText.style.color = '#DD1820';
@@ -112,88 +112,123 @@ export default {
                 break;
         }
     },
-    methods : {
+    methods: {
         ...mapActions(calculatorStore, ['addFund']),
-        calcBtn : function(){
+        calcBtn: function () {
             this.fund.amount = 0;
             this.addFund(this.fund);
             alert("상품을 계산기에 추가했습니다");
+        },
+        compareProduct() {
+
+            // Axios GET 요청을 통해 상품을 장바구니에 추가
+            axios.get('http://localhost:9000/cart/funds/add', {
+                params: {
+                    prdNo: this.prdNo
+                },
+                headers: {
+                    'Accept': 'text/plain;charset=UTF-8' // 한글 깨짐 방지
+                }
+            })
+                .then(response => {
+                    console.log(this.prdNo + "번 상품을 비교함에 담았습니다.");
+                    alert(response.data); // 성공 응답 처리
+                })
+                .catch(error => {
+                    if (error.response && error.response.data) {
+                        alert(error.response.data); // 서버로부터 받은 에러 메시지 출력
+                    } else {
+                        alert('Failed to add savings item to cart.'); // 기본 에러 메시지 출력
+                    }
+                });
         }
     }
 }
 </script>
 <style scoped>
-    #detailWrapper{
-        background-color: #FFE9E0;
-        border-radius: 20px;
-        width : 1300px;
-        margin : auto;
-        height: 700px;
-        padding: 30px;
-    }
-    #title{
-        width: 80%;
-        margin : auto;
-        text-align: center;
-        font-size: 42px;
-        font-weight: bold;
-    }
-    #contentWrapper{
-        width: 80%;
-        padding: 30px;
-        margin: auto;
-    }
-    .myRow{
-        display: flex;
-        align-items: center;
-        margin-bottom: 30px;
-    }
-    #gradeIcon{
-        width: 60px;
-        height: 60px;
-        border-radius: 100%;
-        font-weight: 600;
-        background-color: #146138;
-        color: white;
-        text-align: center;
-        line-height: 60px;
-        font-size: 32px;
-        margin: auto;
-    }
-    #iconWrapper{
-        width: 120px;
-        margin-right: 20px;
-    }
-    #gradeText{
-        width: max-content;
-        margin: auto;
-        font-weight: bold;
-    }
-    #gradeDesc{
-        font-size: 30px;
-    }
-    #dngr{
-        font-weight: bold;
-    }
-    #detailTable{
-        width: 100%;
-        font-size: 22px;
-        border-collapse: separate;
-        border-spacing: 10px 10px;
-        background-color: #FFF4F0;
-        border-radius: 20px;
-    }
-    th{
-        border-right: 2px solid black;
-        width: 200px;
-    }
-    #buttons{
-        width: 80%;
-        margin: auto;
-        margin-top: 10px;
-        text-align: center;
-    }
-    .left-btn{
-        margin-right: 60px;
-    }
+#detailWrapper {
+    background-color: #FFE9E0;
+    border-radius: 20px;
+    width: 1300px;
+    margin: auto;
+    height: 700px;
+    padding: 30px;
+}
+
+#title {
+    width: 80%;
+    margin: auto;
+    text-align: center;
+    font-size: 42px;
+    font-weight: bold;
+}
+
+#contentWrapper {
+    width: 80%;
+    padding: 30px;
+    margin: auto;
+}
+
+.myRow {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+#gradeIcon {
+    width: 60px;
+    height: 60px;
+    border-radius: 100%;
+    font-weight: 600;
+    background-color: #146138;
+    color: white;
+    text-align: center;
+    line-height: 60px;
+    font-size: 32px;
+    margin: auto;
+}
+
+#iconWrapper {
+    width: 120px;
+    margin-right: 20px;
+}
+
+#gradeText {
+    width: max-content;
+    margin: auto;
+    font-weight: bold;
+}
+
+#gradeDesc {
+    font-size: 30px;
+}
+
+#dngr {
+    font-weight: bold;
+}
+
+#detailTable {
+    width: 100%;
+    font-size: 22px;
+    border-collapse: separate;
+    border-spacing: 10px 10px;
+    background-color: #FFF4F0;
+    border-radius: 20px;
+}
+
+th {
+    border-right: 2px solid black;
+    width: 200px;
+}
+
+#buttons {
+    width: 80%;
+    margin: auto;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.left-btn {
+    margin-right: 60px;
+}
 </style>
