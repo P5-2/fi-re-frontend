@@ -26,6 +26,9 @@
             </tbody>
         </table>
     </div>
+    <iframe src="https://fine.fss.or.kr/fine/bbs/B0000340/view.do?nttId=138559&menuNo=900014&cl1Cd=&searchCnd=14&searchWrd=&pageIndex=1" title="내용">
+
+    </iframe>
 </template>
 <script>
 import HotItem from '@/components/hotItem/HotItem.vue';
