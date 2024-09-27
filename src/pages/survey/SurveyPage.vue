@@ -55,13 +55,21 @@ export default {
         surveyStore.totalScore = results.value.reduce((a, b) => a + b, 0);
         console.log('Total score calculated:', surveyStore.totalScore); // 총점 로그
 
+        console.log('Total score type:', typeof surveyStore.totalScore);
+        console.log('Results:', results.value);
+        console.log(
+          'Results type:',
+          Array.isArray(results.value) ? 'Array' : 'Not Array'
+        );
+        console.log('Specific scores:', specificScores.value);
+
         // 결과 페이지로 라우터 이동하며 점수 전달
         router.push({
           name: 'SurveyResults',
           params: {
             totalScore: surveyStore.totalScore,
             results: surveyStore.results,
-            specificScores: surveyStore.specificScores,
+            specificScores: JSON.stringify(surveyStore.specificScores),
           },
         });
       }
