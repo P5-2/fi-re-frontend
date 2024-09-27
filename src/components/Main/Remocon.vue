@@ -27,7 +27,7 @@
         </a>
       </li>
       <li>
-        <a href="/">
+        <a href="/recmd">
           <img src="@/assets/remocon/recommend.png" width="48" height="48" />
           <br />
           추천상품
@@ -69,39 +69,37 @@
         정답 : <span v-if="didQuiz" id="answer">{{ fnceDictNm }}</span>
       </div>
     </div>
-  </div>
+</div>
 </template>
 <script>
 import axios from 'axios';
 
 export default {
-  name: 'Remocon',
+  name: "Remocon",
   data() {
     return {
       isQuizOpen: false,
       didQuiz: false,
-      fnceDictNm: '금융용어',
-      ksdFnceDictDescContent: '용어설명',
-      answer: '',
-    };
+      fnceDictNm: "금융용어",
+      ksdFnceDictDescContent: "용어설명",
+      answer: ""
+    }
   },
   updated() {
     const date = this.getDate();
     let didQuiz = localStorage.getItem('didQuiz');
-    if (didQuiz !== null) {
-      //퀴즈 수행을 한 경우
+    if (didQuiz !== null) { //퀴즈 수행을 한 경우        
       let didQuizDate = new Date(didQuiz); //퀴즈 수행을 했던 경우 날짜 비교
       let getDate = new Date(date);
-      if (getDate <= didQuizDate) {
-        //오늘 날짜가 퀴즈를 수행한 날짜를 넘기지 못한 경우 수행완료 표시
+      if (getDate <= didQuizDate) { //오늘 날짜가 퀴즈를 수행한 날짜를 넘기지 못한 경우 수행완료 표시
         this.didQuiz = true;
-      } else {
-        //오늘의 퀴즈를 수행하지 않았음
+      } else {//오늘의 퀴즈를 수행하지 않았음
         this.didQuiz = false;
         localStorage.removeItem('didQuiz');
       }
     }
   },
+
   methods: {
     goToProfile() {
       // 프로필로 이동
@@ -167,16 +165,19 @@ export default {
   right: 45px;
   transform: translate(0, -50%);
 }
+
 ul,
 li {
   list-style: none;
   padding: 0px;
 }
+
 ul {
   background-color: #dedede;
   border-radius: 5px;
   width: 86px;
 }
+
 li {
   margin: auto;
   width: 80%;
@@ -184,13 +185,16 @@ li {
   text-align: center;
   padding: 5px;
 }
+
 li:not(:last-child) {
   border-bottom: 1px #909090 solid;
 }
+
 a {
   text-decoration: none;
   color: black;
 }
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -203,6 +207,7 @@ a {
   align-items: center;
   z-index: 1000;
 }
+
 .modal-content {
   background-color: white;
   padding: 20px;
@@ -213,17 +218,21 @@ a {
   min-height: 600px;
   /* 세로 길이 조정 */
 }
+
 #quizTitle {
   text-align: center;
 }
+
 .quizContent,
 #quizInput,
 #btnWrapper {
   margin: 10px 0px 10px 0px;
 }
+
 #submit {
   margin-right: 30px;
 }
+
 #answer {
   font-weight: bold;
 }
