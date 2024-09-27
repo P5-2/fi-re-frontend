@@ -44,7 +44,7 @@
         </div>
 
         <div id="buttons">
-            <button class="btn btn-secondary fs-5 left-btn">상품비교</button>
+            <button class="btn btn-secondary fs-5 left-btn" @click="compareProduct">상품비교</button>
             <button class="btn btn-success fs-5" @click="calcBtn">수익계산</button>
         </div>
     </div>
@@ -55,90 +55,122 @@ import axios from 'axios';
 import { mapActions } from 'pinia';
 
 export default {
-    name : 'SavingsItemDetail',
-    data(){
-        return{
-            savings : {},
-            prdNo : 0,
+    name: 'SavingsItemDetail',
+    data() {
+        return {
+            savings: {},
+            prdNo: 0,
         }
     },
-    created(){
+    created() {
         this.prdNo = this.$route.params.prdNo;
-        axios.get("http://localhost:9000/finance/savings/get", {params : {prdNo : this.prdNo}})
-        .then((res)=>{
-            this.savings = res.data;
-        })
-        .catch((err)=>{
-            console.log(err);
-        })
+        axios.get("http://localhost:9000/finance/savings/get", { params: { prdNo: this.prdNo } })
+            .then((res) => {
+                this.savings = res.data;
+            })
+            .catch((err) => {
+                console.log(err);
+            })
     },
-    methods : {
+    methods: {
         ...mapActions(calculatorStore, ['addSavings']),
-        calcBtn : function(){
+        calcBtn: function () {
             this.savings.amount = 0;
             this.addSavings(this.savings);
             alert("상품을 계산기에 추가했습니다");
+        },
+        compareProduct() {
+            // Axios GET 요청을 통해 상품을 장바구니에 추가
+            axios.get('http://localhost:9000/cart/savings/add', {
+                params: {
+                    prdNo: this.prdNo
+                },
+                headers: {
+                    'Accept': 'text/plain;charset=UTF-8' // 한글 깨짐 방지
+                }
+            })
+                .then(response => {
+                    console.log(this.prdNo + "번 상품을 비교함에 담았습니다.");
+                    alert(response.data); // 성공 응답 처리
+                })
+                .catch(error => {
+                    if (error.response && error.response.data) {
+                        alert(error.response.data); // 서버로부터 받은 에러 메시지 출력
+                    } else {
+                        alert('Failed to add savings item to cart.'); // 기본 에러 메시지 출력
+                    }
+                });
         }
     }
 }
 </script>
 
 <style scoped>
-    #detailWrapper{
-        background-color: #DFFDFF;
-        border-radius: 20px;
-        width : 1300px;
-        margin : auto;
-        height: 700px;
-        padding: 30px;
-    }
-    #title{
-        width: 80%;
-        margin : auto;
-        text-align: center;
-        font-size: 42px;
-        font-weight: bold;
-    }
-    #contentWrapper{
-        width: 80%;
-        padding: 30px;
-        margin: auto;
-    }
-    #buttons{
-        width: 80%;
-        margin: auto;
-        text-align: center;
-    }
-    .left-btn{
-        margin-right: 60px;
-    }
-    .myRow{
-        display: flex;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-    .logo{
-        border-radius: 100%;
-    }
-    .content1{
-        margin-left: 26px;
-        font-size: 28px;
-    }
-    .description{
-        padding: 0px 30px 0px 30px;
-        margin-bottom: 20px;
-        font-size: 18px;
-    }
-    #rateTable{
-        width: 100%;
-        font-size: 22px;
-        border-collapse: separate;
-        border-spacing: 10px 10px;
-        background-color: #EFFFFF;
-        border-radius: 20px;
-    }
-    th{
-        border-right: 2px solid black;
-        width: 200px;
-    }
+#detailWrapper {
+    background-color: #DFFDFF;
+    border-radius: 20px;
+    width: 1300px;
+    margin: auto;
+    height: 700px;
+    padding: 30px;
+}
+
+#title {
+    width: 80%;
+    margin: auto;
+    text-align: center;
+    font-size: 42px;
+    font-weight: bold;
+}
+
+#contentWrapper {
+    width: 80%;
+    padding: 30px;
+    margin: auto;
+}
+
+#buttons {
+    width: 80%;
+    margin: auto;
+    text-align: center;
+}
+
+.left-btn {
+    margin-right: 60px;
+}
+
+.myRow {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    border-radius: 100%;
+}
+
+.content1 {
+    margin-left: 26px;
+    font-size: 28px;
+}
+
+.description {
+    padding: 0px 30px 0px 30px;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+#rateTable {
+    width: 100%;
+    font-size: 22px;
+    border-collapse: separate;
+    border-spacing: 10px 10px;
+    background-color: #EFFFFF;
+    border-radius: 20px;
+}
+
+th {
+    border-right: 2px solid black;
+    width: 200px;
+}
 </style>
