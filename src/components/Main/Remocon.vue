@@ -69,7 +69,7 @@
         정답 : <span v-if="didQuiz" id="answer">{{ fnceDictNm }}</span>
       </div>
     </div>
-  </div>
+</div>
 </template>
 <script>
 import axios from 'axios';
@@ -115,116 +115,127 @@ export default {
         params: { date: date },
       });
 
-      let data = res.data;
-      this.fnceDictNm = data.fnceDictNm;
-      this.ksdFnceDictDescContent = data.ksdFnceDictDescContent;
+            let data = res.data;
+            this.fnceDictNm = data.fnceDictNm;
+            this.ksdFnceDictDescContent = data.ksdFnceDictDescContent;
 
-      this.isQuizOpen = true;
-    },
-    closeQuiz: function () {
-      this.isQuizOpen = false;
-    },
-    getDate: function () {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = (today.getMonth() + 1).toString().padStart(2, '0');
-      const day = today.getDate().toString().padStart(2, '0');
+            this.isQuizOpen = true;
+        },
+        closeQuiz: function () {
+            this.isQuizOpen = false;
+        },
+        getDate: function () {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
 
-      const date = `${year}-${month}-${day}`;
+            const date = `${year}-${month}-${day}`;
 
-      return date;
+            return date;
+        },
+        getAnswer: function () {
+            if (confirm('정답을 보시겠습니까?')) {
+                this.didQuiz = true;
+                let date = this.getDate();
+                localStorage.setItem('didQuiz', date); //오늘 퀴즈 수행했음을 로컬 스토리지에 저장
+            }
+        },
+        submitAnswer: function () {
+            let myData = this.fnceDictNm;
+            if (myData.includes('(')) {
+                //괄호가 있으면 괄호 뺴고 추출하기
+                myData = myData.substring(0, myData.indexOf('('));
+                console.log(myData);
+            }
+            if (myData === this.answer) {
+                alert('정답입니다');
+                this.didQuiz = true;
+                let date = this.getDate();
+                localStorage.setItem('didQuiz', date); //오늘 퀴즈 수행했음을 로컬 스토리지에 저장
+            } else {
+                alert('오답입니다');
+            }
+        },
     },
-    getAnswer: function () {
-      if (confirm('정답을 보시겠습니까?')) {
-        this.didQuiz = true;
-        let date = this.getDate();
-        localStorage.setItem('didQuiz', date); //오늘 퀴즈 수행했음을 로컬 스토리지에 저장
-      }
-    },
-    submitAnswer: function () {
-      let myData = this.fnceDictNm;
-      if (myData.includes('(')) {
-        //괄호가 있으면 괄호 뺴고 추출하기
-        myData = myData.substring(0, myData.indexOf('('));
-        console.log(myData);
-      }
-      if (myData === this.answer) {
-        alert('정답입니다');
-        this.didQuiz = true;
-        let date = this.getDate();
-        localStorage.setItem('didQuiz', date); //오늘 퀴즈 수행했음을 로컬 스토리지에 저장
-      } else {
-        alert('오답입니다');
-      }
-    },
-  },
 };
 </script>
 <style scoped>
 #Remocon {
-  position: fixed;
-  top: 50%;
-  right: 45px;
-  transform: translate(0, -50%);
+    position: fixed;
+    top: 50%;
+    right: 45px;
+    transform: translate(0, -50%);
 }
+
 ul,
 li {
-  list-style: none;
-  padding: 0px;
+    list-style: none;
+    padding: 0px;
 }
+
 ul {
-  background-color: #dedede;
-  border-radius: 5px;
-  width: 86px;
+    background-color: #dedede;
+    border-radius: 5px;
+    width: 86px;
 }
+
 li {
-  margin: auto;
-  width: 80%;
-  font-size: 14px;
-  text-align: center;
-  padding: 5px;
+    margin: auto;
+    width: 80%;
+    font-size: 14px;
+    text-align: center;
+    padding: 5px;
 }
+
 li:not(:last-child) {
-  border-bottom: 1px #909090 solid;
+    border-bottom: 1px #909090 solid;
 }
+
 a {
-  text-decoration: none;
-  color: black;
+    text-decoration: none;
+    color: black;
 }
+
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
+
 .modal-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  position: relative;
-  width: 700px;
-  /* 가로 길이 조정 */
-  min-height: 600px;
-  /* 세로 길이 조정 */
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    position: relative;
+    width: 700px;
+    /* 가로 길이 조정 */
+    min-height: 600px;
+    /* 세로 길이 조정 */
 }
+
 #quizTitle {
-  text-align: center;
+    text-align: center;
 }
+
 .quizContent,
 #quizInput,
 #btnWrapper {
-  margin: 10px 0px 10px 0px;
+    margin: 10px 0px 10px 0px;
 }
+
 #submit {
-  margin-right: 30px;
+    margin-right: 30px;
 }
+
 #answer {
-  font-weight: bold;
+    font-weight: bold;
 }
 </style>
