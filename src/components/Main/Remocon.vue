@@ -13,7 +13,7 @@
         </a>
       </li>
       <li>
-        <a href="/">
+        <a href="/cart">
           <img src="@/assets/remocon/shopping.png" width="48" height="48" />
           <br />
           비교하기

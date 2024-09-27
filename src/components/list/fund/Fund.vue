@@ -41,6 +41,7 @@
 <script>
 import { calculatorStore } from '@/stores/calculator';
 import { mapActions } from 'pinia';
+import axios from 'axios';
 
 export default {
     props: {
@@ -88,7 +89,28 @@ export default {
         },
         compareProduct(event) {
             event.stopPropagation();
-            console.log('상품비교:', this.fund.prdNo);
+
+
+            // Axios GET request to add the fund item to the cart
+            axios.get('http://localhost:9000/cart/funds/add', {
+                params: {
+                    prdNo: this.fund.prdNo
+                },
+                headers: {
+                    'Accept': 'text/plain;charset=UTF-8' // 한글 깨짐 방지
+                }
+            })
+                .then(response => {
+                    console.log(this.fund.prdNo + "번 상품을 비교함에 담았습니다.");
+                    alert(response.data); // Handle success response
+                })
+                .catch(error => {
+                    if (error.response && error.response.data) {
+                        alert(error.response.data); // 서버로부터 받은 에러 메시지 출력
+                    } else {
+                        alert('Failed to add fund item to cart.'); // 기본 에러 메시지 출력
+                    }
+                });
         },
         ...mapActions(calculatorStore, ['addFund']),
         calcBtn(event) {
@@ -102,153 +124,153 @@ export default {
 </script>
 
 <style scoped>
-
 .fund-card {
-display: flex;
-justify-content: space-between;
-align-items: center;
-width: 65%;
-padding: 20px;
-margin: 20px auto; /* 가운데 정렬을 위해 auto 사용 */
-border: 1px solid #ddd;
-border-radius: 8px;
-background-color: #fff;
-cursor: pointer;
-transition: box-shadow 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 65%;
+    padding: 20px;
+    margin: 20px auto;
+    /* 가운데 정렬을 위해 auto 사용 */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
 }
 
 .fund-card:hover {
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-/* 호버 시 그림자 효과 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* 호버 시 그림자 효과 */
 }
 
 .fund-content {
-flex-grow: 1;
-display: flex;
-gap: 20px;
+    flex-grow: 1;
+    display: flex;
+    gap: 20px;
 }
 
 .fund-title {
-width: 100%;
-font-size: 20px;
-color: #333;
-margin-bottom: 10px;
+    width: 100%;
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 10px;
 }
 
 .fund-main-info {
-flex: 1;
-min-width: 150px;
+    flex: 1;
+    min-width: 150px;
 }
 
 .fund-details p {
-margin: 5px 0;
+    margin: 5px 0;
 }
 
 .fund-rate-section {
-flex: 1;
-min-width: 150px;
-text-align: center;
+    flex: 1;
+    min-width: 150px;
+    text-align: center;
 }
 
 .fund-rate-label {
-font-weight: bold;
-margin-bottom: 5px;
+    font-weight: bold;
+    margin-bottom: 5px;
 }
 
 .fund-rate {
-font-size: 24px;
-color: #0080ff;
+    font-size: 24px;
+    color: #0080ff;
 }
 
 .grade-section {
-flex: 1;
-min-width: 150px;
-text-align: center;
-display: flex;
-flex-direction: column;
-align-items: center;
+    flex: 1;
+    min-width: 150px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .grade-icon {
-width: 40px;
-height: 40px;
-border-radius: 50%;
-font-weight: 600;
-text-align: center;
-line-height: 40px;
-font-size: 18px;
-color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-weight: 600;
+    text-align: center;
+    line-height: 40px;
+    font-size: 18px;
+    color: white;
 }
 
 .grade-text {
-font-weight: bold;
-margin-top: 5px;
+    font-weight: bold;
+    margin-top: 5px;
 }
 
 .fund-actions {
-text-align: left;
+    text-align: left;
 }
 
 .button-group {
-display: flex;
-flex-direction: column;
-gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .action-btn {
-width: 120px;
-padding: 10px 15px;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-font-weight: bold;
-transition: background-color 0.3s ease;
+    width: 120px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
 }
 
 .compare-btn {
-background-color: #f0f0f0;
-color: #333;
+    background-color: #f0f0f0;
+    color: #333;
 }
 
 .compare-btn:hover {
-background-color: #e0e0e0;
+    background-color: #e0e0e0;
 }
 
 .calc-btn {
-background-color: #0080ff;
-color: white;
+    background-color: #0080ff;
+    color: white;
 }
 
 .calc-btn:hover {
-background-color: #0066cc;
+    background-color: #0066cc;
 }
 
 /* 각 위험 등급에 따른 색상 정의 */
 :root {
---grade-color: #146138;
+    --grade-color: #146138;
 }
 
 [style*="background-color: #146138"] {
---grade-color: #146138;
+    --grade-color: #146138;
 }
 
 [style*="background-color: #1D9A58"] {
---grade-color: #1D9A58;
+    --grade-color: #1D9A58;
 }
 
 [style*="background-color: #FBBF0A"] {
---grade-color: #FBBF0A;
+    --grade-color: #FBBF0A;
 }
 
 [style*="background-color: #F79E07"] {
---grade-color: #F79E07;
+    --grade-color: #F79E07;
 }
 
 [style*="background-color: #EB5908"] {
---grade-color: #EB5908;
+    --grade-color: #EB5908;
 }
 
 [style*="background-color: #DD1820"] {
---grade-color: #DD1820;
+    --grade-color: #DD1820;
 }
 </style>
