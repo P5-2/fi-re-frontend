@@ -7,7 +7,7 @@
         </a>
       </li>
       <li>
-        <a href="/member/info">
+        <a @click.prevent="goToProfile">
           <img src="@/assets/remocon/info.png" width="48" height="48" /> <br />
           내 정보
         </a>
@@ -103,6 +103,11 @@ export default {
     }
   },
   methods: {
+    goToProfile() {
+      // 프로필로 이동
+      this.$router.push({ path: `/profile` });
+    },
+
     openQuiz: async function () {
       const date = this.getDate();
       console.log(date);

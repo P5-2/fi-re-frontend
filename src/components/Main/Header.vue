@@ -7,7 +7,7 @@
         <router-link :to="{ name: 'HotItemList' }" style="margin-right: 36px">
           <img src="@/assets/header/logo.png" height="64" />
         </router-link>
-        <ul class="nav col-md-autojustify-content-center">
+        <ul class="nav col-md-auto justify-content-center">
           <li>
             <router-link to="/savings" class="nav-item nav-link px-2 link-dark">
               예적금
@@ -58,8 +58,8 @@
   </div>
 </template>
 <script>
-import Login from "../login/Login.vue";
-import { useUserStore } from "@/stores/user";
+import Login from '../login/Login.vue';
+import { useUserStore } from '@/stores/user';
 
 export default {
   name: 'Header',
@@ -88,8 +88,8 @@ export default {
     },
     logout() {
       this.userStore.logout();
-      alert("로그아웃 되었습니다.");
-      this.$router.push("/"); // main 페이지로 이동
+      alert('로그아웃 되었습니다.');
+      this.$router.push('/'); // main 페이지로 이동
     },
   },
 };
