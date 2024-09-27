@@ -7,13 +7,13 @@
         </a>
       </li>
       <li>
-        <a href="/member/info">
+        <a @click.prevent="goToProfile">
           <img src="@/assets/remocon/info.png" width="48" height="48" /> <br />
           내 정보
         </a>
       </li>
       <li>
-        <a href="/">
+        <a href="/cart">
           <img src="@/assets/remocon/shopping.png" width="48" height="48" />
           <br />
           비교하기
@@ -75,40 +75,45 @@
 import axios from 'axios';
 
 export default {
-    name: 'Remocon',
-    data() {
-        return {
-            isQuizOpen: false,
-            didQuiz: false,
-            fnceDictNm: '금융용어',
-            ksdFnceDictDescContent: '용어설명',
-            answer: '',
-        };
+  name: 'Remocon',
+  data() {
+    return {
+      isQuizOpen: false,
+      didQuiz: false,
+      fnceDictNm: '금융용어',
+      ksdFnceDictDescContent: '용어설명',
+      answer: '',
+    };
+  },
+  updated() {
+    const date = this.getDate();
+    let didQuiz = localStorage.getItem('didQuiz');
+    if (didQuiz !== null) {
+      //퀴즈 수행을 한 경우
+      let didQuizDate = new Date(didQuiz); //퀴즈 수행을 했던 경우 날짜 비교
+      let getDate = new Date(date);
+      if (getDate <= didQuizDate) {
+        //오늘 날짜가 퀴즈를 수행한 날짜를 넘기지 못한 경우 수행완료 표시
+        this.didQuiz = true;
+      } else {
+        //오늘의 퀴즈를 수행하지 않았음
+        this.didQuiz = false;
+        localStorage.removeItem('didQuiz');
+      }
+    }
+  },
+  methods: {
+    goToProfile() {
+      // 프로필로 이동
+      this.$router.push({ path: `/profile` });
     },
-    updated() {
-        const date = this.getDate();
-        let didQuiz = localStorage.getItem('didQuiz');
-        if (didQuiz !== null) {
-            //퀴즈 수행을 한 경우
-            let didQuizDate = new Date(didQuiz); //퀴즈 수행을 했던 경우 날짜 비교
-            let getDate = new Date(date);
-            if (getDate <= didQuizDate) {
-                //오늘 날짜가 퀴즈를 수행한 날짜를 넘기지 못한 경우 수행완료 표시
-                this.didQuiz = true;
-            } else {
-                //오늘의 퀴즈를 수행하지 않았음
-                this.didQuiz = false;
-                localStorage.removeItem('didQuiz');
-            }
-        }
-    },
-    methods: {
-        openQuiz: async function () {
-            const date = this.getDate();
-            console.log(date);
-            let res = await axios.get('http://localhost:9000/financeWord/get', {
-                params: { date: date },
-            });
+
+    openQuiz: async function () {
+      const date = this.getDate();
+      console.log(date);
+      let res = await axios.get('http://localhost:9000/financeWord/get', {
+        params: { date: date },
+      });
 
             let data = res.data;
             this.fnceDictNm = data.fnceDictNm;
