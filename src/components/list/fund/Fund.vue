@@ -90,27 +90,43 @@ export default {
         compareProduct(event) {
             event.stopPropagation();
 
+            // sessionStorage에서 token 값을 가져와 파싱
+            const tokenData = JSON.parse(sessionStorage.getItem('token'));
 
-            // Axios GET request to add the fund item to the cart
-            axios.get('http://localhost:9000/cart/funds/add', {
-                params: {
-                    prdNo: this.fund.prdNo
-                },
-                headers: {
-                    'Accept': 'text/plain;charset=UTF-8' // 한글 깨짐 방지
-                }
-            })
-                .then(response => {
-                    console.log(this.fund.prdNo + "번 상품을 비교함에 담았습니다.");
-                    alert(response.data); // Handle success response
-                })
-                .catch(error => {
-                    if (error.response && error.response.data) {
-                        alert(error.response.data); // 서버로부터 받은 에러 메시지 출력
-                    } else {
-                        alert('Failed to add fund item to cart.'); // 기본 에러 메시지 출력
-                    }
-                });
+            // accessToken을 가져온다
+            const accessToken = tokenData.accessToken;
+
+            // accessToken을 기반으로 사용자별 로컬 스토리지 키 생성
+            const userKey = `cart_data_${accessToken}`;
+
+            // 로컬 스토리지에서 비교함 데이터를 불러온다
+            const cartData = JSON.parse(localStorage.getItem(userKey)) || { savings: [], funds: [] };
+
+            // 추가하려는 상품이 이미 비교함에 있는지 확인
+            const isProductInCart = cartData.funds.some(fund => fund.prdNo === this.fund.prdNo);
+
+            if (isProductInCart) {
+                alert("이 상품은 이미 비교함에 담겨 있습니다.");
+                return;
+            }
+
+            // 비교함에 상품 추가
+            cartData.funds.push({
+                prdNo: this.fund.prdNo,
+                pname: this.fund.pname,
+                type: this.fund.type,
+                nav: this.fund.nav,
+                rate: this.fund.rate,
+                region: this.fund.region,
+                selectCount: this.fund.selectCount,
+                dngrGrade: this.fund.dngrGrade
+            });
+
+            // 업데이트된 비교함 데이터를 로컬 스토리지에 저장
+            localStorage.setItem(userKey, JSON.stringify(cartData));
+
+            console.log(this.fund.prdNo + "번 상품을 비교함에 담았습니다.");
+            alert("상품을 비교함에 담았습니다.");
         },
         ...mapActions(calculatorStore, ['addFund']),
         calcBtn(event) {

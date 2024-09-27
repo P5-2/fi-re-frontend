@@ -2,26 +2,25 @@
     <li class="cart-item">
         <div class="item-row">
             <div class="item-left">
-                <input
-                    type="checkbox"
-                    :value="item.prdNo"
-                    v-model="selectedItems"
-                />
+                <label class="custom-checkbox">
+                    <input type="checkbox" :checked="isSelected" @change="emitSelectedItems" />
+                    <span class="checkmark"></span>
+                </label>
 
                 <!-- Bank Icon Images -->
                 <div class="item-bank">
-                    <img class="bank-logo" :src="getBankLogo(item.bname, type)"  alt="Logo" />
+                    <img class="bank-logo" :src="getBankLogo(item.bname, type)" alt="Logo" />
                     <span v-if="type === 'saving'" class="bank-name">{{ item.bname }}</span>
                 </div>
 
                 <div class="item-info">
                     <div class="item-name">{{ item.pname }}</div>
-                    <div class="item-benefit" v-if="type === 'saving'" >{{ item.description }}</div>
+                    <div class="item-benefit" v-if="type === 'saving'">{{ item.description }}</div>
                     <div class="item-details">
                         <div class="tag-container">
                             <span class="tag type-tag">{{ item.type }}</span>
                             <span v-if="type === 'saving'" class="tag sub-period-tag">{{ item.subPeriod }}개월</span>
-                            <span v-if="type === 'saving'" class="tag rate-tag">연 {{ item.minRate }}% ~ {{ item.maxRate }}%</span>
+                            <span v-if="type === 'saving'" class="tag rate-tag">연 <b>{{ item.minRate }}% ~ {{ item.maxRate }}%</b></span>
                             <span v-if="type === 'fund'" class="tag nav-tag">기준가 <b>{{ item.nav }}원</b></span>
                             <span v-if="type === 'fund'" class="tag rate-tag">수익률(3개월) <b>{{ item.rate }}%</b></span>
                         </div>
@@ -35,22 +34,14 @@
                         <div class="grade-text" :style="{ color: gradeColor }">{{ gradeText }}</div>
                     </div>
                 </div>
-                <!-- <button @click="removeItem(item.prdNo)" class="remove-btn">삭제</button> -->
             </div>
         </div>
-        
     </li>
-    
 </template>
 
 <script>
 export default {
     name: 'CartItem',
-    data() {
-        return {
-            selectedItems:[]
-        }
-    },
     props: {
         item: {
             type: Object,
@@ -59,6 +50,10 @@ export default {
         type: {
             type: String,
             required: true
+        },
+        isSelected: {
+            type: Boolean,
+            default: false
         }
     },
     computed: {
@@ -73,9 +68,20 @@ export default {
         }
     },
     methods: {
+        emitSelectedItems(event) {
+            this.$emit('update-selected-items', {
+                prdNo: this.item.prdNo,
+                isSelected: event.target.checked
+            });
+        },
         getBankLogo(bname, type) {
             if (type === 'fund') {
-                return '/src/assets/cart/fund.png'; // 펀드 타입의 경우 기본 펀드 이미지 사용
+                switch (this.item.type) { // item.fundType을 사용하여 펀드 타입에 맞는 이미지를 반환합니다.
+                    case 'MMF': return '/src/assets/fund/mmf.png';
+                    case '주식형': return '/src/assets/fund/주식형.png';
+                    case '채권형': return '/src/assets/fund/채권형.png';
+                    default: return '/src/assets/cart/fund.png'; // 기본 펀드 이미지
+                }
             }
             switch (bname) {
                 case '국민은행': return '/src/assets/bank/국민은행.png';
@@ -109,16 +115,11 @@ export default {
         },
         removeItem(prdNo) {
             this.$emit('remove-item', prdNo);
-        },
-        removeSelectedItems() {
-            // 선택된 항목을 삭제하고 부모 컴포넌트에 알림
-            this.$emit('remove-items', this.selectedItems);
-            // 삭제 후 선택된 항목 목록 초기화
-            this.selectedItems = [];
         }
     }
 }
 </script>
+
 
 <style scoped>
 .cart-item {
@@ -150,29 +151,35 @@ export default {
 
 .item-bank {
     display: flex;
-    flex-direction: column; /* 로고와 은행 이름을 세로로 정렬 */
+    flex-direction: column;
+    /* 로고와 은행 이름을 세로로 정렬 */
     align-items: center;
-    gap: 5px; /* 로고와 은행 이름 사이의 간격 */
+    gap: 5px;
+    /* 로고와 은행 이름 사이의 간격 */
 }
 
 .bank-logo {
     width: 40px;
     height: 40px;
-    border-radius: 50%; /* 로고를 원형으로 */
+    border-radius: 50%;
+    /* 로고를 원형으로 */
 }
 
 .bank-name {
     font-weight: bold;
     font-size: 1em;
-    color: #333; /* 진한 색상으로 가독성 향상 */
-    text-align: center; /* 텍스트를 가운데 정렬 */
+    color: #524d4da4;
+    /* 진한 색상으로 가독성 향상 */
+    text-align: center;
+    /* 텍스트를 가운데 정렬 */
 }
 
 .item-info {
     display: flex;
     flex-direction: column;
     white-space: nowrap;
-    margin-left: 15px; /* 로고와 정보 사이에 간격 추가 */
+    margin-left: 15px;
+    /* 로고와 정보 사이에 간격 추가 */
 }
 
 .item-name {
@@ -185,9 +192,12 @@ export default {
 }
 
 .item-benefit {
-    font-size: 0.9em; /* 글씨 크기 줄이기 */
-    color: #777; /* 글자 색을 회색으로 */
-    margin-bottom: 5px; /* 아래 요소들과 간격 추가 */
+    font-size: 0.9em;
+    /* 글씨 크기 줄이기 */
+    color: #777;
+    /* 글자 색을 회색으로 */
+    margin-bottom: 5px;
+    /* 아래 요소들과 간격 추가 */
 }
 
 .item-details {
@@ -245,6 +255,7 @@ export default {
 
 .grade-wrapper {
     display: flex;
+    width: 100px;
     flex-direction: column;
     align-items: center;
     gap: 4px;
@@ -281,5 +292,59 @@ export default {
 
 .remove-btn:hover {
     background-color: #ff0000;
+}
+
+
+/* check box */
+.custom-checkbox {
+    display: inline-block;
+    position: relative;
+    padding-left: 30px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 16px;
+}
+
+.custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.custom-checkbox input:checked~.checkmark {
+    background-color: #007bff;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.custom-checkbox input:checked~.checkmark:after {
+    display: block;
+}
+
+.custom-checkbox .checkmark:after {
+    left: 7px;
+    top: 3px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
 }
 </style>
