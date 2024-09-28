@@ -19,7 +19,7 @@
     <!-- 기준 일자 및 요청 일자 -->
     <div class="dateInfo">
       <p>기준 일자: <strong>{{ searchDate }}</strong></p>
-      <p>요청 일자: <strong>{{ formattedRequestDate }}</strong></p>
+      <!-- <p>요청 일자: <strong>{{ formattedRequestDate }}</strong></p> -->
     </div>
 
     <!-- <h1 class="title">환율 데이터</h1> -->
@@ -57,7 +57,7 @@ export default {
       exchangeRates: [],
       mainCurrencies: [],
       searchDate: '', // 기준 일자
-      formattedRequestDate: '', // 요청 일자
+      // formattedRequestDate: '', // 요청 일자
     };
   },
   mounted() {
@@ -80,14 +80,16 @@ export default {
         const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
-        const formattedDate = `${year}${month}${day}`;
+        // const formattedDate = `${year}${month}${day}`;
+        const formattedDate = "20240927";
 
         const response = await axios.get(`http://localhost:9000/forex/date/${formattedDate}`);
         this.exchangeRates = response.data;
         this.searchDate = response.data[0]?.searchDate || formattedDate; // 첫 번째 데이터에서 기준 일자 가져오기
         this.mainCurrencies = response.data.filter(rate => ['USD', 'EUR', 'JPY(100)'].includes(rate.curUnit));
         // 요청 일자 포맷팅
-        this.formattedRequestDate = `${year}-${month}-${day}`;
+        // this.formattedRequestDate = `${year}-${month}-${day}`;
+        this.formattedRequestDate = "20240927";
       } catch (error) {
         console.error('환율 데이터를 가져오는 중 오류 발생:', error);
       }

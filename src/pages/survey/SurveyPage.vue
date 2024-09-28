@@ -61,7 +61,7 @@ export default {
           params: {
             totalScore: surveyStore.totalScore,
             results: surveyStore.results,
-            specificScores: surveyStore.specificScores,
+            specificScores: JSON.stringify(surveyStore.specificScores)
           },
         });
       }
