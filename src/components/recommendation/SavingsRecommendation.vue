@@ -19,7 +19,7 @@
       </div>
       <div v-else>
         <div class="empty-message">
-          <p>추천할 적금 상품이 없습니다.</p>
+          <p>추천할 예금 상품이 없습니다.</p>
           <p>더 나은 추천을 위해 간단한 설문조사를 진행해 주세요.</p>
           <button @click="goToSurvey">설문조사 시작하기</button>
         </div>
@@ -68,7 +68,7 @@ export default {
       };
 
       try {
-        const response = await axios.get('http://localhost:9000/recommend/deposit', config);
+        const response = await axios.get('http://localhost:9000/recommend/savings', config);
         depositList.value = response.data.savingsDeposits; // DTO에서 필터링된 예적금 목록 할당
         usedKeywords.value = response.data.usedKeywords; // 사용된 키워드 할당
       } catch (error) {
@@ -112,21 +112,16 @@ export default {
 .recommend-container {
   padding: 20px;
   background-color: #DFE7F2;
-  /* 부드러운 배경 색상 */
   border-radius: 16px;
-  /* 부드러운 모서리 */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  /* 부드러운 그림자 */
   margin: 0 auto;
-  /* 중앙 정렬 */
 }
 
 .title {
   font-size: 26px;
   font-weight: 600;
   margin-bottom: 20px;
-  color: #0A3459;
-  /* 제목 색상 */
+  color: #333;
   text-align: center;
 }
 
@@ -139,11 +134,10 @@ export default {
 .deposit-card {
   display: flex;
   align-items: center;
-  border: none;
   padding: 0.5em;
   border-radius: 12px;
   background-color: #ffffff;
-  /* 카드 배경 색상 */
+  /* 카드 배경색 */
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
   width: 100%;
@@ -184,7 +178,7 @@ export default {
 
 .deposit-rate,
 .deposit-period {
-  color: #0A3459;
+  color: #555;
   /* 텍스트 색상 */
   font-size: 0.9em;
   /* 텍스트 크기 조정 */
@@ -205,14 +199,12 @@ export default {
 
 .empty-message {
   color: #999;
-  /* 빈 메시지 텍스트 색상 */
   font-style: italic;
   text-align: center;
   padding: 1em;
-  border: 1px dashed #0A3459;
-  /* 경계 색상 */
+  border: 1px dashed #ccc;
   border-radius: 8px;
-  background-color: #F2F2F2;
+  background-color: #f8f9fa;
   /* 부드러운 배경색 추가 */
 }
 
