@@ -1,35 +1,26 @@
 <template>
-  <h1 class="page-title">추천 상품</h1>
-  <!-- 여기에 멤버 정보와 키워드 -->
-   <div>
-    <MemberComponent/>
-   </div>
+  <div>
+    <MemberComponent />
+  </div>
   <div class="container">
-    <!-- 예적금 추천 섹션 -->
-    <div class="recommendation-section">
-      <h2 class="title">예적금 추천</h2>
-      <!-- 토글 버튼 (예금/적금 선택) -->
+    <div class="button-section">
       <div class="toggle-container">
-        <button @click="activeTab = 1" :class="{ 'active': activeTab === 1 }">
-          적금
-        </button>
-        <button @click="activeTab = 0" :class="{ 'active': activeTab === 0 }">
+        <button @click="toggleComponent('savings')" :class="{ 'active': activeComponents.includes('savings') }">
           예금
         </button>
-      </div>
-
-      <!-- 예금 및 적금 추천 -->
-      <div v-show="activeTab === 1">
-        <DepositRecommendation class="recommendation-item" />
-      </div>
-      <div v-show="activeTab === 0">
-        <SavingsRecommendation class="recommendation-item" />
+        <button @click="toggleComponent('deposit')" :class="{ 'active': activeComponents.includes('deposit') }">
+          적금
+        </button>
+        <button @click="toggleComponent('fund')" :class="{ 'active': activeComponents.includes('fund') }">
+          펀드
+        </button>
       </div>
     </div>
 
-    <div class="fund-section">
-      <h2 class="title">펀드 추천</h2>
-      <FundRecommendation class="recommendation-item" />
+    <div class="recommendation-items">
+      <SavingsRecommendation v-if="activeComponents.includes('savings')" class="recommendation-item" />
+      <DepositRecommendation v-if="activeComponents.includes('deposit')" class="recommendation-item" />
+      <FundRecommendation v-if="activeComponents.includes('fund')" class="recommendation-item" />
     </div>
   </div>
 </template>
@@ -49,36 +40,47 @@ export default {
   },
   data() {
     return {
-      activeTab: 1 // 예금 탭을 기본 선택
+      activeComponents: ['savings', 'deposit', 'fund']
     };
+  },
+  methods: {
+    toggleComponent(component) {
+      const index = this.activeComponents.indexOf(component);
+      if (index > -1) {
+        this.activeComponents.splice(index, 1);
+      } else {
+        this.activeComponents.push(component);
+      }
+    }
   }
 };
 </script>
 
 <style scoped>
-/* 전체 페이지의 타이틀 */
 .page-title {
   font-size: 24px;
   font-weight: bold;
   text-align: center;
   margin-bottom: 30px;
   color: #0A3459;
-  /* 타이틀 색상 변경 */
 }
 
-/* 레이아웃 설정 */
 .container {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 20px;
-  /* 두 섹션 사이의 간격을 좁힘 */
   margin: auto;
   max-width: 1500px;
   padding: 10px;
   box-sizing: border-box;
 }
 
-/* 토글 버튼 컨테이너 */
+.recommendation-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
 .toggle-container {
   display: flex;
   justify-content: center;
@@ -91,9 +93,7 @@ export default {
   font-size: 14px;
   border: none;
   background-color: #F2F2F2;
-  /* 기본 배경색 */
   color: #333;
-  /* 기본 텍스트 색상 */
   border-radius: 20px;
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -101,45 +101,35 @@ export default {
 
 .toggle-container button.active {
   background-color: #0A3459;
-  /* 활성화된 버튼 색상 */
   color: #fff;
-  /* 활성화된 버튼 텍스트 색상 */
 }
 
 .toggle-container button:hover {
   background-color: #3C74A6;
-  /* hover 시 배경색 */
   color: #fff;
-  /* hover 시 텍스트 색상 */
 }
 
-/* 추천 상품 섹션 */
-.recommendation-section,
+.button-section,
 .fund-section {
   width: 100%;
-  /* 두 섹션이 동일한 너비를 갖도록 설정 */
 }
 
-/* 추천 아이템 간격 */
 .recommendation-item {
+  flex: 1 1 calc(50% - 20px);
   margin-bottom: 20px;
 }
 
-/* 미디어 쿼리: 반응형 디자인 */
 @media (max-width: 768px) {
   .container {
-    flex-direction: column;
     padding: 15px;
   }
 
-  .recommendation-section,
-  .fund-section {
-    width: 100%;
+  .recommendation-items {
+    flex-direction: column;
   }
 
-  .fund-section {
-    position: relative;
-    top: 0;
+  .recommendation-item {
+    flex: 1 1 100%;
   }
 }
 </style>

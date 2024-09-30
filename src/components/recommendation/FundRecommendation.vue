@@ -1,6 +1,7 @@
 <template>
   <div class="recommend-container">
     <div class="fund-section">
+      <h3 class="title">펀드 추천 리스트</h3>
       <div v-if="fundList && fundList.length > 0">
         <div
           v-for="(fund, index) in fundList"
@@ -73,7 +74,6 @@ export default {
       try {
         const response = await axios.get('http://localhost:9000/recommend/fund', config);
         fundList.value = response.data;
-        console.log(fundList.value);
       } catch (error) {
         console.error("Error fetching funds:", error);
       }
@@ -88,7 +88,6 @@ export default {
     // 펀드 카드 클릭 시 상세 페이지로 이동
     const savingsItemClick = (prdNo) => {
       router.push('/itemDetail/fund/' + prdNo);
-      console.log(prdNo);
     };
 
     // 설문조사 페이지로 이동
@@ -148,11 +147,12 @@ export default {
 }
 
 .title {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 15px;
-  color: #0A3459; /* 제목 색상 */
-  text-align: center;
+  font-size: 25px;
+  font-weight: 600;
+  margin-left: 20px;
+  margin-bottom: 10px;
+  color: #0A3459;
+  text-align: left;
 }
 
 .fund-section {
@@ -246,12 +246,13 @@ button:hover {
 }
 
 .grade-section {
-  flex: 1;
-  min-width: 150px;
+  flex: 0 0 100px; /* 섹션의 최대 너비를 100px로 제한 */
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center; /* 중앙 정렬 */
+  min-width: 50px; /* 최소 너비 설정 */
 }
 
 .grade-icon {

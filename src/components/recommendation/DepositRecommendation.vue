@@ -1,18 +1,25 @@
 <template>
   <div class="recommend-container">
+    <!-- 사용된 키워드 출력 -->
+    <div v-if="usedKeywords && usedKeywords.length > 0" class="keywords-section">
+      <h3 class="title">적금 추천 키워드</h3>
+      <ul class="keyword-list">
+        <li v-for="(keyword, index) in usedKeywords" :key="index" class="hashtag">{{ keyword }}</li>
+      </ul>
+    </div>
     <div class="deposit-section">
       <div v-if="depositList && depositList.length > 0">
         <div v-for="(deposit, index) in depositList" :key="index" class="deposit-card"
-          @click="savingsItemClick(deposit.depositEntity.prdNo)">
-          <img :src="getIcon(deposit.depositEntity.bname)" alt="Deposit Icon" class="icon" />
+          @click="savingsItemClick(deposit.finPrdtCd)">
+          <img :src="getIcon(deposit.korCoNm)" alt="Deposit Icon" class="icon" />
           <div class="deposit-info">
-            <h3 class="deposit-name">{{ deposit.depositEntity.pname }}</h3>
+            <h3 class="deposit-name">{{ deposit.finPrdtNm }}</h3>
             <p class="deposit-rate">
-              기본 금리: <span class="rate">{{ deposit.depositEntity.minRate }}%</span>, 최고 <span class="rate">{{
-                deposit.depositEntity.maxRate }}%</span>
+              기본 금리: <span class="rate">{{ deposit.intrRate }}%</span>, 최고 <span class="rate">{{
+                deposit.intrRate2 }}%</span>
             </p>
             <p class="deposit-period">
-              기간: <span class="period">{{ deposit.depositEntity.subPeriod }}개월</span>
+              기간: <span class="period">{{ deposit.saveTrm }}개월</span>
             </p>
           </div>
         </div>
@@ -24,14 +31,6 @@
           <button @click="goToSurvey">설문조사 시작하기</button>
         </div>
       </div>
-    </div>
-
-    <!-- 사용된 키워드 출력 -->
-    <div v-if="usedKeywords && usedKeywords.length > 0">
-      <h3>사용된 키워드:</h3>
-      <ul>
-        <li v-for="(keyword, index) in usedKeywords" :key="index">{{ keyword }}</li>
-      </ul>
     </div>
   </div>
 </template>
@@ -45,6 +44,7 @@ import 국민은행Icon from '@/assets/bank/국민은행.png';
 import 우리은행Icon from '@/assets/bank/우리은행.png';
 import 신한은행Icon from '@/assets/bank/신한은행.png';
 import 하나은행Icon from '@/assets/bank/하나은행.png';
+import DefaultIcon from '@/assets/bank/defaultbank.png';
 
 export default {
   name: "DepositRecommendations",
@@ -57,6 +57,21 @@ export default {
       '우리은행': 우리은행Icon,
       '신한은행': 신한은행Icon,
       '하나은행': 하나은행Icon,
+      '한국스탠다드차타드은행': DefaultIcon,
+      '아이엠뱅크': DefaultIcon,
+      '부산은행': DefaultIcon,
+      '광주은행': DefaultIcon,
+      '제주은행': DefaultIcon,
+      '전북은행': DefaultIcon,
+      '경남은행': DefaultIcon,
+      '중소기업은행': DefaultIcon,
+      '한국산업은행': DefaultIcon,
+      '농협은행주식회사': DefaultIcon,
+      '주식회사 케이뱅크': DefaultIcon,
+      '수협은행': DefaultIcon,
+      '주식회사 카카오뱅크': DefaultIcon,
+      '토스뱅크 주식회사': DefaultIcon,
+      '주식회사 카카오뱅크': DefaultIcon,
     };
 
     const fetchDeposits = async () => {
@@ -71,6 +86,7 @@ export default {
         const response = await axios.get('http://localhost:9000/recommend/deposit', config);
         depositList.value = response.data.savingsDeposits; // DTO에서 필터링된 예적금 목록 할당
         usedKeywords.value = response.data.usedKeywords; // 사용된 키워드 할당
+        console.log("deposits: ", depositList.value);
       } catch (error) {
         console.error("Error fetching deposits:", error);
       }
@@ -99,7 +115,7 @@ export default {
 
     return {
       depositList,
-      usedKeywords, 
+      usedKeywords,
       goToSurvey,
       getIcon,
       savingsItemClick,
@@ -112,22 +128,18 @@ export default {
 .recommend-container {
   padding: 20px;
   background-color: #DFE7F2;
-  /* 부드러운 배경 색상 */
   border-radius: 16px;
-  /* 부드러운 모서리 */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  /* 부드러운 그림자 */
   margin: 0 auto;
-  /* 중앙 정렬 */
 }
 
 .title {
-  font-size: 26px;
+  font-size: 25px;
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-left: 20px;
+  margin-bottom: 10px;
   color: #0A3459;
-  /* 제목 색상 */
-  text-align: center;
+  text-align: left;
 }
 
 .deposit-section {
@@ -236,5 +248,39 @@ button:hover {
   /* 버튼 hover 색상 */
   transform: scale(1.05);
   /* 버튼 hover 시 확대 효과 */
+}
+
+.keywords-section {
+  margin-top: 20px;
+}
+
+.keyword-list {
+  display: flex;
+  /* 가로 정렬을 위해 flexbox 사용 */
+  flex-wrap: wrap;
+  /* 줄바꿈을 허용하여 공간에 맞게 정렬 */
+}
+
+.hashtag {
+  display: inline-block;
+  background-color: #3C74A6;
+  /* 연한 파란색 배경 */
+  border-radius: 12px;
+  padding: 6px 12px;
+  margin-right: 6px;
+  margin-top: 5px;
+  font-size: 14px;
+  /* 해시태그 폰트 크기 조정 */
+  color: #F2F2F2;
+  /* 어두운 파란색 글자 */
+  transition: background-color 0.3s ease;
+  /* 배경 색상 전환 효과 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  /* 그림자 추가 */
+}
+
+
+.hashtag:hover {
+  background-color: #d1d1d1;
 }
 </style>
