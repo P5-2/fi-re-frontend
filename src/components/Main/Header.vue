@@ -1,10 +1,10 @@
 <template lang="">
-  <div class="header container">
+  <div class="header">
     <header
       class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4"
     >
     <div class="d-flex align-items-center">
-        <router-link :to="{ name: 'HotItemList' }" style="margin-right: 36px">
+        <router-link :to="{ name: 'MainPage' }" style="margin-right: 36px">
           <img src="@/assets/header/logo.png" height="64" />
         </router-link>
         <ul class="nav col-md-auto justify-content-center">
@@ -102,11 +102,12 @@ export default {
   background-color: #FeFeFe;
   position: sticky;
   top: 0px;
-  width: 1200px;
+  width: 100%;
 }
 
 header {
   width: 1176px;
+  margin: auto;
 }
 
 .member-wrapper {

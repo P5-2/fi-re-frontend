@@ -8,9 +8,9 @@
 </template>
 
 <script>
-import Header from '@/components/Main/Header.vue';
-import Remocon from '@/components/Main/Remocon.vue';
-import Calculator from '@/components/Main/Calculator.vue';
+import Header from '@/components/main/Header.vue';
+import Remocon from '@/components/main/Remocon.vue';
+import Calculator from '@/components/main/Calculator.vue';
 
 export default {
   name: 'Main',
