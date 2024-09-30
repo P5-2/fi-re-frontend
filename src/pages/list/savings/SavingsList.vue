@@ -14,6 +14,8 @@
           :minRate="savings.minRate"
           :maxRate="savings.maxRate"
           :subPeriod="savings.subPeriod"
+          :type="savings.type"
+          :selectCount="savings.selectCount"
         />
       </div>
     </div>

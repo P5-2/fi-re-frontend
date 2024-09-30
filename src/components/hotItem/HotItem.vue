@@ -20,10 +20,6 @@
 <script>
 export default {
     name : 'HotItem',
-    data(){
-        return {
-        }
-    },
     props : ['prdNo', 'pname', 'maxRate', 'minRate', 'toggle', 'rate'],
     methods : {
         savingsItemClick(){

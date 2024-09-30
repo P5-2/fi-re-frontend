@@ -81,12 +81,11 @@ export default {
 <style scoped>
 .fund-item {
     border: 1px solid #ddd;
-    padding: 20px;
-    margin: 20px auto;
+    padding: 10px;
+    margin: 10px auto;
     background-color: #f9f9f9;
     border-radius: 8px;
     max-width: 600px;
-    width: 90%;
 }
 
 .fund-item h4 {
