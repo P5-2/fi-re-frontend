@@ -145,8 +145,8 @@ export default {
     justify-content: space-between;
     align-items: center;
     width: 65%;
-    padding: 20px;
-    margin: 20px auto;
+    padding: 10px;
+    margin: 10px auto;
     /* 가운데 정렬을 위해 auto 사용 */
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -163,7 +163,7 @@ export default {
 .fund-content {
     flex-grow: 1;
     display: flex;
-    gap: 20px;
+    gap: 10px;
 }
 
 .fund-title {

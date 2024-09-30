@@ -7,11 +7,12 @@ export const useSurveyStore = defineStore('survey', {
     total: 10, // 전체 페이지 수
     pages: [],
     keywords: [],
-    results: Array(9).fill(0), // 각 페이지 점수 초기화
-    specificScores: { 3: 0, 6: 0 }, // 특정 페이지 점수 저장
+    results: Array(9).fill(0),
+    specificScores: { 3: 0, 6: 0 },
     // 2: 기간 5: 금액
     totalScore: 0,
     age: '',
+    assets: 0,
     showResults: false,
     selectedOptions: Array(10).fill(null),
   }),
@@ -139,7 +140,7 @@ export const useSurveyStore = defineStore('survey', {
         if (this.current === 2) {
           this.specificScores[3] = selectedScore; // 3페이지 점수 저장
         } else if (this.current === 5) {
-          this.specificScores[6] = selectedScore; // 5페이지 점수 저장
+          this.specificScores[6] = selectedScore; // 6페이지 점수 저장
         }
 
         // 총점 계산
@@ -233,6 +234,7 @@ export const useSurveyStore = defineStore('survey', {
         const tokenData = JSON.parse(sessionStorage.getItem('token'));
         const accessToken = tokenData.accessToken;
 
+        console.log(this.assets);
         await axios.post('http://localhost:9000/survey/result', postData, {
           headers: {
             Authorization: `Bearer ${accessToken}`, // Authorization 헤더에 accessToken 포함
@@ -249,6 +251,7 @@ export const useSurveyStore = defineStore('survey', {
         this.current++;
       } else {
         this.showResults = true; // 마지막 페이지에서 결과 표시
+        console.log('Specific scores before routing:', this.specificScores);
       }
     },
     prevPage() {
