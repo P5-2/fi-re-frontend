@@ -1,38 +1,156 @@
 <template>
   <div class="risk-chart card mb-4">
     <div class="card-body">
-      <h4>위험 점수: {{ riskPoint }}</h4>
-      <div class="risk-distribution">
-        <div
-          class="risk-bar"
-          v-for="(color, index) in riskColors"
-          :key="index"
-          :style="{ backgroundColor: color }"
-        >
-          <span>{{ riskLabels[index] }}</span>
-        </div>
+      <div class="result-summary">
+        <p class="investment-style" style="color: black">
+          {{ userStore.userName }}님의 투자 성향은
+          <span :style="{ color: investmentStyleColor }">
+            <strong>{{ investmentStyle }}</strong>
+          </span>
+          입니다.
+        </p>
       </div>
+      <table class="score-table">
+        <thead>
+          <tr>
+            <th>투자 성향</th>
+            <th>추천 상품</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="(style, index) in investmentStyles"
+            :key="index"
+            :class="{ highlight: investmentStyle === style.type }"
+          >
+            <td :style="{ backgroundColor: style.color, color: 'black' }">
+              {{ style.type }}
+            </td>
+            <td style="color: black">{{ style.recommendations }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 
 <script>
+import { useUserStore } from '@/stores/user';
 export default {
   props: {
     riskPoint: {
       type: Number,
       required: true,
     },
+    userName: {
+      type: String,
+    },
+  },
+  setup() {
+    const userStore = useUserStore();
+    userStore.checkLoginStatus(); // 로그인 상태 확인
+    return {
+      userStore,
+    };
   },
   computed: {
-    riskColors() {
-      if (this.riskPoint < 15) return ['green', 'yellow', 'red'];
-      if (this.riskPoint < 25) return ['yellow', 'orange', 'red'];
-      return ['red', 'orange', 'yellow'];
+    investmentStyle() {
+      if (this.riskPoint < 15) return '매우 보수적';
+      if (this.riskPoint < 25) return '보수적';
+      if (this.riskPoint < 35) return '중립적';
+      if (this.riskPoint < 45) return '적극적';
+      return '매우 적극적';
     },
-    riskLabels() {
-      return ['안정형', '위험중립형', '적극투자형'];
+    investmentStyleColor() {
+      if (this.riskPoint < 15) return '#66cc66';
+      if (this.riskPoint < 25) return '#66b3ff';
+      if (this.riskPoint < 35) return '#ffd700';
+      if (this.riskPoint < 45) return '#ffcc33';
+      return '#ff6666';
+    },
+    investmentStyles() {
+      return [
+        {
+          type: '매우 보수적',
+          color: '#b3e6b3',
+          recommendations: '안전한 적금, 국채',
+        },
+        {
+          type: '보수적',
+          color: '#66b3ff',
+          recommendations: '채권형 펀드, 안정형 상품',
+        },
+        {
+          type: '중립적',
+          color: '#ffd700',
+          recommendations: '혼합형 펀드, ETF',
+        },
+        {
+          type: '적극적',
+          color: '#ffcc33',
+          recommendations: '주식형 펀드, 해외 주식',
+        },
+        {
+          type: '매우 적극적',
+          color: '#ff6666',
+          recommendations: '암호화폐, 레버리지 투자',
+        },
+      ];
     },
   },
 };
 </script>
+
+<style scoped>
+.risk-chart {
+  padding: 20px;
+  border: 1px solid #ffffff;
+  border-radius: 8px;
+  background-color: #ffffff;
+  margin: 60px 0 20px; /* 상단 마진을 추가하여 헤더와의 간격을 확보 */
+  text-align: center;
+}
+
+.result-summary {
+  margin-bottom: 20px;
+}
+
+.investment-style {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.score-table {
+  width: 80%;
+  border-collapse: collapse;
+  margin: 0 auto;
+  margin-bottom: 20px;
+}
+
+.score-table th,
+.score-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.score-table td {
+  font-weight: normal;
+  color: black; /* 모든 텍스트를 검은색으로 설정 */
+}
+
+.score-table th {
+  background-color: #f0f0f0;
+  color: black; /* 헤더 글씨 색상 검은색 */
+}
+
+.highlight {
+  border: 2px solid #000; /* 강조를 위한 테두리 */
+  font-weight: bold; /* 하이라이트된 부분의 폰트 굵게 설정 */
+}
+
+.highlight td {
+  font-weight: bold; /* 하이라이트된 셀의 텍스트 굵게 설정 */
+}
+</style>

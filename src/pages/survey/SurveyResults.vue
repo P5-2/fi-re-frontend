@@ -3,7 +3,7 @@
     <h2>설문 결과</h2>
     <div class="result-summary">
       <p class="investment-style">
-        님의 투자 성향은
+        {{ userStore.userName }}님의 투자 성향은
         <span :style="{ color: investmentStyleColor }">
           <strong>{{ investmentStyle }}</strong>
         </span>
@@ -35,15 +35,15 @@
 </template>
 
 <script>
-import { computed } from 'vue';
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
 import { useSurveyStore } from '../../stores/surveyStore';
 
 export default {
   props: {
     totalScore: {
-      type: Number,
+      type: String,
       required: true,
     },
     results: {
@@ -51,18 +51,18 @@ export default {
       required: true,
     },
     specificScores: {
-      type: Object,
+      type: String,
       required: true,
     },
   },
   setup(props) {
     const router = useRouter();
     const surveyStore = useSurveyStore();
+    const userStore = useUserStore();
+    userStore.checkLoginStatus(); // 로그인 상태 확인
     onMounted(async () => {
       // 설문 결과를 제출합니다.
       await surveyStore.submitSurvey();
-
-      // 결과 페이지로 이동하는 추가 로직을 여기에 추가할 수 있습니다.
     });
 
     const investmentStyles = [
@@ -115,6 +115,7 @@ export default {
       investmentStyle,
       investmentStyleColor,
       investmentStyles,
+      userStore,
     };
   },
 };
