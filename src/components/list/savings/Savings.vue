@@ -2,17 +2,17 @@
   <div class="savings-card" @click="viewDetails">
     <div class="savings-content">
       <div class="savings-main-info">
-        <h2 class="savings-title">{{ pname }}</h2>
-        <p class="bank-name">{{ bname }}</p>
+        <h2 class="savings-title">{{ finPrdtNm }}</h2>
+        <p class="bank-name">{{ korCoNm }}</p>
       </div>
       <div class="savings-details">
         <p class="interest-rate">
-          금리: <span>{{ minRate }}% ~ {{ maxRate }}%</span>
+          금리: <span>{{ intrRate }}% ~ {{ intrRate2 }}%</span>
         </p>
         <p class="period">
-          가입기간: <span>{{ subPeriod }}개월</span>
+          가입기간: <span>{{ saveTrm }}개월</span>
         </p>
-        <p class="description">{{ description }}</p>
+        <p class="description">{{ etcNote }}</p>
       </div>
     </div>
     <div class="button-group">
@@ -35,19 +35,19 @@ import axios from "axios";
 export default {
   name: "Savings",
   props: [
-    "prdNo",
-    "pname",
-    "bname",
-    "minRate",
-    "maxRate",
-    "subPeriod",
-    "description",
+    "finPrdtCd",
+    "finPrdtNm",
+    "korCoNm",
+    "intrRate",
+    "intrRate2",
+    "saveTrm",
+    "etcNote",
   ],
   setup(props) {
     const router = useRouter();
 
     const viewDetails = () => {
-      router.push("/itemDetail/savings/" + props.prdNo);
+      router.push("/itemDetail/finance/" + props.finPrdtCd);
     };
 
     return {
@@ -58,13 +58,13 @@ export default {
     ...mapActions(calculatorStore, ["addSavings"]),
     calculateProfit() {
       const savingsData = {
-        prdNo: this.prdNo,
-        pname: this.pname,
-        bname: this.bname,
-        minRate: this.minRate,
-        maxRate: this.maxRate,
-        subPeriod: this.subPeriod,
-        description: this.description,
+        finPrdtCd: this.finPrdtCd,
+        finPrdtNm: this.finPrdtNm,
+        bankName: this.korCoNm,
+        minRate: this.intrRate,
+        maxRate: this.intrRate2,
+        saveTrm: this.saveTrm,
+        etcNote: this.etcNote,
         amount: 0, // 초기 금액을 0으로 설정
       };
       this.addSavings(savingsData);
@@ -73,27 +73,27 @@ export default {
     compareProduct(event) {
       event.stopPropagation();
 
-      // Axios GET 요청을 통해 상품을 장바구니에 추가
-      axios.get('http://localhost:9000/cart/savings/add', {
-        params: {
-          prdNo: this.prdNo
-        },
-        headers: {
-          'Accept': 'text/plain;charset=UTF-8' // 한글 깨짐 방지
-        }
-      })
-        .then(response => {
-          console.log(this.prdNo + "번 상품을 비교함에 담았습니다.");
+      axios
+        .get("http://localhost:9000/finance/savings/get", {
+          params: {
+            finPrdtCd: this.finPrdtCd,
+          },
+          headers: {
+            Accept: "text/plain;charset=UTF-8", // 한글 깨짐 방지
+          },
+        })
+        .then((response) => {
+          console.log(this.finPrdtCd + "번 상품을 비교함에 담았습니다.");
           alert(response.data); // 성공 응답 처리
         })
-        .catch(error => {
+        .catch((error) => {
           if (error.response && error.response.data) {
             alert(error.response.data); // 서버로부터 받은 에러 메시지 출력
           } else {
-            alert('Failed to add savings item to cart.'); // 기본 에러 메시지 출력
+            alert("Failed to add savings item to cart."); // 기본 에러 메시지 출력
           }
         });
-    }
+    },
   },
 };
 </script>

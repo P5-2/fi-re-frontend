@@ -2,18 +2,18 @@
   <div class="savings-list">
     <div class="savings-container">
       <div
-        v-for="savings in paginatedSavings"
-        :key="savings.prdNo"
+        v-for="savings in allSavings"
+        :key="savings.finPrdtCd"
         class="savings-item"
       >
         <Savings
-          :description="savings.description"
-          :prdNo="savings.prdNo"
-          :pname="savings.pname"
-          :bname="savings.bname"
-          :minRate="savings.minRate"
-          :maxRate="savings.maxRate"
-          :subPeriod="savings.subPeriod"
+          :etcNote="savings.etcNote"
+          :finPrdtCd="savings.finPrdtCd"
+          :finPrdtNm="savings.finPrdtNm"
+          :korCoNm="savings.korCoNm"
+          :intrRate="savings.intrRate"
+          :intrRate2="savings.intrRate2"
+          :saveTrm="savings.saveTrm"
         />
       </div>
     </div>
@@ -48,33 +48,28 @@ export default {
   setup() {
     const allSavings = ref([]);
     const currentPage = ref(1);
+    const totalPages = ref(0);
+    const totalItems = ref(0);
     const itemsPerPage = 5;
 
-    const fetchSavings = async () => {
+    const fetchSavings = async (page = 1) => {
       try {
         const response = await axios.get(
-          "http://localhost:9000/finance/savings/all"
+          `http://localhost:9000/finance/savingsDeposit/savings/pageAll?page=${page}&size=${itemsPerPage}`
         );
-        allSavings.value = response.data;
+        allSavings.value = response.data.savings;
+        totalItems.value = response.data.totalCount;
+        totalPages.value = response.data.totalPages;
+        currentPage.value = response.data.currentPage;
       } catch (error) {
-        console.error("Error: savings products", error);
+        console.error("Error: fetching savings products", error);
       }
     };
 
-    const paginatedSavings = computed(() => {
-      const start = (currentPage.value - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      return allSavings.value.slice(start, end);
-    });
-
-    const totalPages = computed(() =>
-      Math.ceil(allSavings.value.length / itemsPerPage)
-    );
-
-    const changePage = (direction) => {
+    const changePage = async (direction) => {
       const newPage = currentPage.value + direction;
       if (newPage >= 1 && newPage <= totalPages.value) {
-        currentPage.value = newPage;
+        await fetchSavings(newPage);
       }
     };
 
@@ -83,7 +78,7 @@ export default {
     });
 
     return {
-      paginatedSavings,
+      allSavings,
       currentPage,
       totalPages,
       changePage,

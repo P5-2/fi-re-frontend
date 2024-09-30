@@ -2,7 +2,7 @@ import SavingsList from "@/pages/list/savings/SavingsList.vue";
 
 export default [
   {
-    path: "/savings",
+    path: "/finance",
     name: "SavingsList",
     component: SavingsList,
   },
