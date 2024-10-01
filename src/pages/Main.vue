@@ -4,6 +4,7 @@
     <RouterView />
     <Remocon></Remocon>
     <Calculator></Calculator>
+    <Footer></Footer>
   </div>
 </template>
 
@@ -11,6 +12,7 @@
 import Header from '@/components/main/Header.vue';
 import Remocon from '@/components/main/Remocon.vue';
 import Calculator from '@/components/main/Calculator.vue';
+import Footer from '@/components/main/Footer.vue';
 
 export default {
   name: 'Main',
@@ -18,6 +20,7 @@ export default {
     Header,
     Remocon,
     Calculator,
+    Footer
   },
 };
 </script>
