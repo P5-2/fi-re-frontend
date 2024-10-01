@@ -2,7 +2,7 @@
   <div class="recommend-container">
     <!-- 사용된 키워드 출력 -->
     <div v-if="usedKeywords.length" class="keywords-section">
-      <h3 class="title">적금 추천 키워드</h3>
+      <h3 class="title">예금 추천 키워드</h3>
       <ul class="keyword-list">
         <li v-for="(keyword, index) in usedKeywords" :key="index" class="hashtag">{{ keyword }}</li>
       </ul>
@@ -27,7 +27,7 @@
       </div>
       <div v-else>
         <div class="empty-message">
-          <p>추천할 적금 상품이 없습니다.</p>
+          <p>추천할 예금 상품이 없습니다.</p>
           <p>더 나은 추천을 위해 간단한 설문조사를 진행해 주세요.</p>
           <button @click="goToSurvey">설문조사 시작하기</button>
         </div>
@@ -40,7 +40,6 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-
 import DefaultIcon from '@/assets/bank/defaultbank.png';
 
 export default {
@@ -51,7 +50,6 @@ export default {
     const router = useRouter();
     const iconMap = ref({});
 
-    // 동적으로 아이콘 가져오기
     const getBankIcon = async (bankName) => {
       const formats = ['png', 'jpg']; // 지원하는 이미지 형식
       for (const format of formats) {
@@ -59,42 +57,27 @@ export default {
           const icon = await import(`@/assets/bank/${bankName}.${format}`);
           return icon.default;
         } catch (error) {
+          // Ignore the error and try the next format
         }
       }
       return DefaultIcon; // 모든 형식에서 아이콘이 없으면 기본 아이콘 반환
     };
 
-    // 아이콘 맵을 설정하는 비동기 함수
     const loadIcons = async () => {
       const banks = [
-        '국민은행',
-        '우리은행',
-        '신한은행',
-        '하나은행',
-        '한국스탠다드차타드은행',
-        '아이엠뱅크',
-        '부산은행',
-        '광주은행',
-        '제주은행',
-        '전북은행',
-        '경남은행',
-        '중소기업은행',
-        '한국산업은행',
-        '농협은행주식회사',
-        '주식회사 케이뱅크',
-        '수협은행',
-        '주식회사 카카오뱅크',
-        '토스뱅크 주식회사',
+        '국민은행', '우리은행', '신한은행', '하나은행', '한국스탠다드차타드은행',
+        '아이엠뱅크', '부산은행', '광주은행', '제주은행', '전북은행',
+        '경남은행', '중소기업은행', '한국산업은행', '농협은행주식회사',
+        '주식회사 케이뱅크', '수협은행', '주식회사 카카오뱅크', '토스뱅크 주식회사'
       ];
 
       const promises = banks.map(async (bank) => {
-        iconMap.value[bank] = await getBankIcon(bank); // 아이콘을 iconMap에 저장
+        iconMap.value[bank] = await getBankIcon(bank);
       });
 
-      await Promise.all(promises); // 모든 아이콘 로드 완료 대기
+      await Promise.all(promises);
     };
 
-    // 예적금 데이터 가져오기
     const fetchDeposits = async () => {
       const accessToken = getAccessToken();
       const config = {
@@ -104,10 +87,10 @@ export default {
       };
 
       try {
-        const response = await axios.get('http://localhost:9000/recommend/deposit', config);
+        const response = await axios.get('http://localhost:9000/recommend/savings', config);
         depositList.value = response.data.savingsDeposits; // DTO에서 필터링된 예적금 목록 할당
         usedKeywords.value = response.data.usedKeywords; // 사용된 키워드 할당
-        console.log("deposits: ", depositList.value);
+        console.log("savings : ", depositList.value);
       } catch (error) {
         console.error("Error fetching deposits:", error);
       }
@@ -146,6 +129,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .recommend-container {
