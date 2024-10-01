@@ -33,7 +33,7 @@
 
       <div class="member-wrapper text-end">
         <div class="dropdown" v-if="userStore.isLoggedIn">
-          <button class="dropbtn"> 
+          <button class="dropbtn dropdown-toggle">
             마이페이지
           </button>
           <div class="dropdown-content">
