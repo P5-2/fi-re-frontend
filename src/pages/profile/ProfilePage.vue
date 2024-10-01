@@ -45,12 +45,18 @@ export default defineComponent({
   setup() {
     const profileStore = useProfileStore();
     const userStore = useUserStore();
-    const router = useRouter(); // router 초기화
-    const isLoading = ref(true); // 로딩 상태 변수
+    const router = useRouter();
+    const isLoading = ref(true);
 
     const fetchData = async () => {
       const tokenData = JSON.parse(sessionStorage.getItem('token'));
-      const accessToken = tokenData.accessToken; // accessToken 추출
+      const accessToken = tokenData?.accessToken;
+
+      if (!accessToken) {
+        alert('로그인이 필요합니다.');
+        router.push('/');
+        return;
+      }
 
       try {
         const userResponse = await axios.get(`http://localhost:9000/profile`, {
@@ -62,47 +68,58 @@ export default defineComponent({
           'http://localhost:9000/profile/news?query=금융'
         );
 
-        profileStore.setNews(newsResponse.data.items); // 뉴스 데이터 저장
-        profileStore.setUserTwo(userResponse.data); // API 데이터 저장
+        profileStore.setNews(newsResponse.data.items);
+        profileStore.setUserTwo(userResponse.data);
       } catch (error) {
         console.error('데이터를 가져오는 데 실패했습니다:', error);
         alert('데이터를 가져오는 데 실패했습니다. 다시 시도해 주세요.');
       } finally {
-        isLoading.value = false; // 데이터 로드 완료 후 로딩 상태 변경
+        isLoading.value = false; // 로딩 종료
       }
     };
 
-    onMounted(() => {
-      userStore.checkLoginStatus(); // 로그인 상태 확인
+    onMounted(async () => {
+      await userStore.checkLoginStatus(); // 로그인 상태 확인
 
-      // 로그인 상태에 따라 알림 띄우기
       if (!userStore.isLoggedIn) {
         alert('로그인이 필요합니다.');
-        router.push('/'); // router 사용
-      }
+        router.push('/');
+      } else {
+        // 로컬 스토리지에서 데이터 복원
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        const storedNews = JSON.parse(localStorage.getItem('news'));
 
-      fetchData();
+        if (storedUser) {
+          profileStore.setUserTwo(storedUser);
+        }
+
+        if (storedNews) {
+          profileStore.setNews(storedNews);
+          isLoading.value = false; // 뉴스가 있는 경우 로딩 종료
+        } else {
+          await fetchData(); // 데이터가 없으면 API 호출
+        }
+      }
     });
 
     return {
       user: profileStore.user,
       news: profileStore.news,
-      isLoading, // 로딩 상태를 반환
+      isLoading,
     };
   },
 });
 </script>
-
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 body {
-  font-family: 'Roboto', sans-serif; /* 폰트 설정 */
+  font-family: 'Roboto', sans-serif;
 }
 
 .container {
   margin-top: 20px;
-  padding: 20px; /* 패딩 추가 */
+  padding: 20px;
   background-color: #ffe7a5;
 }
 
@@ -114,41 +131,41 @@ body {
 
 /* 전체 블록 스타일 */
 .content-block {
-  background-color: #ffffff; /* 부드러운 흰색 배경 */
-  border-radius: 15px; /* 둥근 모서리 */
-  padding: 20px; /* 내부 패딩 */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+  background-color: #ffffff;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 /* 카드 기본 스타일 */
 .card {
-  background-color: #ffffff; /* 흰색 배경 */
-  border: none; /* 테두리 제거 */
-  border-radius: 10px; /* 모서리 둥글게 */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
-  transition: transform 0.3s; /* 부드러운 변환 효과 */
+  background-color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
 }
 
 .card:hover {
-  transform: translateY(-5px); /* 카드가 살짝 떠오르는 효과 */
+  transform: translateY(-5px);
 }
 
 /* 프로필 카드 스타일 */
 .user-profile {
-  background-color: #ffffff; /* 흰색 배경 */
+  background-color: #ffffff;
 }
 
 /* 뉴스 카드 스타일 */
 .news-block {
   padding: 20px;
-  background-color: #ffffff; /* 흰색 배경 */
-  border-radius: 10px; /* 모서리 둥글게 */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* 뉴스 제목 스타일 */
 .news-title {
-  font-size: 1.5rem; /* 제목 크기 조정 */
+  font-size: 1.5rem;
   color: #333;
   margin-bottom: 10px;
 }
@@ -157,52 +174,52 @@ body {
 .news-item {
   border-bottom: 1px solid #e0e0e0;
   padding: 10px 0;
-  transition: background-color 0.3s; /* 부드러운 배경색 전환 */
+  transition: background-color 0.3s;
 }
 
 .news-item:hover {
-  background-color: #f1f1f1; /* 마우스 오버 시 배경색 변경 */
+  background-color: #f1f1f1;
 }
 
 .news-item-title a {
-  font-size: 1.2rem; /* 제목 크기 조정 */
-  color: #007bff; /* 강조 색상 */
-  text-decoration: none; /* 링크 밑줄 제거 */
+  font-size: 1.2rem;
+  color: #007bff;
+  text-decoration: none;
 }
 
 .news-item-title a:hover {
-  text-decoration: underline; /* 마우스 오버 시 밑줄 추가 */
+  text-decoration: underline;
 }
 
 .news-description {
   color: #555;
-  margin: 5px 0 0; /* 위쪽 마진 추가 */
+  margin: 5px 0 0;
 }
 
 /* 진행률 바 스타일 */
 .progress {
-  height: 1.5rem; /* 진행률 바 높이 */
-  border-radius: 20px; /* 둥근 모서리 */
-  background-color: #e0e0e0; /* 배경색 */
+  height: 1.5rem;
+  border-radius: 20px;
+  background-color: #e0e0e0;
 }
 
 .progress-bar {
-  background-color: #007bff; /* 진행률 색상 */
-  transition: width 0.4s; /* 부드러운 진행률 변화 */
+  background-color: #007bff;
+  transition: width 0.4s;
 }
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
   .container {
-    padding: 10px; /* 모바일 패딩 조정 */
+    padding: 10px;
   }
 
   .card {
-    margin-bottom: 20px; /* 카드 간 간격 */
+    margin-bottom: 20px;
   }
 
   .news-title {
-    font-size: 1.3rem; /* 모바일 제목 크기 조정 */
+    font-size: 1.3rem;
   }
 }
 </style>
