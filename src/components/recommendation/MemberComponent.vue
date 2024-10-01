@@ -16,7 +16,7 @@
       <h3>연관 키워드</h3>
       <ul class="keyword-list">
         <li v-for="(keyword, index) in memberInfo.keywordList" :key="index" class="hashtag">
-          {{ keyword }}
+          #{{ keyword }}
         </li>
       </ul>
     </div>
@@ -115,18 +115,19 @@ export default {
 .member-info {
   padding: 20px;
   background-color: #FFFFFF; /* 흰색 배경 */
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  /* border-radius: 10px; */
+  /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); */
   color: #333333; /* 어두운 회색 글자 */
-  max-width: 600px;
+  min-width: 800px;
+  max-width: 60%;
   margin: 20px auto; /* 가운데 정렬 */
 }
 
 .greeting {
   font-size: 20px;
   color: #3C74A6;
-  text-align: center;
-  margin-bottom: 15px;
+  text-align: left;
+  margin-bottom: 20px;
   font-weight: bold;
   background: linear-gradient(90deg, black, #A6C2E5);
   -webkit-background-clip: text;
@@ -154,23 +155,25 @@ export default {
   margin-top: 20px;
   border-top: 1px solid #E0E0E0; /* 구분선 추가 */
   padding-top: 10px; /* 패딩 추가 */
+  text-align: left;
 }
 
 h3 {
-  font-size: 24px;
+  font-size: 22px;
+  font-weight: 600;
   margin-bottom: 10px;
-  color: #3C74A6; /* 중간 파란색 제목 */
+  color: #000000; /* 중간 파란색 제목 */
 }
 
 .label {
-  font-weight: 600; /* 강조된 텍스트 두껍게 */
-  color: #0A3459; /* 어두운 파란색 */
+  font-weight: 600;
+  color: #000000; 
 }
 
 .keyword-list {
   display: flex;
   flex-wrap: wrap; /* 줄바꿈 허용 */
-  justify-content: center; /* 가운데 정렬 */
+  justify-content: left; /* 가운데 정렬 */
   padding: 0; /* 패딩을 제거 */
   list-style: none; /* 기본 리스트 스타일 제거 */
 }

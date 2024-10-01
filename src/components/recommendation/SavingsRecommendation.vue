@@ -1,22 +1,23 @@
 <template>
   <div class="recommend-container">
     <!-- 사용된 키워드 출력 -->
-    <div v-if="usedKeywords && usedKeywords.length > 0" class="keywords-section">
+    <div v-if="usedKeywords.length" class="keywords-section">
       <h3 class="title">예금 추천 키워드</h3>
       <ul class="keyword-list">
         <li v-for="(keyword, index) in usedKeywords" :key="index" class="hashtag">{{ keyword }}</li>
       </ul>
     </div>
+
     <div class="deposit-section">
-      <div v-if="depositList && depositList.length > 0">
+      <div v-if="depositList.length">
         <div v-for="(deposit, index) in depositList" :key="index" class="deposit-card"
           @click="savingsItemClick(deposit.finPrdtCd)">
           <img :src="getIcon(deposit.korCoNm)" alt="Deposit Icon" class="icon" />
           <div class="deposit-info">
             <h3 class="deposit-name">{{ deposit.finPrdtNm }}</h3>
             <p class="deposit-rate">
-              기본 금리: <span class="rate">{{ deposit.intrRate }}%</span>, 최고 <span class="rate">{{
-                deposit.intrRate2 }}%</span>
+              기본 금리: <span class="rate">{{ deposit.intrRate }}%</span>, 최고 <span class="rate">{{ deposit.intrRate2
+                }}%</span>
             </p>
             <p class="deposit-period">
               기간: <span class="period">{{ deposit.saveTrm }}개월</span>
@@ -39,11 +40,6 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-
-import 국민은행Icon from '@/assets/bank/국민은행.png';
-import 우리은행Icon from '@/assets/bank/우리은행.png';
-import 신한은행Icon from '@/assets/bank/신한은행.png';
-import 하나은행Icon from '@/assets/bank/하나은행.png';
 import DefaultIcon from '@/assets/bank/defaultbank.png';
 
 export default {
@@ -52,11 +48,34 @@ export default {
     const depositList = ref([]);
     const usedKeywords = ref([]);
     const router = useRouter();
-    const iconMap = {
-      '국민은행': 국민은행Icon,
-      '우리은행': 우리은행Icon,
-      '신한은행': 신한은행Icon,
-      '하나은행': 하나은행Icon,
+    const iconMap = ref({});
+
+    const getBankIcon = async (bankName) => {
+      const formats = ['png', 'jpg']; // 지원하는 이미지 형식
+      for (const format of formats) {
+        try {
+          const icon = await import(`@/assets/bank/${bankName}.${format}`);
+          return icon.default;
+        } catch (error) {
+          // Ignore the error and try the next format
+        }
+      }
+      return DefaultIcon; // 모든 형식에서 아이콘이 없으면 기본 아이콘 반환
+    };
+
+    const loadIcons = async () => {
+      const banks = [
+        '국민은행', '우리은행', '신한은행', '하나은행', '한국스탠다드차타드은행',
+        '아이엠뱅크', '부산은행', '광주은행', '제주은행', '전북은행',
+        '경남은행', '중소기업은행', '한국산업은행', '농협은행주식회사',
+        '주식회사 케이뱅크', '수협은행', '주식회사 카카오뱅크', '토스뱅크 주식회사'
+      ];
+
+      const promises = banks.map(async (bank) => {
+        iconMap.value[bank] = await getBankIcon(bank);
+      });
+
+      await Promise.all(promises);
     };
 
     const fetchDeposits = async () => {
@@ -91,16 +110,18 @@ export default {
     };
 
     const getIcon = (bname) => {
-      return iconMap[bname] || DefaultIcon; // 기본 아이콘
+      return iconMap.value[bname] || DefaultIcon; // 기본 아이콘
     };
 
     onMounted(() => {
+      loadIcons();
       fetchDeposits();
     });
 
     return {
       depositList,
       usedKeywords,
+      iconMap,
       goToSurvey,
       getIcon,
       savingsItemClick,
@@ -108,6 +129,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .recommend-container {

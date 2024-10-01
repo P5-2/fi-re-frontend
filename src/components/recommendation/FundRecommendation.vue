@@ -3,25 +3,14 @@
     <div class="fund-section">
       <h3 class="title">펀드 추천 리스트</h3>
       <div v-if="fundList && fundList.length > 0">
-        <div
-          v-for="(fund, index) in fundList"
-          :key="index"
-          class="fund-card"
-          @click="savingsItemClick(fund.prdNo)"
-        >
+        <div v-for="(fund, index) in fundList" :key="index" class="fund-card" @click="savingsItemClick(fund.prdNo)">
           <div class="logo-container">
             <!-- 위험도 섹션 -->
             <div class="grade-section">
-              <div
-                class="grade-icon"
-                :style="{ backgroundColor: gradeColor(fund.dngrGrade) }"
-              >
+              <div class="grade-icon" :style="{ backgroundColor: gradeColor(fund.dngrGrade) }">
                 {{ fund.dngrGrade }}
               </div>
-              <div
-                class="grade-text"
-                :style="{ color: gradeColor(fund.dngrGrade) }"
-              >
+              <div class="grade-text" :style="{ color: gradeColor(fund.dngrGrade) }">
                 {{ gradeText(fund.dngrGrade) }}
               </div>
             </div>
@@ -31,9 +20,11 @@
                 <div class="type-rate-container">
                   <!-- 유형과 수익률을 감싸는 컨테이너 -->
                   <p class="fund-type">유형: <span class="type">{{ fund.type }}</span></p>
-                  <p class="fund-rate">3개월 수익률: <span class="rate">{{ fund.rate }}%</span></p>
-                  <p class="fund-rate">6개월 수익률: <span class="rate">{{ fund.sixMRate }}%</span></p>
-                  <p class="fund-rate">12개월 수익률: <span class="rate">{{ fund.oneYRate }}%</span></p>
+                  <div class="rate-container">
+                    <p class="fund-rate">3개월 수익률: <span class="rate">{{ fund.rate }}%</span></p>
+                    <p class="fund-rate">6개월 수익률: <span class="rate">{{ fund.sixMRate }}%</span></p>
+                    <p class="fund-rate">12개월 수익률: <span class="rate">{{ fund.oneYRate }}%</span></p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -140,7 +131,8 @@ export default {
 <style scoped>
 .recommend-container {
   padding: 20px;
-  background-color: #DFE7F2; /* 배경 색상 */
+  background-color: #DFE7F2;
+  /* 배경 색상 */
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   margin: 0 auto;
@@ -167,7 +159,8 @@ export default {
   border: none;
   padding: 1em;
   border-radius: 12px;
-  background-color: #ffffff; /* 카드 배경 색상 */
+  background-color: #ffffff;
+  /* 카드 배경 색상 */
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
   width: 100%;
@@ -195,7 +188,8 @@ export default {
   margin: 0;
   font-size: 1.4em;
   font-weight: 700;
-  color: #3C74A6; /* 펀드 이름 색상 */
+  color: #3C74A6;
+  /* 펀드 이름 색상 */
 }
 
 .info-row {
@@ -210,49 +204,77 @@ export default {
   flex-direction: column;
 }
 
+.rate-container {
+  display: flex;
+  /* Flexbox 사용 */
+  flex-wrap: wrap;
+  /* 항목이 가로로 넘치면 줄바꿈 */
+  justify-content: space-between;
+  /* 공간을 균등하게 분배 */
+}
+
 .fund-type,
 .fund-rate {
-  color: #0A3459; /* 펀드 유형 및 수익률 색상 */
+  color: #000000;
+  /* 펀드 유형 및 수익률 색상 */
   font-size: 0.9em;
   font-weight: 600;
-  margin: 0;
+  /* margin: 0; */
+  flex: 1 1 auto;
+  min-width: 100px;
+  margin: 5px;
+}
+
+.rate {
+  color: #3C74A6;
 }
 
 .empty-message {
-  color: #999; /* 빈 메시지 색상 */
+  color: #999;
+  /* 빈 메시지 색상 */
   font-style: italic;
   text-align: center;
   padding: 1em;
-  border: 1px dashed #0A3459; /* 경계 색상 */
+  border: 1px dashed #0A3459;
+  /* 경계 색상 */
   border-radius: 8px;
-  background-color: #F2F2F2; /* 빈 메시지 배경 색상 */
+  background-color: #F2F2F2;
+  /* 빈 메시지 배경 색상 */
 }
 
 button {
-  background-color: #0A3459; /* 버튼 색상 */
+  background-color: #0A3459;
+  /* 버튼 색상 */
   color: white;
   border: none;
-  padding: 0.6em 1.2em; /* 버튼 패딩 조정 */
+  padding: 0.6em 1.2em;
+  /* 버튼 패딩 조정 */
   font-size: 1em;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.3s;
-  margin-top: 1em; /* 버튼과 텍스트 간 간격 */
+  margin-top: 1em;
+  /* 버튼과 텍스트 간 간격 */
 }
 
 button:hover {
-  background-color: #3C74A6; /* 버튼 hover 색상 */
-  transform: scale(1.05); /* 버튼 hover 시 확대 효과 */
+  background-color: #3C74A6;
+  /* 버튼 hover 색상 */
+  transform: scale(1.05);
+  /* 버튼 hover 시 확대 효과 */
 }
 
 .grade-section {
-  flex: 0 0 100px; /* 섹션의 최대 너비를 100px로 제한 */
+  flex: 0 0 100px;
+  /* 섹션의 최대 너비를 100px로 제한 */
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* 중앙 정렬 */
-  min-width: 50px; /* 최소 너비 설정 */
+  justify-content: center;
+  /* 중앙 정렬 */
+  min-width: 50px;
+  /* 최소 너비 설정 */
 }
 
 .grade-icon {
@@ -264,12 +286,19 @@ button:hover {
   line-height: 40px;
   font-size: 18px;
   color: white;
-  background-color: #0A3459; /* 등급 아이콘 배경 색상 */
+  background-color: #0A3459;
+  /* 등급 아이콘 배경 색상 */
 }
 
 .grade-text {
   font-weight: bold;
   margin-top: 0.5em;
   font-size: 0.8em;
+}
+
+@media (max-width: 600px) {
+  .rate-container {
+    flex-direction: column;
+  }
 }
 </style>
