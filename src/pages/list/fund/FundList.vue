@@ -24,10 +24,9 @@
 
         <!-- 비교 모달 컴포넌트 -->
         <ComparisonModal :selectedFunds="selectedFunds" :isComparisonModalVisible="isComparisonModalVisible"
-            @close="isComparisonModalVisible = false" />
+            @close="closeModalAndResetFunds" />
     </div>
 </template>
-
 
 <script>
 import Fund from '@/components/list/fund/Fund.vue';
@@ -60,6 +59,7 @@ export default {
                 const data = await response.json();
                 this.funds = data.funds;             // 가져온 펀드 데이터를 저장
                 this.totalPages = data.totalPages;   // 전체 페이지 수 업데이트
+                this.loadSelectedFunds();            // 선택된 펀드 복원
             } catch (error) {
                 console.error('펀드 데이터를 가져오는 중 오류가 발생했습니다:', error);
             }
@@ -70,6 +70,7 @@ export default {
                     this.selectedFunds.push(fund);
                 } else {
                     alert("최대 3개의 펀드만 선택할 수 있습니다.");
+                    return;
                 }
             } else {
                 this.selectedFunds = this.selectedFunds.filter(f => f.prdNo !== fund.prdNo);
@@ -78,8 +79,22 @@ export default {
         showComparisonModal() {
             if (this.selectedFunds.length > 0 && this.selectedFunds.length <= 3) {
                 this.isComparisonModalVisible = true;
-                console.log('모달이 열려야 합니다.', this.isComparisonModalVisible); // 디버깅용 로그
             }
+        },
+        closeModalAndResetFunds() {
+            this.isComparisonModalVisible = false;
+            this.clearLocalStorage();  // 모달이 닫힐 때 로컬스토리지 값 제거
+            window.location.href = '/fund';
+        },
+        clearLocalStorage() {
+            localStorage.removeItem('checkedFunds');  // 로컬스토리지 값 삭제
+            this.selectedFunds=[];
+        },
+        loadSelectedFunds() {
+            // localStorage에서 likedFunds 가져오기
+            const checkFund = JSON.parse(localStorage.getItem('checkedFunds')) || [];
+            // 현재 로드된 funds 중 checkFund 해당하는 펀드만 selectedFunds에 추가
+            this.selectedFunds = this.funds.filter(fund => checkFund.includes(fund.prdNo));
         },
         previousPage() {
             if (this.page > 1) {
@@ -99,6 +114,7 @@ export default {
     }
 };
 </script>
+
 
 
 <style scoped>
