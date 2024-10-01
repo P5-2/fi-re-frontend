@@ -48,6 +48,29 @@ export default defineComponent({
     const router = useRouter();
     const isLoading = ref(true);
 
+    const riskPointToQuery = computed(() => {
+      const riskPoint = profileStore.user?.riskPoint;
+
+      const keywords = {
+        매우보수: ['안전자산', '국채', '고정금리', '안정성'],
+        보수적: ['채권형 펀드', '안정형 상품', '배당주', '금리 인상'],
+        중립적: ['혼합형 펀드', 'ETF', '투자 전략', '주식 시장 동향'],
+        적극적: ['주식형 펀드', '해외 주식', '성장주', '시장 분석'],
+        매우적극: ['암호화폐', '비트코인', '블록체인', '선물 거래'],
+      };
+      const getRandomKeyword = (array) => {
+        const randomIndex = Math.floor(Math.random() * array.length);
+        return array[randomIndex];
+      };
+
+      // 투자 성향에 따라 랜덤 키워드 리턴
+      if (riskPoint <= 15) return getRandomKeyword(keywords.매우보수); // 매우 보수적
+      if (riskPoint <= 21) return getRandomKeyword(keywords.보수적); // 보수적
+      if (riskPoint <= 27) return getRandomKeyword(keywords.중립적); // 중립적
+      if (riskPoint <= 33) return getRandomKeyword(keywords.적극적); // 적극적
+      return getRandomKeyword(keywords.매우적극); // 매우 적극적
+    });
+
     const fetchData = async () => {
       const tokenData = JSON.parse(sessionStorage.getItem('token'));
       const accessToken = tokenData?.accessToken;
@@ -64,8 +87,10 @@ export default defineComponent({
             Authorization: `Bearer ${accessToken}`,
           },
         });
+
+        const queryKeyword = riskPointToQuery.value;
         const newsResponse = await axios.get(
-          'http://localhost:9000/profile/news?query=금융'
+          `http://localhost:9000/profile/news?query=${queryKeyword}`
         );
 
         profileStore.setNews(newsResponse.data.items);
@@ -106,6 +131,7 @@ export default defineComponent({
       user: profileStore.user,
       news: profileStore.news,
       isLoading,
+      riskPointToQuery,
     };
   },
 });

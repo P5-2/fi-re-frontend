@@ -62,37 +62,37 @@ export default {
       return '매우 적극적';
     },
     investmentStyleColor() {
-      if (this.riskPoint < 15) return '#66cc66';
-      if (this.riskPoint < 25) return '#66b3ff';
-      if (this.riskPoint < 35) return '#ffd700';
-      if (this.riskPoint < 45) return '#ffcc33';
-      return '#ff6666';
+      if (this.riskPoint < 15) return '#A8E6CF';
+      if (this.riskPoint < 25) return '#B3E5FC';
+      if (this.riskPoint < 35) return '#FFEB3B';
+      if (this.riskPoint < 45) return '#FF9800';
+      return '#FF5722';
     },
     investmentStyles() {
       return [
         {
           type: '매우 보수적',
-          color: '#b3e6b3',
+          color: '#A8E6CF',
           recommendations: '안전한 적금, 국채',
         },
         {
           type: '보수적',
-          color: '#66b3ff',
+          color: '#B3E5FC',
           recommendations: '채권형 펀드, 안정형 상품',
         },
         {
           type: '중립적',
-          color: '#ffd700',
+          color: '#FFEB3B',
           recommendations: '혼합형 펀드, ETF',
         },
         {
           type: '적극적',
-          color: '#ffcc33',
+          color: '#FF9800',
           recommendations: '주식형 펀드, 해외 주식',
         },
         {
           type: '매우 적극적',
-          color: '#ff6666',
+          color: '#FF5722',
           recommendations: '암호화폐, 레버리지 투자',
         },
       ];
