@@ -1,8 +1,8 @@
 <template>
     <div id="CartList">
         <div class="header">
-            <h2>비교함</h2>
-            <p>{{ savings.length + funds.length }} 건의 상품이 비교함에 담겨있습니다.</p>
+            <h2>즐겨찾기</h2>
+            <p>{{ savings.length + funds.length }} 건의 상품이 즐겨찾기에 담겨있습니다.</p>
             
             <!-- 삭제 버튼 추가 -->
             <button @click="removeSelectedItems" class="remove-btn">선택한 항목 삭제</button>
@@ -69,7 +69,7 @@ export default {
             if (tokenData && tokenData.accessToken) {
                 this.userKey = `cart_data_${tokenData.accessToken}`; // accessToken을 기반으로 사용자별 키 생성
             } else {
-                console.error('No access token found in session storage.');
+                alert("로그인 해주세요.");
             }
         },
         loadCartItems() {
@@ -99,13 +99,33 @@ export default {
             }
         },
         removeSelectedItems() {
-            this.savings = this.savings.filter(saving => !this.selectedSavings.has(saving.prdNo));
+            // 좋아요 상태를 저장할 배열 불러오기
+            let likedFunds = JSON.parse(localStorage.getItem('likedFunds')) || [];
+
+            // 선택된 펀드 상품을 제거하고 좋아요 상태 업데이트
+            this.funds = this.funds.filter(fund => {
+                const isSelected = this.selectedFunds.has(fund.prdNo);
+                if (isSelected) {
+                    likedFunds = likedFunds.filter(id => id !== fund.prdNo); // 좋아요 목록에서 제거
+                }
+                return !isSelected;
+            });
+
+            // 선택항목 초기화
+            this.selectedFunds.clear();
+
+            // 변경된 비교함 데이터를 저장
+            this.saveCartItems();
+
+            // 좋아요 상태도 업데이트한다
+            localStorage.setItem('likedFunds', JSON.stringify(likedFunds));
+            /* this.savings = this.savings.filter(saving => !this.selectedSavings.has(saving.prdNo));
             this.funds = this.funds.filter(fund => !this.selectedFunds.has(fund.prdNo));
 
             this.selectedSavings.clear();
             this.selectedFunds.clear();
 
-            this.saveCartItems(); // 변경된 비교함 데이터를 저장한다
+            this.saveCartItems();  */// 변경된 비교함 데이터를 저장한다
         }
     }
 }
