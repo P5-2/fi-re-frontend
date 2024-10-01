@@ -26,7 +26,6 @@ export default {
                     params: { code, state },
                 });
 
-                console.log(response.data); //서버에서 받은 토큰 정보 처리
                 // Object를 JSON 문자열로 변환하여 sessionStorage에 저장
                 sessionStorage.setItem("token", JSON.stringify(response.data));
 
@@ -65,7 +64,6 @@ export default {
 
             if (code && state) {
                 // 서버로 인증 코드와 상태 값을 전달하여 토큰 요청
-                console.log("code: " + code + ", state: " + state);
                 handleNaverCallback(code, state);
             } else {
                 alert('네이버 로그인에 실패하였습니다.');

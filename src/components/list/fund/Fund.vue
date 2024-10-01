@@ -75,7 +75,6 @@ export default {
             this.saveLikeStatus(fund);
 
             if (fund.userLiked) {
-                this.addToComparison(fund);
                 alert('상품을 즐겨찾기에 담았습니다!');
             } else {
                 this.removeFromComparison(fund);
@@ -104,33 +103,6 @@ export default {
                 case 6: return '매우 낮은 위험';
                 default: return '알 수 없음';
             }
-        },
-        addToComparison(fund) {
-            const tokenData = JSON.parse(sessionStorage.getItem('token'));
-            const accessToken = tokenData.accessToken;
-            const userKey = `cart_data_${accessToken}`;
-            const cartData = JSON.parse(localStorage.getItem(userKey)) || { savings: [], funds: [] };
-
-            const isProductInCart = cartData.funds.some(f => f.prdNo === fund.prdNo);
-
-            if (isProductInCart) {
-                alert("이 상품은 이미 비교함에 담겨 있습니다.");
-                return;
-            }
-
-            cartData.funds.push(fund);
-            localStorage.setItem(userKey, JSON.stringify(cartData));
-            console.log(fund.prdNo + "번 상품을 비교함에 담았습니다.");
-        },
-        removeFromComparison(fund) {
-            const tokenData = JSON.parse(sessionStorage.getItem('token'));
-            const accessToken = tokenData.accessToken;
-            const userKey = `cart_data_${accessToken}`;
-            const cartData = JSON.parse(localStorage.getItem(userKey)) || { savings: [], funds: [] };
-
-            cartData.funds = cartData.funds.filter(f => f.prdNo !== fund.prdNo);
-            localStorage.setItem(userKey, JSON.stringify(cartData));
-            console.log(fund.prdNo + "번 상품을 비교함에서 제거했습니다.");
         },
         calcBtn(event) {
             event.stopPropagation();

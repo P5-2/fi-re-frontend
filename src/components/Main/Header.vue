@@ -89,6 +89,8 @@ export default {
     },
     logout() {
       this.userStore.logout();
+      // 로컬 스토리지안의 개인정보 삭제하기
+      ['likedFunds', 'auth'].forEach(item => localStorage.removeItem(item));
       alert('로그아웃 되었습니다.');
       this.$router.push('/'); // main 페이지로 이동
     },
