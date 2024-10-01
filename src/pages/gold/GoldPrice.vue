@@ -9,7 +9,13 @@
       <div class="info-box">
         <div class="text-center">
           <span class="info-date">{{ formatDate(lastestDate) }}</span>
-          <p class="info-price">{{ formattedLastestPrice }} /KG</p>
+          <p class="info-price">{{ formattedLastestPrice }}&#8361;/g</p>
+          <p
+            v-if="yesterdayPrice !== null"
+            :style="{ color: priceChange >= 0 ? 'red' : 'blue' }"
+          >
+            {{ priceChangeText }}
+          </p>
         </div>
       </div>
 
@@ -21,24 +27,29 @@
             @change="fetchPriceByDate"
             class="form-control text-center"
           />
-          <p class="info-price">{{ formattedPointPrice }} /KG</p>
+          <p class="info-price">{{ formattedPointPrice }}&#8361;/g</p>
         </div>
       </div>
     </div>
 
-    <div class="chart-container">
+    <div
+      class="chart-container"
+      style="max-width: 1440px; height: 810px; margin: 0 auto"
+    >
       <div class="d-flex justify-content-start mb-3">
         <button type="button" class="btn" @click="setPeriod(180)">6개월</button>
         <button type="button" class="btn" @click="setPeriod(365)">1년</button>
         <button type="button" class="btn" @click="setPeriod(1095)">3년</button>
       </div>
-      <div class="text-right">
+      <div class="text-right mb-3">
         <span class="gold-label">금 시세</span>
         <span class="predicted-label">예측 금 시세</span>
       </div>
-      <div class="chart-wrapper" style="margin: 0 auto">
-        <canvas id="goldChart" v-if="goldData.length"></canvas>
-      </div>
+      <canvas
+        id="goldChart"
+        v-if="goldData.length"
+        style="width: auto; height: auto"
+      ></canvas>
     </div>
   </div>
 </template>
@@ -61,6 +72,7 @@ export default {
       lastestDate: '',
       lastestPrice: 0,
       selectedDate: '',
+      priceChange: 0,
     };
   },
   computed: {
@@ -70,8 +82,26 @@ export default {
     formattedPointPrice() {
       return this.pointPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     },
+    priceChangeText() {
+      return this.priceChange >= 0
+        ? `어제 대비 +${this.priceChange.toLocaleString()}원`
+        : `어제 대비 ${this.priceChange.toLocaleString()}원`;
+    },
   },
   methods: {
+    calculateYesterdayPrice() {
+      if (this.goldData.length < 2) {
+        this.yesterdayPrice = null;
+        this.priceChange = 0;
+        return;
+      }
+
+      const yesterdayData = this.goldData[this.goldData.length - 2]; // 어제 데이터
+      this.yesterdayPrice = yesterdayData ? yesterdayData.clpr : null;
+
+      // 가격 변동 계산
+      this.priceChange = this.lastestPrice - this.yesterdayPrice;
+    },
     formatDate(dateString) {
       // dateString이 문자열인지 확인하고, 숫자일 경우 문자열로 변환
       if (typeof dateString !== 'string') {
@@ -554,7 +584,8 @@ body {
 
 .btn:hover {
   background-color: #112d4e; /* Hover 시 색상 변경 */
-  transform: scale(1.05); /* Hover 시 크기 증가 */
+  transform: scale(1.02); /* Hover 시 크기 증가 */
+  color: white;
 }
 
 .gold-label,
