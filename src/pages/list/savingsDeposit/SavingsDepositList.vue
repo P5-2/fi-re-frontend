@@ -1,20 +1,33 @@
 <template>
   <div class="savings-list">
+    <div class="filter-buttons">
+      <button
+        @click="setFilter('all')"
+        :class="{ active: currentFilter === 'all' }"
+      >
+        전체
+      </button>
+      <button
+        @click="setFilter('deposit')"
+        :class="{ active: currentFilter === 'deposit' }"
+      >
+        예금
+      </button>
+      <button
+        @click="setFilter('savings')"
+        :class="{ active: currentFilter === 'savings' }"
+      >
+        적금
+      </button>
+    </div>
     <div class="savings-container">
       <div
-        v-for="savings in allSavings"
-        :key="savings.finPrdtCd"
+        v-for="product in filteredProducts"
+        :key="product.finPrdtCd"
         class="savings-item"
       >
-        <Savings
-          :etcNote="savings.etcNote"
-          :finPrdtCd="savings.finPrdtCd"
-          :finPrdtNm="savings.finPrdtNm"
-          :korCoNm="savings.korCoNm"
-          :intrRate="savings.intrRate"
-          :intrRate2="savings.intrRate2"
-          :saveTrm="savings.saveTrm"
-        />
+        <!-- <Savings v-bind="product" /> -->
+        <SavingsDeposit v-bind="product" />
       </div>
     </div>
     <div class="pagination">
@@ -40,48 +53,65 @@
 <script>
 import { ref, computed, onMounted } from "vue";
 import axios from "axios";
-import Savings from "@/components/list/savings/Savings.vue";
+import SavingsDeposit from "@/components/list/savingsDeposit/SavingsDeposit.vue";
 
 export default {
-  name: "SavingsList",
-  components: { Savings },
+  name: "SavingsDepositList",
+  components: { SavingsDeposit },
   setup() {
-    const allSavings = ref([]);
+    const allProducts = ref([]);
     const currentPage = ref(1);
     const totalPages = ref(0);
     const totalItems = ref(0);
     const itemsPerPage = 5;
+    const currentFilter = ref("all");
 
-    const fetchSavings = async (page = 1) => {
+    const fetchProducts = async (page = 1) => {
       try {
         const response = await axios.get(
-          `http://localhost:9000/finance/savingsDeposit/savings/pageAll?page=${page}&size=${itemsPerPage}`
+          `http://localhost:9000/finance/pageAll?page=${page}&size=${itemsPerPage}` //url 수정에 따른 수정
         );
-        allSavings.value = response.data.savings;
+        console.log("API response:", response.data);
+        allProducts.value = response.data.products;
         totalItems.value = response.data.totalCount;
         totalPages.value = response.data.totalPages;
         currentPage.value = response.data.currentPage;
       } catch (error) {
-        console.error("Error: fetching savings products", error);
+        console.error("Error: fetching products", error);
       }
+    };
+
+    const filteredProducts = computed(() => {
+      if (currentFilter.value === "all") return allProducts.value;
+      return allProducts.value.filter(
+        (product) => product.productType === currentFilter.value
+      );
+    });
+
+    const setFilter = (filter) => {
+      currentFilter.value = filter;
+      currentPage.value = 1;
+      fetchProducts();
     };
 
     const changePage = async (direction) => {
       const newPage = currentPage.value + direction;
       if (newPage >= 1 && newPage <= totalPages.value) {
-        await fetchSavings(newPage);
+        await fetchProducts(newPage);
       }
     };
 
     onMounted(() => {
-      fetchSavings();
+      fetchProducts();
     });
 
     return {
-      allSavings,
+      filteredProducts,
       currentPage,
       totalPages,
       changePage,
+      currentFilter,
+      setFilter,
     };
   },
 };

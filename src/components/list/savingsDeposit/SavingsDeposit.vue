@@ -1,11 +1,12 @@
 <template>
-  <div class="savings-card" @click="viewDetails">
-    <div class="savings-content">
-      <div class="savings-main-info">
-        <h2 class="savings-title">{{ finPrdtNm }}</h2>
+  <div class="product-card" @click="viewDetails">
+    <div class="product-content">
+      <div class="product-main-info">
+        <h2 class="product-title">{{ finPrdtNm }}</h2>
         <p class="bank-name">{{ korCoNm }}</p>
+        <p class="product-type">{{ productTypeDisplay }}</p>
       </div>
-      <div class="savings-details">
+      <div class="product-details">
         <p class="interest-rate">
           금리: <span>{{ intrRate }}% ~ {{ intrRate2 }}%</span>
         </p>
@@ -33,7 +34,7 @@ import { mapActions } from "pinia";
 import axios from "axios";
 
 export default {
-  name: "Savings",
+  name: "SavingsDeposit",
   props: [
     "finPrdtCd",
     "finPrdtNm",
@@ -42,6 +43,7 @@ export default {
     "intrRate2",
     "saveTrm",
     "etcNote",
+    "productType",
   ],
   setup(props) {
     const router = useRouter();
@@ -54,43 +56,47 @@ export default {
       viewDetails,
     };
   },
+  computed: {
+    productTypeDisplay() {
+      return this.productType === "deposit" ? "예금" : "적금";
+    },
+  },
   methods: {
     ...mapActions(calculatorStore, ["addSavings"]),
     calculateProfit() {
-      const savingsData = {
+      const productData = {
         finPrdtCd: this.finPrdtCd,
         finPrdtNm: this.finPrdtNm,
-        bankName: this.korCoNm,
-        minRate: this.intrRate,
-        maxRate: this.intrRate2,
+        korCoNm: this.korCoNm,
+        intrRate: this.intrRate,
+        intrRate2: this.intrRate2,
         saveTrm: this.saveTrm,
         etcNote: this.etcNote,
-        amount: 0, // 초기 금액을 0으로 설정
+        productType: this.productType,
+        amount: 0,
       };
-      this.addSavings(savingsData);
+      this.addSavings(productData);
       alert("상품을 계산기에 추가했습니다");
     },
-    compareProduct(event) {
-      event.stopPropagation();
-
+    compareProduct() {
       axios
-        .get("http://localhost:9000/finance/savings/get", {
+        .get(`http://localhost:9000/finance/${this.productType}/get`, {
           params: {
             finPrdtCd: this.finPrdtCd,
           },
           headers: {
-            Accept: "text/plain;charset=UTF-8", // 한글 깨짐 방지
+            Accept: "text/plain;charset=UTF-8",
           },
         })
         .then((response) => {
           console.log(this.finPrdtCd + "번 상품을 비교함에 담았습니다.");
-          alert(response.data); // 성공 응답 처리
+          alert(response.data);
         })
         .catch((error) => {
           if (error.response && error.response.data) {
-            alert(error.response.data); // 서버로부터 받은 에러 메시지 출력
+            alert(error.response.data);
           } else {
-            alert("Failed to add savings item to cart."); // 기본 에러 메시지 출력
+            alert("Failed to add item to comparison.");
           }
         });
     },
