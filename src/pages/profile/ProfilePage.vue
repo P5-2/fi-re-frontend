@@ -7,17 +7,19 @@
           <div class="profile-section p-4 card">
             <UserProfile v-if="user" :user="user" />
             <RiskChart v-if="user" :riskPoint="user.riskPoint" />
-            <FinancialGoals
-              v-if="user"
-              :goalAmount="user.goalAmount"
-              :currentAmount="user.assets"
-            />
           </div>
         </div>
         <div class="col-md-6 col-sm-12 mb-4">
           <div class="news-section p-4 card">
             <NewsSection v-if="news.length > 0" :news="news" />
           </div>
+        </div>
+        <div>
+          <FinancialGoals
+              v-if="user"
+              :goalAmount="user.goalAmount"
+              :currentAmount="user.assets"
+            />
         </div>
       </div>
     </div>

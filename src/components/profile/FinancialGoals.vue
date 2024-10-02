@@ -1,44 +1,59 @@
 <template>
   <div class="goal-manager">
-    <h1>목표 관리</h1>
+    <h1>나의 목표 관리</h1>
 
-    <div v-if="!userProducts.length">
-      <h2>목표 설정 필요</h2>
-      <button @click="showSetGoalModal">목표 설정하기</button>
+    <div v-if="!userProducts.length" class="no-goals">
+      <h2>아직 목표가 없네요</h2>
+      <p>지금 목표를 설정하고 저축을 시작해 보세요!</p>
+      <button @click="showSetGoalModal" class="btn-primary">목표 설정하기</button>
     </div>
 
     <div v-else>
-      <h2>전체 목표 진행률</h2>
-      <p>전체 목표 금액: {{ totalGoalAmount }}원</p>
-      <p>선택한 예적금의 총 저축 금액: {{ totalSavedAmountFromProducts }}원</p>
-      <progress :value="isFinite(overallProgressRate) ? overallProgressRate : 0" max="100">{{ overallProgressRate
-        }}%</progress>
-
-      <h2>선택한 예적금 상품 리스트</h2>
-      <div v-for="product in userProducts" :key="product.id" class="goal-card">
-        <h3>{{ product.goalName }}</h3>
-        <p>상품명: {{ product.finPrdtNm }}</p>
-        <p>현재까지 모은 금액: {{ product.savedAmount }}원</p>
-        <p>이번 달 입금 금액: {{ product.monthlyDeposit }}원</p>
-        <p>시작일: {{ formatDate(product.startDate) }}</p>
-        <p>마감일: {{ formatDate(product.endDate) }}</p>
-        <p>남은 기간: {{ remainingDays(product.endDate) }}일</p>
-        <p>은행: <img :src="getIcon(product.bankname)" alt="Bank Icon" class="bankIcon" /></p>
-        <p>필요한 월 입금액: {{ calculateMonthlyDeposit(product) }}원</p>
-        <p>만기 시 수령액: {{ calculateMaturityAmount(product.savedAmount, 15.4, remainingDays(product.endDate),
-          product.intrRateTypeNm) }}원</p>
-        <progress :value="isFinite(calculateProductProgress(product)) ? calculateProductProgress(product) : 0"
-          max="100">{{ calculateProductProgress(product) }}%</progress>
+      <div class="overall-progress">
+        <h2>전체 목표 진행 상황</h2>
+        <div class="progress-container">
+          <div class="progress-bar-labels">
+            <span>총 목표 금액: {{ formatCurrency(totalGoalAmount) }}</span>
+            <span>현재 저축 금액: {{ formatCurrency(totalSavedAmountFromProducts) }}</span>
+          </div>
+          <progress :value="isFinite(overallProgressRate) ? overallProgressRate : 0" max="100"></progress>
+          <p class="progress-text">{{ overallProgressRate }}% 달성</p>
+        </div>
       </div>
 
-      <button @click="showSetGoalModal">추가 목표 설정</button>
+      <h2>가입한 예적금 상품</h2>
+      <div v-for="product in userProducts" :key="product.id" class="goal-card">
+        <div class="goal-card-header" @click="toggleCard(product.id)">
+          <img :src="getIcon(product.bankname)" alt="Bank Icon" class="bank-badge" />
+          <h3>{{ product.goalName }} ({{ product.finPrdtNm }})</h3>
+        </div>
+        <transition name="slide">
+          <div v-if="product.isExpanded" class="goal-details">
+            <p><strong>현재 저축액:</strong> {{ formatCurrency(product.savedAmount) }}</p>
+            <p><strong>이번 달 입금액:</strong> {{ formatCurrency(product.monthlyDeposit) }}</p>
+            <p><strong>필요한 월 저축액:</strong> {{ formatCurrency(calculateMonthlyDeposit(product)) }}</p>
+            <p><strong>시작일:</strong> {{ formatDate(product.startDate) }}</p>
+            <p><strong>마감일:</strong> {{ formatDate(product.endDate) }}</p>
+            <p><strong>남은 기간:</strong> {{ remainingDays(product.endDate) }}일</p>
+            <p><strong>만기 시 예상 수령액:</strong> {{ formatCurrency(calculateMaturityAmount(product)) }}</p>
+          </div>
+        </transition>
+        <div class="progress-container">
+          <progress :value="isFinite(calculateProductProgress(product)) ? calculateProductProgress(product) : 0"
+            max="100"></progress>
+          <p class="progress-text">{{ calculateProductProgress(product) }}% 달성</p>
+        </div>
+        <button @click="showDeleteConfirmation(product)">삭제</button>
+      </div>
+
+      <button @click="showSetGoalModal" class="btn-primary">추가 목표 설정</button>
     </div>
 
     <!-- SetGoal 모달 -->
     <div v-if="isSetGoalModalVisible" class="modal show" @click.self="closeSetGoalModal">
       <div class="modal-content show">
         <SetGoal @goal-set="handleGoalSet" />
-        <button @click="closeSetGoalModal">닫기</button>
+        <button @click="closeSetGoalModal" class="btn-secondary">닫기</button>
       </div>
     </div>
 
@@ -46,11 +61,12 @@
     <div v-if="isSelectSavingsModalVisible" class="modal show" @click.self="closeSelectSavingsModal">
       <div class="modal-content show">
         <SelectProduct @product-selected="handleProductSelected" />
-        <button @click="closeSelectSavingsModal">닫기</button>
+        <button @click="closeSelectSavingsModal" class="btn-secondary">닫기</button>
       </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import SetGoal from './SetGoal.vue';
@@ -64,6 +80,12 @@ export default {
   components: {
     SetGoal,
     SelectProduct
+  },
+  methods: {
+    toggleCard(productId) {
+      const product = this.userProducts.find(p => p.id === productId);
+      product.isExpanded = !product.isExpanded;
+    },
   },
   setup() {
     const goalStore = useGoalStore();
@@ -212,21 +234,65 @@ export default {
     };
 
     // 만기시 총액 계산
-    function calculateMaturityAmount(cost, interestRate, period, type_val) {
-      interestRate = interestRate / 100; // 이자율을 소수점으로 변환
-      var totalAmount = 0;
+    function calculateMaturityAmount(product) {
+      const principal = product.savedAmount; // 원금
+      const interestRate = ((product.minRate + product.maxRate) / 2) / 100; // 이자율 합산 후 소수점으로 변환
+      const period = remainingMonths(product.endDate); // 남은 기간을 월 단위로 계산
+      const interestType = product.intrRateTypeNm; // 이자 계산 방식
+      const taxRate = 0.154; // 세율 15.4%
+      let maturityAmount = 0;
 
-      if (type_val === "단리") { // 단리 (Simple Interest)
+      if (interestType === "단리") {
         // 단리 계산: A = P * (1 + r * n / 12)
-        totalAmount = cost * (1 + (interestRate * period / 12));
-      } else if (type_val === "복리") { // 월복리 (Compound Interest)
+        maturityAmount = principal * (1 + (interestRate * period / 12));
+      } else if (interestType === "복리") {
         // 복리 계산: A = P * (1 + r / 12)^n
-        totalAmount = cost * Math.pow(1 + interestRate / 12, period);
+        maturityAmount = principal * Math.pow(1 + interestRate / 12, period);
       }
 
-      return totalAmount; // 만기 금액 반환
+      // 세금 적용 후 금액 계산 (이자에 대해서만 세금 적용)
+      const interestGained = maturityAmount - principal; // 발생 이자
+      const taxedInterest = interestGained * (1 - taxRate); // 세금 적용된 이자
+      const finalAmount = principal + taxedInterest; // 원금 + 세금 적용된 이자
+
+      return finalAmount.toFixed(2); // 소수점 2자리까지 반올림하여 반환
     }
 
+    // 삭제 메서드
+    const deleteMemberSavings = async (prdNo) => {
+      try {
+        const accessToken = goalStore.getAccessToken();
+        const config = {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        };
+
+        const response = await axios.delete(`http://localhost:9000/profile/goal/${prdNo}`, config);
+
+        // 성공적으로 삭제된 경우
+        if (response.status === 200) {
+          // 상품 목록 갱신
+          await refreshUserProducts();
+          alert('삭제가 완료되었습니다.'); // 성공 메시지 표시
+        }
+      } catch (error) {
+        console.error('삭제 중 오류 발생:', error);
+        alert('삭제 중 오류가 발생했습니다.'); // 오류 메시지 표시
+      }
+    };
+
+    // UI에 삭제 버튼 추가 및 삭제 확인
+    const showDeleteConfirmation = (product) => {
+      const prdNo = product.finPrdtCd; // 제품 번호
+      if (confirm('정말로 삭제하시겠습니까?')) {
+        if (prdNo) {
+          deleteMemberSavings(prdNo);
+        } else {
+          alert('상품 번호가 유효하지 않습니다.'); // 유효하지 않은 상품 번호 경고
+        }
+      }
+    };
 
     const overallProgressRate = computed(() => {
       if (goalStore.totalGoalAmount === 0) return 0;
@@ -274,6 +340,10 @@ export default {
       return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
     };
 
+    const formatCurrency = (amount) => {
+      return amount.toLocaleString() + '원';
+    };
+
     const totalGoalAmount = computed(() => goalStore.totalGoalAmount);
     const totalSavedAmount = computed(() => goalStore.totalSavedAmount);
 
@@ -293,13 +363,15 @@ export default {
       handleGoalSet,
       handleProductSelected,
       showSetGoalModal,
+      showDeleteConfirmation,
       closeSetGoalModal,
       showSelectSavingsModal,
       closeSelectSavingsModal,
       calculateProductProgress,
-      calculateMonthlyDeposit, // Expose new method
-      calculateMaturityAmount, // Expose new method
+      calculateMonthlyDeposit,
+      calculateMaturityAmount,
       remainingDays,
+      formatCurrency,
       formatDate,
       getIcon,
       loadIcons,
@@ -310,66 +382,186 @@ export default {
 
 <style scoped>
 .goal-manager {
+  font-family: 'Arial', sans-serif;
+  color: #333;
   padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h1,
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #2C3E50;
+}
+
+.no-goals {
+  text-align: center;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.no-goals h2 {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+.btn-primary,
+.btn-secondary {
+  display: inline-block;
+  padding: 10px 20px;
+  margin-top: 15px;
+  border-radius: 25px;
+  background-color: #007BFF;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+.overall-progress {
+  background-color: #ecf0f1;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.progress-container {
+  margin-top: 10px;
+}
+
+.progress-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9em;
+  color: #34495e;
+}
+
+progress {
+  width: 100%;
+  height: 20px;
+  border-radius: 10px;
+  margin-top: 10px;
+  background-color: #ecf0f1;
+}
+
+progress::-webkit-progress-value {
+  background-color: #3498db;
+  border-radius: 10px;
 }
 
 .goal-card {
-  padding: 10px;
-  margin: 15px 0;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-}
-
-button {
-  margin-top: 20px;
-  padding: 10px 15px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #45a049;
+.goal-card:hover {
+  transform: translateY(-5px);
 }
 
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+.goal-card-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 1000;
+  margin-bottom: 10px;
+}
+
+.goal-card-header img.bank-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.goal-card h3 {
+  font-size: 1.2em;
+  margin: 0;
+}
+
+.goal-details {
   opacity: 0;
-  transition: opacity 0.3s ease;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease, max-height 0.3s ease;
 }
 
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  transform: translateY(-30px);
-  transition: transform 0.3s ease;
-}
-
-.modal.show {
+.goal-card.expanded .goal-details {
+  max-height: 300px;
   opacity: 1;
 }
 
-.modal-content.show {
-  transform: translateY(0);
+.goal-details p {
+  margin: 5px 0;
 }
 
-.bankIcon {
-  width: 60px;
-  height: auto;
-  margin-right: 20px;
+.modal.show {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content.show {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.progress-text {
+  text-align: right;
+  font-size: 0.9em;
+  color: #2980b9;
+}
+
+.bank-badge {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+@media (max-width: 600px) {
+  .goal-manager {
+    padding: 10px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+
+  .goal-card {
+    padding: 10px;
+  }
 }
 </style>
