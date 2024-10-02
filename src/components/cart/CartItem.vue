@@ -14,27 +14,18 @@
                 </div>
 
                 <div class="item-info">
-                    <div class="item-name">{{ item.pname }}</div>
-                    <div class="item-benefit" v-if="type === 'saving'">{{ item.description }}</div>
+                    <!-- 슬롯을 통해 삽입된 콘텐츠 -->
+                    <slot></slot>
                     <div class="item-details">
                         <div class="tag-container">
-                            <span class="tag type-tag">{{ item.type }}</span>
-                            <span v-if="type === 'saving'" class="tag sub-period-tag">{{ item.subPeriod }}개월</span>
-                            <span v-if="type === 'saving'" class="tag rate-tag">연 <b>{{ item.minRate }}% ~ {{ item.maxRate }}%</b></span>
-                            <span v-if="type === 'fund'" class="tag nav-tag">기준가 <b>{{ item.nav }}원</b></span>
-                            <span v-if="type === 'fund'" class="tag rate-tag">수익률(3개월) <b>{{ item.rate }}%</b></span>
+                            <slot name="tags"></slot> <!-- 태그용 슬롯 -->
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="item-right">
-                <div v-if="type === 'fund'" class="grade-section">
-                    <div class="grade-wrapper">
-                        <div class="grade-icon" :style="{ backgroundColor: gradeColor }">{{ gradeIconText }}</div>
-                        <div class="grade-text" :style="{ color: gradeColor }">{{ gradeText }}</div>
-                    </div>
-                </div>
-            </div>
+
+            <!-- 추가 슬롯: 위험도, 수익률 등의 항목을 삽입 -->
+            <slot name="extra"></slot>
         </div>
     </li>
 </template>
@@ -45,81 +36,54 @@ export default {
     props: {
         item: {
             type: Object,
-            required: true
+            required: true,
         },
         type: {
             type: String,
-            required: true
+            required: true,
         },
         isSelected: {
             type: Boolean,
-            default: false
-        }
-    },
-    computed: {
-        gradeIconText() {
-            return this.item.dngrGrade;
+            default: false,
         },
-        gradeText() {
-            return this.getGradeText(this.item.dngrGrade);
-        },
-        gradeColor() {
-            return this.getGradeColor(this.item.dngrGrade);
-        }
     },
     methods: {
         emitSelectedItems(event) {
             this.$emit('update-selected-items', {
                 prdNo: this.item.prdNo,
-                isSelected: event.target.checked
+                isSelected: event.target.checked,
             });
         },
         getBankLogo(bname, type) {
+            // type에 따라 다른 이미지를 반환
             if (type === 'fund') {
-                switch (this.item.type) { // item.fundType을 사용하여 펀드 타입에 맞는 이미지를 반환합니다.
-                    case 'MMF': return '/src/assets/fund/mmf.png';
-                    case '주식형': return '/src/assets/fund/주식형.png';
-                    case '채권형': return '/src/assets/fund/채권형.png';
-                    default: return '/src/assets/cart/fund.png'; // 기본 펀드 이미지
+                switch (this.item.type) {
+                    case 'MMF':
+                        return '/src/assets/fund/mmf.png';
+                    case '주식형':
+                        return '/src/assets/fund/주식형.png';
+                    case '채권형':
+                        return '/src/assets/fund/채권형.png';
+                    default:
+                        return '/src/assets/cart/fund.png'; // 기본 펀드 이미지
                 }
             }
             switch (bname) {
-                case '국민은행': return '/src/assets/bank/국민은행.png';
-                case '신한은행': return '/src/assets/bank/신한은행.png';
-                case '우리은행': return '/src/assets/bank/우리은행.png';
-                case '하나은행': return '/src/assets/bank/하나은행.png';
-                default: return '/src/assets/cart/fund.png';
+                case '국민은행':
+                    return '/src/assets/bank/국민은행.png';
+                case '신한은행':
+                    return '/src/assets/bank/신한은행.png';
+                case '우리은행':
+                    return '/src/assets/bank/우리은행.png';
+                case '하나은행':
+                    return '/src/assets/bank/하나은행.png';
+                default:
+                    return '/src/assets/cart/default.png'; // 기본 은행 이미지
             }
         },
-        getGradeText(grade) {
-            switch (grade) {
-                case 6: return '매우낮은위험';
-                case 5: return '낮은위험';
-                case 4: return '보통위험';
-                case 3: return '다소높은위험';
-                case 2: return '높은위험';
-                case 1: return '매우높은위험';
-                default: return '알 수 없음';
-            }
-        },
-        getGradeColor(grade) {
-            switch (grade) {
-                case 6: return '#146138';
-                case 5: return '#1D9A58';
-                case 4: return '#FBBF0A';
-                case 3: return '#F79E07';
-                case 2: return '#EB5908';
-                case 1: return '#DD1820';
-                default: return '#666';
-            }
-        },
-        removeItem(prdNo) {
-            this.$emit('remove-item', prdNo);
-        }
-    }
-}
+    },
+};
 </script>
-
 
 <style scoped>
 .cart-item {
@@ -152,26 +116,21 @@ export default {
 .item-bank {
     display: flex;
     flex-direction: column;
-    /* 로고와 은행 이름을 세로로 정렬 */
     align-items: center;
     gap: 5px;
-    /* 로고와 은행 이름 사이의 간격 */
 }
 
 .bank-logo {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    /* 로고를 원형으로 */
 }
 
 .bank-name {
     font-weight: bold;
     font-size: 1em;
     color: #524d4da4;
-    /* 진한 색상으로 가독성 향상 */
     text-align: center;
-    /* 텍스트를 가운데 정렬 */
 }
 
 .item-info {
@@ -179,7 +138,6 @@ export default {
     flex-direction: column;
     white-space: nowrap;
     margin-left: 15px;
-    /* 로고와 정보 사이에 간격 추가 */
 }
 
 .item-name {
@@ -189,15 +147,6 @@ export default {
     text-align: left;
     line-height: 1.2;
     margin-bottom: 5px;
-}
-
-.item-benefit {
-    font-size: 0.9em;
-    /* 글씨 크기 줄이기 */
-    color: #777;
-    /* 글자 색을 회색으로 */
-    margin-bottom: 5px;
-    /* 아래 요소들과 간격 추가 */
 }
 
 .item-details {
@@ -222,30 +171,36 @@ export default {
     color: #555;
 }
 
-.type-tag {
-    background-color: #ffebee;
-    color: #c62828;
-}
-
-.sub-period-tag {
-    background-color: #e3f2fd;
-    color: #1976d2;
-}
-
 .nav-tag {
     background-color: #e0f7fa;
     color: #007bff;
-}
-
-.rate-tag {
-    background-color: #fff8e1;
-    color: #ffa000;
 }
 
 .item-right {
     display: flex;
     align-items: center;
     gap: 20px;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: right;
+}
+
+.rate-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: 3cm;
+}
+
+.rate-label {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.rate-value {
+    font-size: 2em;
+    color: #007bff;
+    font-weight: bold;
 }
 
 .grade-section {
@@ -279,23 +234,7 @@ export default {
     margin-top: 4px;
 }
 
-.remove-btn {
-    background-color: #ff4d4d;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-weight: bold;
-    border: none;
-}
-
-.remove-btn:hover {
-    background-color: #ff0000;
-}
-
-
-/* check box */
+/* Custom Checkbox */
 .custom-checkbox {
     display: inline-block;
     position: relative;
@@ -328,7 +267,7 @@ export default {
     background-color: #007bff;
 }
 
-.checkmark:after {
+.custom-checkbox .checkmark:after {
     content: "";
     position: absolute;
     display: none;

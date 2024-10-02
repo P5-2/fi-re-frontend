@@ -39,6 +39,8 @@
 </template>
 
 <script>
+import { addFundToCart, removeFundFromCart, checkFundInCart } from '@/services/cartServiceFund.js';
+import { useUserStore } from '@/stores/user';
 export default {
     props: {
         fund: {
@@ -51,47 +53,50 @@ export default {
             isChecked: false, // 체크 상태를 저장할 변수
         };
     },
+    setup() {
+        const userStore = useUserStore(); // Pinia 스토어 가져오기
+        return {
+            userStore,
+        };
+    },
     mounted() {
         this.loadCheckboxState(); // 컴포넌트가 마운트될 때 체크박스 상태 로드
+        this.loadLikeStatus(); // 컴포넌트가 마운트될 때 좋아요 상태 로드
 
         if (this.fund.userLiked === undefined) {
             this.fund.userLiked = false;
         }
-
-        const likedFunds = JSON.parse(localStorage.getItem('likedFunds')) || [];
-        if (likedFunds.includes(this.fund.prdNo)) {
-            this.fund.userLiked = true;
-        }
-
     },
     methods: {
         fundItemClick(prdNo) {
             this.$router.push('/itemDetail/fund/' + prdNo);
             console.log(prdNo + '번 펀드가 클릭되었습니다.');
         },
-        toggleLike(event, fund) {
+        async toggleLike(event, fund) {
             event.stopPropagation();
+
+            // 좋아요 상태 변경
             fund.userLiked = !fund.userLiked;
-            this.saveLikeStatus(fund);
 
             if (fund.userLiked) {
+                // 서버에 장바구니 추가 요청
+                await addFundToCart(this.userStore.username, fund.prdNo);
                 alert('상품을 즐겨찾기에 담았습니다!');
             } else {
-                this.removeFromComparison(fund);
+                // 서버에 장바구니 삭제 요청
+                await removeFundFromCart(this.userStore.username, fund.prdNo);
                 alert('상품을 즐겨찾기에서 취소했습니다.');
             }
         },
-        saveLikeStatus(fund) {
-            const likedFunds = JSON.parse(localStorage.getItem('likedFunds')) || [];
-            if (fund.userLiked) {
-                likedFunds.push(fund.prdNo);
-            } else {
-                const index = likedFunds.indexOf(fund.prdNo);
-                if (index > -1) {
-                    likedFunds.splice(index, 1);
-                }
+        // 좋아요 상태 로드
+        async loadLikeStatus() {
+            try {
+                // 서버에서 현재 사용자가 이 펀드를 장바구니에 담았는지 확인
+                const isInCart = await checkFundInCart(this.userStore.username, this.fund.prdNo);
+                this.fund.userLiked = isInCart;
+            } catch (error) {
+                console.error('좋아요 상태 로드 에러났습니다: \n', error);
             }
-            localStorage.setItem('likedFunds', JSON.stringify(likedFunds));
         },
         getRiskText(grade) {
             switch (grade) {
@@ -165,13 +170,6 @@ export default {
     width: 100%;
     gap: 20px;
     /* 각 섹션 간 간격 추가 */
-}
-
-.custom-checkbox {
-    position: relative;
-    padding-left: 30px;
-    margin-right: 15px;
-    cursor: pointer;
 }
 
 .fund-info {
@@ -307,10 +305,12 @@ export default {
 
 
 /* check box */
+/* Custom Checkbox */
 .custom-checkbox {
-    display: inline-block;
     position: relative;
-    padding-left: 30px;
+    display: inline-block;
+    padding-left: 40px; /* 체크박스가 커지므로 패딩 조정 */
+    margin-right: 15px;
     cursor: pointer;
     user-select: none;
     font-size: 16px;
@@ -328,14 +328,14 @@ export default {
     position: absolute;
     top: 0;
     left: 0;
-    height: 20px;
-    width: 20px;
+    height: 30px; /* 체크박스 크기 증가 */
+    width: 30px;
     background-color: #eee;
     border-radius: 4px;
     transition: background-color 0.3s ease;
 }
 
-.custom-checkbox input:checked~.checkmark {
+.custom-checkbox input:checked ~ .checkmark {
     background-color: #007bff;
 }
 
@@ -345,17 +345,18 @@ export default {
     display: none;
 }
 
-.custom-checkbox input:checked~.checkmark:after {
+.custom-checkbox input:checked ~ .checkmark:after {
     display: block;
 }
 
 .custom-checkbox .checkmark:after {
-    left: 7px;
-    top: 3px;
-    width: 5px;
-    height: 10px;
+    left: 10px; /* 체크 표시 위치 조정 */
+    top: 7px;
+    width: 7px;  /* 체크 표시 크기 증가 */
+    height: 14px;
     border: solid white;
     border-width: 0 3px 3px 0;
     transform: rotate(45deg);
 }
+
 </style>
