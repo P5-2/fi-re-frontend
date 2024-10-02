@@ -143,11 +143,6 @@ body {
   border: none;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s;
-}
-
-.card:hover {
-  transform: translateY(-5px);
 }
 
 /* 프로필 카드 스타일 */
