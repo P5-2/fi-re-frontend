@@ -37,11 +37,26 @@
             마이페이지
           </button>
           <div class="dropdown-content">
-            <router-link to="/profile">내 정보</router-link>
-            <router-link to="/cart">즐겨찾기</router-link>
-            <router-link to="/survey/start">투자성향진단</router-link>
-            <router-link to="/recmd">추천상품</router-link>
-            <router-link to="/">오늘의 퀴즈</router-link>
+            <router-link to="/profile">
+              <img src="@/assets/remocon/info.png" width="20" height="20" class="dc-img"/>
+              내 정보
+            </router-link>
+            <router-link to="/cart">
+              <img src="@/assets/remocon/shopping.png" width="20" height="20" class="dc-img"/>
+              즐겨찾기
+            </router-link>
+            <router-link to="/survey/start">
+              <img src="@/assets/remocon/survey.png" width="20" height="20" class="dc-img"/>
+              투자성향진단
+            </router-link>
+            <router-link to="/recmd">
+              <img src="@/assets/remocon/recommend.png" width="20" height="20" class="dc-img"/>
+              추천상품
+            </router-link>
+            <router-link to="/">
+              <img src="@/assets/remocon/quiz.png" width="20" height="20" class="dc-img"/>
+              오늘의 퀴즈
+            </router-link>
           </div>
         </div>
         <div class="login-wrapper">
@@ -244,7 +259,7 @@ header {
   border : 3px solid #F9F7F7;
   background-color: white;
   padding : 12px;
-  width :150px;
+  width :200px;
   text-align: right;
   cursor : pointer;
 }
@@ -254,7 +269,7 @@ header {
   z-index : 2; /*다른 요소들보다 앞에 배치*/
   font-weight: 400;
   background-color: #F9F7F7;
-  min-width : 150px;
+  min-width : 200px;
 }
 
 .dropdown-content a{
@@ -272,5 +287,7 @@ header {
 .dropdown:hover .dropdown-content {
   display: block;
 }
-
+.dc-img{
+  float:left
+}
 </style>
