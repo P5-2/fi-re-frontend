@@ -52,6 +52,7 @@ export default {
             return this.funds;
         }
     },
+
     methods: {
         async fetchFunds() {
             try {
@@ -59,7 +60,7 @@ export default {
                 const data = await response.json();
                 this.funds = data.funds;             // 가져온 펀드 데이터를 저장
                 this.totalPages = data.totalPages;   // 전체 페이지 수 업데이트
-                this.loadSelectedFunds();            // 선택된 펀드 복원
+                this.loadSelectedFunds();
             } catch (error) {
                 console.error('펀드 데이터를 가져오는 중 오류가 발생했습니다:', error);
             }
@@ -69,7 +70,7 @@ export default {
                 if (this.selectedFunds.length < 3) {
                     this.selectedFunds.push(fund);
                 } else {
-                    alert("최대 3개의 펀드만 선택할 수 있습니다.");
+                   // alert("최대 3개의 펀드만 선택할 수 있습니다.");
                     return;
                 }
             } else {
@@ -91,10 +92,14 @@ export default {
             this.selectedFunds=[];
         },
         loadSelectedFunds() {
-            // localStorage에서 likedFunds 가져오기
+            // localStorage에서 checkedFunds 가져오기
             const checkFund = JSON.parse(localStorage.getItem('checkedFunds')) || [];
-            // 현재 로드된 funds 중 checkFund 해당하는 펀드만 selectedFunds에 추가
-            this.selectedFunds = this.funds.filter(fund => checkFund.includes(fund.prdNo));
+
+            // checkedFunds에서 prdNo 값만 추출
+            checkFund.map(fund => fund.prdNo);
+
+            // 현재 로드된 funds 중 checkFundPrdNos에 해당하는 펀드만 selectedFunds에 추가
+            this.selectedFunds = checkFund;
         },
         previousPage() {
             if (this.page > 1) {
@@ -111,11 +116,10 @@ export default {
     },
     mounted() {
         this.fetchFunds();  // 컴포넌트가 마운트되면 펀드 데이터를 가져옴
+        
     }
 };
 </script>
-
-
 
 <style scoped>
 .fund-container {

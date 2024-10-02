@@ -67,19 +67,10 @@ export default {
                     default:
                         return '/src/assets/cart/fund.png'; // 기본 펀드 이미지
                 }
+            }else{
+                return `/src/assets/bank/${bname}.png;`
             }
-            switch (bname) {
-                case '국민은행':
-                    return '/src/assets/bank/국민은행.png';
-                case '신한은행':
-                    return '/src/assets/bank/신한은행.png';
-                case '우리은행':
-                    return '/src/assets/bank/우리은행.png';
-                case '하나은행':
-                    return '/src/assets/bank/하나은행.png';
-                default:
-                    return '/src/assets/cart/default.png'; // 기본 은행 이미지
-            }
+            
         },
     },
 };
