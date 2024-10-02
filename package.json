@@ -13,6 +13,7 @@
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.4",
     "pinia": "^2.2.2",
+    "pinia-plugin-persistedstate": "^4.0.2",
     "vue-chartjs": "^5.3.1",
     "vue-naver-login": "^1.0.4",
     "vue-router": "^4.0.13",
