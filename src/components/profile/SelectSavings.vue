@@ -54,13 +54,12 @@ export default {
 
       try {
         const response = await axios.get('http://localhost:9000/profile/goal', config);
-
-        // response.data가 배열인지 확인
+        // Check if response.data is an array
         if (Array.isArray(response.data)) {
-          memberSavings.value = response.data.map(item => item.finPrdtCd); // 가입한 상품 코드만 추출
+          memberSavings.value = response.data.map(item => item.finPrdtCd); // Extract only the product codes
         } else {
           console.error('Expected response.data to be an array:', response.data);
-          memberSavings.value = []; // 배열이 아닐 경우 빈 배열로 초기화
+          memberSavings.value = []; // Initialize to an empty array if not an array
         }
       } catch (error) {
         console.error('Error fetching member savings:', error);
@@ -69,9 +68,9 @@ export default {
     };
 
     const loadProducts = async () => {
-      await fetchMemberSavings(); // 가입한 상품 데이터 먼저 가져오기
+      await fetchMemberSavings(); // Fetch member savings first
       const products = await fetchProducts();
-      // 가입한 상품을 제외한 필터링
+      // Filter out products that the member has already saved
       filteredProducts.value = products.filter(product => !memberSavings.value.includes(product.finPrdtCd));
     };
 
@@ -87,6 +86,7 @@ export default {
         };
 
         try {
+          // targetAmount를 goalStore.currentGoal.targetAmount로 변경
           await axios.post('http://localhost:9000/profile/setgoal', {
             goalName: goalStore.currentGoal.goalName,
             finPrdtCd: selectedProduct.finPrdtCd,
@@ -94,6 +94,7 @@ export default {
             startDate: today,
             savedAmount: 0,
             monthlyDeposit: 0,
+            targetAmount: goalStore.currentGoal.targetAmount, // goalStore에서 가져온 targetAmount
             saveTrm: selectedProduct.saveTrm
           }, config);
 

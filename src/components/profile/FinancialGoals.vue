@@ -23,7 +23,10 @@
         <p>시작일: {{ formatDate(product.startDate) }}</p>
         <p>마감일: {{ formatDate(product.endDate) }}</p>
         <p>남은 기간: {{ remainingDays(product.endDate) }}일</p>
-        <p>은행: <img :src="getIcon(product.bankname)" alt="Bank Icon"  class="bankIcon"/></p>
+        <p>은행: <img :src="getIcon(product.bankname)" alt="Bank Icon" class="bankIcon" /></p>
+        <p>필요한 월 입금액: {{ calculateMonthlyDeposit(product) }}원</p>
+        <p>만기 시 수령액: {{ calculateMaturityAmount(product.savedAmount, 15.4, remainingDays(product.endDate),
+          product.intrRateTypeNm) }}원</p>
         <progress :value="isFinite(calculateProductProgress(product)) ? calculateProductProgress(product) : 0"
           max="100">{{ calculateProductProgress(product) }}%</progress>
       </div>
@@ -80,6 +83,7 @@ export default {
       try {
         const response = await axios.get('http://localhost:9000/profile/goal', config);
         userProducts.value = Array.isArray(response.data) ? response.data : [];
+        goalStore.updateTotals(userProducts.value);
         if (userProducts.value.length === 0) {
           showSetGoalModal();
         }
@@ -160,11 +164,9 @@ export default {
       await Promise.all(promises); // 모든 아이콘 로드 완료 대기
     };
 
-
     const getIcon = (bname) => {
       return iconMap.value[bname] || DefaultIcon; // 기본 아이콘
     };
-
 
     const showSetGoalModal = () => {
       isSetGoalModalVisible.value = true;
@@ -192,6 +194,40 @@ export default {
       return Math.min(((passedDuration / totalDuration) * 100).toFixed(2), 100);
     };
 
+    // 적금 월 불입액 계산
+    const calculateMonthlyDeposit = (product) => {
+      // 
+      // 모든 값이 유효한 숫자인지 확인
+      if (typeof product.targetAmount === 'number' && typeof product.savedAmount === 'number' && typeof remainingMonths(product.endDate) === 'number') {
+        const remainingAmount = product.targetAmount - product.savedAmount;
+
+        // 남은 개월이 0보다 큰지 확인하여 나눗셈 오류 방지
+        if (remainingMonths(product.endDate) > 0) {
+          return (remainingAmount / remainingMonths(product.endDate)).toFixed(2);
+        } else {
+          return 0; // 남은 기간이 없으면 0 반환
+        }
+      }
+      return 0; // 유효하지 않은 값이면 0 반환
+    };
+
+    // 만기시 총액 계산
+    function calculateMaturityAmount(cost, interestRate, period, type_val) {
+      interestRate = interestRate / 100; // 이자율을 소수점으로 변환
+      var totalAmount = 0;
+
+      if (type_val === "단리") { // 단리 (Simple Interest)
+        // 단리 계산: A = P * (1 + r * n / 12)
+        totalAmount = cost * (1 + (interestRate * period / 12));
+      } else if (type_val === "복리") { // 월복리 (Compound Interest)
+        // 복리 계산: A = P * (1 + r / 12)^n
+        totalAmount = cost * Math.pow(1 + interestRate / 12, period);
+      }
+
+      return totalAmount; // 만기 금액 반환
+    }
+
+
     const overallProgressRate = computed(() => {
       if (goalStore.totalGoalAmount === 0) return 0;
       return Math.min(((goalStore.totalSavedAmount / goalStore.totalGoalAmount) * 100).toFixed(2), 100);
@@ -207,6 +243,31 @@ export default {
       const remainingTime = end - today;
       return Math.ceil(remainingTime / (1000 * 60 * 60 * 24));
     };
+
+    const remainingMonths = (endDate) => {
+      const today = new Date();
+      const end = new Date(endDate);
+
+      // 종료일이 오늘보다 이전이면 0 반환
+      if (end <= today) {
+        return 0;
+      }
+
+      // 종료일과 현재 날짜 사이의 연도 차이와 월 차이를 계산
+      const yearsDifference = end.getFullYear() - today.getFullYear();
+      const monthsDifference = end.getMonth() - today.getMonth();
+
+      // 총 남은 개월 수를 계산
+      let remainingMonths = yearsDifference * 12 + monthsDifference;
+
+      // 만약 종료일이 현재 날짜보다 이후일 경우, 추가로 1개월을 더함
+      if (end.getDate() > today.getDate()) {
+        remainingMonths++;
+      }
+
+      return remainingMonths;
+    };
+
 
     const formatDate = (dateString) => {
       const date = new Date(dateString);
@@ -236,11 +297,12 @@ export default {
       showSelectSavingsModal,
       closeSelectSavingsModal,
       calculateProductProgress,
+      calculateMonthlyDeposit, // Expose new method
+      calculateMaturityAmount, // Expose new method
       remainingDays,
       formatDate,
       getIcon,
       loadIcons,
-
     };
   }
 };
