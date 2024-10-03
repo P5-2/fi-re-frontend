@@ -61,7 +61,7 @@
         </div>
         <div class="login-wrapper">
           <div v-if="userStore.isLoggedIn">
-            <b>{{ userStore.userName }}</b> 님<br />
+            <b>{{ userStore.NickName }}</b> 님<br />
             <span class="logout-btn" @click="logout">로그아웃</span>
           </div>
 
@@ -91,8 +91,12 @@
 
 <script>
 import Login from '../login/Login.vue';
+<<<<<<< HEAD
 import Quiz from '../quiz/Quiz.vue';
 import { useUserStore } from '@/stores/user';
+=======
+import { useUserStore } from '@/stores/user.js';
+>>>>>>> 116c4093aaa82cb50f89c8676c0e85b04368deac
 
 export default {
   name: "Header",
@@ -124,7 +128,7 @@ export default {
     logout() {
       this.userStore.logout();
       // 로컬 스토리지안의 개인정보 삭제하기
-      ['likedFunds', 'auth'].forEach(item => localStorage.removeItem(item));
+      ['likedFunds', 'auth', 'checkedFunds'].forEach(item => localStorage.removeItem(item));
       alert('로그아웃 되었습니다.');
       this.$router.push('/'); // main 페이지로 이동
     },

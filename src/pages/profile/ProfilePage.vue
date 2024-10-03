@@ -7,17 +7,19 @@
           <div class="profile-section p-4 card">
             <UserProfile v-if="user" :user="user" />
             <RiskChart v-if="user" :riskPoint="user.riskPoint" />
-            <FinancialGoals
-              v-if="user"
-              :goalAmount="user.goalAmount"
-              :currentAmount="user.assets"
-            />
           </div>
         </div>
         <div class="col-md-6 col-sm-12 mb-4">
           <div class="news-section p-4 card">
             <NewsSection v-if="news.length > 0" :news="news" />
           </div>
+        </div>
+        <div>
+          <FinancialGoals
+              v-if="user"
+              :goalAmount="user.goalAmount"
+              :currentAmount="user.assets"
+            />
         </div>
       </div>
     </div>
@@ -143,11 +145,6 @@ body {
   border: none;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s;
-}
-
-.card:hover {
-  transform: translateY(-5px);
 }
 
 /* 프로필 카드 스타일 */
