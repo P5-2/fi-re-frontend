@@ -53,10 +53,10 @@
               <img src="@/assets/remocon/recommend.png" width="20" height="20" class="dc-img"/>
               추천상품
             </router-link>
-            <router-link to="/">
+            <a @click="openQuiz">
               <img src="@/assets/remocon/quiz.png" width="20" height="20" class="dc-img"/>
               오늘의 퀴즈
-            </router-link>
+            </a>
           </div>
         </div>
         <div class="login-wrapper">
@@ -85,21 +85,24 @@
         <Login />
         <button class="close-btn" @click="closeModal">닫기</button>
       </div>
-    </div>
+  </div>
+  <Quiz v-model:isQuizOpen="isQuizOpen" @closeQuiz="closeQuiz"></Quiz>
 </template>
 
 <script>
 import Login from '../login/Login.vue';
+import Quiz from '../quiz/Quiz.vue';
 import { useUserStore } from '@/stores/user';
 
 export default {
   name: "Header",
   components: {
-    Login
+    Login, Quiz
   },
   data() {
     return {
       isModalOpen: false,
+      isQuizOpen : false
     };
   },
 
@@ -125,6 +128,12 @@ export default {
       alert('로그아웃 되었습니다.');
       this.$router.push('/'); // main 페이지로 이동
     },
+    openQuiz() {
+      this.isQuizOpen = true;
+    },
+    closeQuiz() {
+      this.isQuizOpen = false;
+    }
   },
 };
 </script>
