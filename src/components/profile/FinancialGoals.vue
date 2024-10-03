@@ -1,6 +1,6 @@
 <template>
   <div class="goal-manager">
-    <h1>나의 목표 관리</h1>
+    <h1>예적금으로 모으기</h1>
 
     <div v-if="!userProducts.length" class="no-goals">
       <h2>아직 목표가 없네요</h2>
@@ -10,42 +10,57 @@
 
     <div v-else>
       <div class="overall-progress">
-        <h2>전체 목표 진행 상황</h2>
         <div class="progress-container">
           <div class="progress-bar-labels">
-            <span>총 목표 금액: {{ formatCurrency(totalGoalAmount) }}</span>
-            <span>현재 저축 금액: {{ formatCurrency(totalSavedAmountFromProducts) }}</span>
+            <span>총 목표 금액: {{ formatCurrency(totalGoalAmount) }}원</span>
+            <span>현재 저축 금액: {{ formatCurrency(totalSavedAmountFromProducts) }}원</span>
           </div>
           <progress :value="isFinite(overallProgressRate) ? overallProgressRate : 0" max="100"></progress>
           <p class="progress-text">{{ overallProgressRate }}% 달성</p>
         </div>
       </div>
 
-      <h2>가입한 예적금 상품</h2>
-      <div v-for="product in userProducts" :key="product.id" class="goal-card">
-        <div class="goal-card-header" @click="toggleCard(product.id)">
-          <img :src="getIcon(product.bankname)" alt="Bank Icon" class="bank-badge" />
-          <h3>{{ product.goalName }} ({{ product.finPrdtNm }})</h3>
-        </div>
-        <transition name="slide">
-          <div v-if="product.isExpanded" class="goal-details">
-            <p><strong>현재 저축액:</strong> {{ formatCurrency(product.savedAmount) }}</p>
-            <p><strong>이번 달 입금액:</strong> {{ formatCurrency(product.monthlyDeposit) }}</p>
-            <p><strong>필요한 월 저축액:</strong> {{ formatCurrency(calculateMonthlyDeposit(product)) }}</p>
-            <p><strong>시작일:</strong> {{ formatDate(product.startDate) }}</p>
-            <p><strong>마감일:</strong> {{ formatDate(product.endDate) }}</p>
-            <p><strong>남은 기간:</strong> {{ remainingDays(product.endDate) }}일</p>
-            <p><strong>만기 시 예상 수령액:</strong> {{ formatCurrency(calculateMaturityAmount(product)) }}</p>
+      <!-- <h2>나의 예적금 상품들</h2> -->
+      <div v-for="product in userProducts" :key="product.finPrdtCd" class="goal-card"
+        :class="{ expanded: product.isExpanded }">
+        <div class="goal-card-header" @click="toggleCard(product.finPrdtCd)">
+          <div class="goal-icon">
+            <img :src="getIcon(product.bankname)" alt="Bank Icon" class="bank-badge" />
           </div>
-        </transition>
-        <div class="progress-container">
-          <progress :value="isFinite(calculateProductProgress(product)) ? calculateProductProgress(product) : 0"
-            max="100"></progress>
-          <p class="progress-text">{{ calculateProductProgress(product) }}% 달성</p>
+          <h3 class="goal-title">{{ product.goalName }} ({{ product.finPrdtNm }})</h3>
         </div>
-        <button @click="showDeleteConfirmation(product)">삭제</button>
+        <div v-show="product.isExpanded" class="goal-details">
+          <div class="goal-detail-items">
+            <div class="goal-detail-item">
+              <i class="fas fa-piggy-bank"></i>
+              <p class="detail-text">지금까지 <strong>{{ formatCurrency(product.savedAmount) }}</strong>원을 모았어요</p>
+            </div>
+            <div class="goal-detail-item">
+              <i class="fas fa-coins"></i>
+              <p class="detail-text">이번 달에는 <strong>{{ formatCurrency(product.monthlyDeposit) }}</strong>원을 모았어요</p>
+            </div>
+            <div class="goal-detail-item">
+              <i class="fas fa-chart-line"></i>
+              <p class="detail-text">
+                <strong>이번달에는 </strong>
+                <strong>{{ formatCurrency(calculateMonthlyDeposit(product)) }}</strong>원 더
+                저금할 수 있어요
+              </p>
+            </div>
+          </div>
+          <div class="progress-container">
+            <div class="progress-info">
+              <p><strong>시작일:</strong> {{ formatDate(product.startDate) }}</p>
+              <p><strong>마감일:</strong> {{ formatDate(product.endDate) }}</p>
+              <p><strong>남은 기간:</strong> {{ remainingDays(product.endDate) }}일</p>
+            </div>
+            <progress :value="isFinite(calculateProductProgress(product)) ? calculateProductProgress(product) : 0"
+              max="100"></progress>
+            <p class="progress-text">{{ calculateProductProgress(product) }}% 완료</p>
+          </div>
+          <button @click="showDeleteConfirmation(product)" class="delete-button">삭제</button>
+        </div>
       </div>
-
       <button @click="showSetGoalModal" class="btn-primary">추가 목표 설정</button>
     </div>
 
@@ -67,6 +82,9 @@
   </div>
 </template>
 
+<!--  -->
+<!--  -->
+<!-- 총 목표 금액 수정기능도 추가하기-->
 
 <script>
 import SetGoal from './SetGoal.vue';
@@ -80,12 +98,6 @@ export default {
   components: {
     SetGoal,
     SelectProduct
-  },
-  methods: {
-    toggleCard(productId) {
-      const product = this.userProducts.find(p => p.id === productId);
-      product.isExpanded = !product.isExpanded;
-    },
   },
   setup() {
     const goalStore = useGoalStore();
@@ -104,7 +116,10 @@ export default {
 
       try {
         const response = await axios.get('http://localhost:9000/profile/goal', config);
-        userProducts.value = Array.isArray(response.data) ? response.data : [];
+        userProducts.value = Array.isArray(response.data) ? response.data.map(product => ({
+          ...product,
+          isExpanded: false
+        })) : [];
         goalStore.updateTotals(userProducts.value);
         if (userProducts.value.length === 0) {
           showSetGoalModal();
@@ -133,13 +148,38 @@ export default {
       }
     };
 
-    const handleGoalSet = (goal) => {
+    const toggleCard = (finPrdtCd) => {
+      // finPrdtCd가 유효한지 확인
+      if (!finPrdtCd) {
+        console.warn("finPrdtCd is undefined or null.");
+        return; // finPrdtCd가 유효하지 않으면 함수 종료
+      }
+
+      console.log("finPrdtCd: ", finPrdtCd); // finPrdtCd 로그 출력
+
+      userProducts.value = userProducts.value.map(product => {
+        // product.finPrdtCd가 유효한지 확인
+        if (product.finPrdtCd !== undefined && product.finPrdtCd === finPrdtCd) {
+          return {
+            ...product,
+            isExpanded: !product.isExpanded // 선택한 카드만 열고 닫기
+          };
+        } else {
+          return {
+            ...product,
+            isExpanded: false // 나머지는 닫힌 상태 유지
+          };
+        }
+      });
+    };
+
+    const handleGoalSet = () => {
       refreshUserProducts();
       closeSetGoalModal();
       showSelectSavingsModal();
     };
 
-    const handleProductSelected = (product) => {
+    const handleProductSelected = () => {
       refreshUserProducts();
       closeSelectSavingsModal();
     };
@@ -213,7 +253,7 @@ export default {
       const totalDuration = endDate - startDate;
       const passedDuration = today - startDate;
       if (totalDuration <= 0 || passedDuration <= 0) return 0;
-      return Math.min(((passedDuration / totalDuration) * 100).toFixed(2), 100);
+      return Math.min(((passedDuration / totalDuration) * 100).toFixed(0), 100);
     };
 
     // 적금 월 불입액 계산
@@ -222,10 +262,11 @@ export default {
       // 모든 값이 유효한 숫자인지 확인
       if (typeof product.targetAmount === 'number' && typeof product.savedAmount === 'number' && typeof remainingMonths(product.endDate) === 'number') {
         const remainingAmount = product.targetAmount - product.savedAmount;
-
+        const remainingMonthlyAmount = (remainingAmount / remainingMonths(product.endDate)) - product.monthlyDeposit;
         // 남은 개월이 0보다 큰지 확인하여 나눗셈 오류 방지
         if (remainingMonths(product.endDate) > 0) {
-          return (remainingAmount / remainingMonths(product.endDate)).toFixed(2);
+          // return (remainingAmount / remainingMonths(product.endDate)).toFixed(2);
+          return remainingMonthlyAmount.toFixed(0);
         } else {
           return 0; // 남은 기간이 없으면 0 반환
         }
@@ -341,7 +382,8 @@ export default {
     };
 
     const formatCurrency = (amount) => {
-      return amount.toLocaleString() + '원';
+      if (amount != undefined)
+        return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     };
 
     const totalGoalAmount = computed(() => goalStore.totalGoalAmount);
@@ -375,6 +417,7 @@ export default {
       formatDate,
       getIcon,
       loadIcons,
+      toggleCard,
     };
   }
 };
@@ -421,6 +464,7 @@ h2 {
   cursor: pointer;
   transition: background-color 0.3s ease;
   border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary:hover {
@@ -437,14 +481,10 @@ h2 {
 
 .overall-progress {
   background-color: #ecf0f1;
-  padding: 20px;
+  padding: 2px;
   border-radius: 10px;
   margin-bottom: 30px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.progress-container {
-  margin-top: 10px;
 }
 
 .progress-bar-labels {
@@ -467,52 +507,142 @@ progress::-webkit-progress-value {
   border-radius: 10px;
 }
 
+/* 카드 기본 스타일 */
 .goal-card {
-  background-color: #fff;
+  background-color: #ffffff;
   border-radius: 10px;
   padding: 15px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.goal-card:hover {
-  transform: translateY(-5px);
+/* 카드가 확장된 상태의 스타일 */
+.goal-card.expanded {
+  border: 2px solid #143959;
+  /* 확장된 상태의 강조 스타일 */
+  height: auto;
+  /* 자동 높이 */
+}
+
+.goal-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 카드가 확장될 때의 아이콘 크기 변경 */
+.goal-card.expanded .goal-icon {
+  width: 70px;
+  /* 확장된 아이콘 크기 */
+  height: 70px;
+  /* 확장된 아이콘 크기 */
 }
 
 .goal-card-header {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  padding: 10px; 
+  border-radius: 10px; 
+  cursor: pointer; 
 }
 
-.goal-card-header img.bank-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 10px;
+.goal-card-header:hover {
+  background-color: #e2e6ea;
+}
+.goal-card-header h3 {
+  margin-left: 15px;
+  color: #2C3E50;
 }
 
-.goal-card h3 {
-  font-size: 1.2em;
-  margin: 0;
+.goal-detail-items {
+  display: flex; 
+  justify-content: space-between;
+  margin-top: 15px; 
+}
+
+.goal-detail-item {
+  flex: 1; 
+  text-align: center;
+  padding: 10px;
+  background-color: #f0f4f8; 
+  border-radius: 5px; 
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s;
+}
+
+.goal-detail-item:hover {
+  background-color: #e9eff1; /* 호버 시 배경 색상 */
+}
+
+.goal-detail-item i {
+  color: #000000;
+  margin-right: 8px;
+}
+
+.detail-text {
+  margin: 5px 0;
+  color: #495057; 
+  font-size: 0.95em;
 }
 
 .goal-details {
-  opacity: 0;
   max-height: 0;
   overflow: hidden;
-  transition: opacity 0.3s ease, max-height 0.3s ease;
+  transition: max-height 0.5s ease-in-out;
+}
+
+.goal-detail-item:last-child {
+  margin-right: 0;
+  /* 마지막 항목에는 오른쪽 여백 제거 */
+}
+
+.goal-details-enter-active {
+  max-height: 500px;
+}
+
+.goal-details-leave-active {
+  max-height: 0;
 }
 
 .goal-card.expanded .goal-details {
-  max-height: 300px;
+  max-height: 500px;
   opacity: 1;
 }
 
 .goal-details p {
   margin: 5px 0;
+}
+
+.progress-container {
+  margin: 15px 0;
+  /* 간격 추가 */
+  background-color: #ecf0f1;
+  /* 배경색 추가 */
+  border-radius: 8px;
+  /* 둥근 모서리 */
+  padding: 10px;
+  /* 패딩 추가 */
+}
+
+.delete-button {
+  background-color: #e74c3c;
+  /* 삭제 버튼 색상 */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.delete-button:hover {
+  background-color: #c0392b;
+  /* 삭제 버튼 호버 효과 */
 }
 
 .modal.show {
@@ -543,11 +673,25 @@ progress::-webkit-progress-value {
   color: #2980b9;
 }
 
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
 .bank-badge {
-  width: 30px;
-  height: 30px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   margin-right: 10px;
+}
+
+.goal-title {
+  font-size: 1.6em; 
+  font-weight: 550;
+  color: #333; 
+  margin: 0; 
 }
 
 @media (max-width: 600px) {
@@ -562,6 +706,8 @@ progress::-webkit-progress-value {
 
   .goal-card {
     padding: 10px;
+    flex-direction: column;
+    /* 작은 화면에서 세로 정렬 */
   }
 }
 </style>
