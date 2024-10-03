@@ -33,18 +33,22 @@
           <div class="goal-detail-items">
             <div class="goal-detail-item">
               <i class="fas fa-piggy-bank"></i>
-              <p class="detail-text">지금까지 <strong>{{ formatCurrency(product.savedAmount) }}</strong>원을 모았어요</p>
+              <p class="detail-text"><strong>지금까지</strong> <strong>{{ formatCurrency(product.savedAmount)
+                  }}</strong><strong>원을 모았어요</strong></p>
             </div>
             <div class="goal-detail-item">
               <i class="fas fa-coins"></i>
-              <p class="detail-text">이번 달에는 <strong>{{ formatCurrency(product.monthlyDeposit) }}</strong>원을 모았어요</p>
+              <p class="detail-text">
+                <strong>이번 달에는</strong>
+                <strong>{{ formatCurrency(product.monthlyDeposit) }}</strong>원을 모았어요
+              </p>
             </div>
             <div class="goal-detail-item">
               <i class="fas fa-chart-line"></i>
               <p class="detail-text">
                 <strong>이번달에는 </strong>
-                <strong>{{ formatCurrency(calculateMonthlyDeposit(product)) }}</strong>원 더
-                저금할 수 있어요
+                <strong>{{ formatCurrency(calculateMonthlyDeposit(product)) }}</strong>
+                <strong>원 더 저금할 수 있어요</strong>
               </p>
             </div>
           </div>
@@ -546,37 +550,39 @@ progress::-webkit-progress-value {
 .goal-card-header {
   display: flex;
   align-items: center;
-  padding: 10px; 
-  border-radius: 10px; 
-  cursor: pointer; 
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
 .goal-card-header:hover {
   background-color: #e2e6ea;
 }
+
 .goal-card-header h3 {
   margin-left: 15px;
   color: #2C3E50;
 }
 
 .goal-detail-items {
-  display: flex; 
+  display: flex;
   justify-content: space-between;
-  margin-top: 15px; 
+  margin-top: 15px;
 }
 
 .goal-detail-item {
-  flex: 1; 
+  flex: 1;
   text-align: center;
   padding: 10px;
-  background-color: #f0f4f8; 
-  border-radius: 5px; 
+  background-color: #f0f4f8;
+  border-radius: 5px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s;
 }
 
 .goal-detail-item:hover {
-  background-color: #e9eff1; /* 호버 시 배경 색상 */
+  background-color: #e9eff1;
+  /* 호버 시 배경 색상 */
 }
 
 .goal-detail-item i {
@@ -586,7 +592,7 @@ progress::-webkit-progress-value {
 
 .detail-text {
   margin: 5px 0;
-  color: #495057; 
+  color: #495057;
   font-size: 0.95em;
 }
 
@@ -688,10 +694,10 @@ progress::-webkit-progress-value {
 }
 
 .goal-title {
-  font-size: 1.6em; 
+  font-size: 1.6em;
   font-weight: 550;
-  color: #333; 
-  margin: 0; 
+  color: #333;
+  margin: 0;
 }
 
 @media (max-width: 600px) {
