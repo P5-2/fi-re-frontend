@@ -1,292 +1,362 @@
 <template>
     <div class="fund-card" @click="fundItemClick(fund.prdNo)">
         <div class="fund-content">
-            <!-- 펀드 제목 섹션 -->
-            <h2 class="fund-title"><b>{{ fund.pname }}({{ fund.region }})</b></h2>
+            <!-- 체크박스 추가 -->
+            <label class="custom-checkbox" @click.stop>
+                <input type="checkbox" :checked="isChecked" @change="onSelectFund" />
+                <span class="checkmark"></span>
+            </label>
 
-            <!-- 왼쪽 정보 섹션 -->
-            <div class="fund-main-info">
-                <div class="fund-details">
-                    <p><b>유형:</b> {{ fund.type }}</p>
-                    <p><b>기준가:</b> {{ fund.nav }}</p>
+            <!-- 펀드 정보 섹션 -->
+            <div class="fund-info">
+                <div class="tags">
+                    <span class="tag region-tag">{{ fund.region }}</span>
+                    <span class="tag risk-tag">{{ getRiskText(fund.dngrGrade) }}</span>
+                    <span class="tag type-tag">{{ fund.type }}</span>
                 </div>
+                <h2 class="fund-title">{{ fund.pname }}</h2>
+                <p class="fund-nav"><b>기준가:</b> <span class="highlight">{{ fund.nav }}</span></p>
             </div>
 
-            <!-- 가운데 수익률 섹션 -->
+            <!-- 수익률 정보 섹션 -->
             <div class="fund-rate-section">
-                <p class="fund-rate-label">수익률(3개월 기준)</p>
+                <p class="fund-rate-label">수익률 (3개월)</p>
                 <div class="fund-rate">
-                    <h1><b>{{ fund.rate }}%</b></h1>
+                    <h1>{{ fund.rate }}%</h1>
                 </div>
             </div>
 
-            <!-- 위험도 섹션 -->
-            <div class="grade-section">
-                <div class="grade-icon" :style="{ backgroundColor: gradeColor }">{{ gradeIconText }}</div>
-                <div class="grade-text" :style="{ color: gradeColor }">{{ gradeText }}</div>
-            </div>
-
-            <!-- 오른쪽 버튼 섹션 -->
+            <!-- 버튼 섹션 -->
             <div class="fund-actions">
-                <div class="button-group">
-                    <button @click.stop="compareProduct" class="action-btn compare-btn">상품 비교</button>
-                    <button @click.stop="calcBtn" class="action-btn calc-btn">수익 계산</button>
-                </div>
+                <button @click.stop="toggleLike($event, fund)" class="like-btn">
+                    <i :class="fund.userLiked ? 'fas fa-heart' : 'far fa-heart'"></i>
+                </button>
+                
+                <button @click.stop="calcBtn" class="calc-btn">수익 계산</button>
             </div>
         </div>
     </div>
 </template>
 
-
 <script>
-import { calculatorStore } from '@/stores/calculator';
-import { mapActions } from 'pinia';
-import axios from 'axios';
-
+import { addFundToCart, removeFundFromCart, checkFundInCart } from '@/services/cartServiceFund.js';
+import { useUserStore } from '@/stores/user';
 export default {
     props: {
         fund: {
             type: Object,
             required: true
-        }
+        },
     },
-    computed: {
-        gradeIconText() {
-            return this.fund.dngrGrade;
-        },
-        gradeText() {
-            return this.getGradeText(this.fund.dngrGrade);
-        },
-        gradeColor() {
-            return this.getGradeColor(this.fund.dngrGrade);
+    data() {
+        return {
+            isChecked: false, // 체크 상태를 저장할 변수
+        };
+    },
+    setup() {
+        const userStore = useUserStore(); // Pinia 스토어 가져오기
+        return {
+            userStore,
+        };
+    },
+    mounted() {
+        this.loadCheckboxState(); // 컴포넌트가 마운트될 때 체크박스 상태 로드
+        this.loadLikeStatus(); // 컴포넌트가 마운트될 때 좋아요 상태 로드
+
+        if (this.fund.userLiked === undefined) {
+            this.fund.userLiked = false;
         }
     },
     methods: {
-        getGradeText(grade) {
+        fundItemClick(prdNo) {
+            this.$router.push('/itemDetail/fund/' + prdNo);
+            console.log(prdNo + '번 펀드가 클릭되었습니다.');
+        },
+        async toggleLike(event, fund) {
+            event.stopPropagation();
+
+            // 좋아요 상태 변경
+            fund.userLiked = !fund.userLiked;
+
+            if (fund.userLiked) {
+                // 서버에 장바구니 추가 요청
+                await addFundToCart(this.userStore.username, fund.prdNo);
+                alert('상품을 즐겨찾기에 담았습니다!');
+            } else {
+                // 서버에 장바구니 삭제 요청
+                await removeFundFromCart(this.userStore.username, fund.prdNo);
+                alert('상품을 즐겨찾기에서 취소했습니다.');
+            }
+        },
+        // 좋아요 상태 로드
+        async loadLikeStatus() {
+            try {
+                // 서버에서 현재 사용자가 이 펀드를 장바구니에 담았는지 확인
+                const isInCart = await checkFundInCart(this.userStore.username, this.fund.prdNo);
+                this.fund.userLiked = isInCart;
+            } catch (error) {
+                console.error('좋아요 상태 로드 에러났습니다: \n', error);
+            }
+        },
+        getRiskText(grade) {
             switch (grade) {
-                case 6: return '매우낮은위험';
-                case 5: return '낮은위험';
-                case 4: return '보통위험';
-                case 3: return '다소높은위험';
-                case 2: return '높은위험';
-                case 1: return '매우높은위험';
+                case 1: return '매우 높은 위험';
+                case 2: return '높은 위험';
+                case 3: return '다소 높은 위험';
+                case 4: return '보통 위험';
+                case 5: return '낮은 위험';
+                case 6: return '매우 낮은 위험';
                 default: return '알 수 없음';
             }
         },
-        getGradeColor(grade) {
-            switch (grade) {
-                case 6: return '#146138';
-                case 5: return '#1D9A58';
-                case 4: return '#FBBF0A';
-                case 3: return '#F79E07';
-                case 2: return '#EB5908';
-                case 1: return '#DD1820';
-                default: return '#666';
-            }
-        },
-        fundItemClick(prdNo) {
-            this.$router.push('/itemDetail/fund/' + prdNo);
-        },
-        compareProduct(event) {
-            event.stopPropagation();
-
-            // sessionStorage에서 token 값을 가져와 파싱
-            const tokenData = JSON.parse(sessionStorage.getItem('token'));
-
-            // accessToken을 가져온다
-            const accessToken = tokenData.accessToken;
-
-            // accessToken을 기반으로 사용자별 로컬 스토리지 키 생성
-            const userKey = `cart_data_${accessToken}`;
-
-            // 로컬 스토리지에서 비교함 데이터를 불러온다
-            const cartData = JSON.parse(localStorage.getItem(userKey)) || { savings: [], funds: [] };
-
-            // 추가하려는 상품이 이미 비교함에 있는지 확인
-            const isProductInCart = cartData.funds.some(fund => fund.prdNo === this.fund.prdNo);
-
-            if (isProductInCart) {
-                alert("이 상품은 이미 비교함에 담겨 있습니다.");
-                return;
-            }
-
-            // 비교함에 상품 추가
-            cartData.funds.push({
-                prdNo: this.fund.prdNo,
-                pname: this.fund.pname,
-                type: this.fund.type,
-                nav: this.fund.nav,
-                rate: this.fund.rate,
-                region: this.fund.region,
-                selectCount: this.fund.selectCount,
-                dngrGrade: this.fund.dngrGrade
-            });
-
-            // 업데이트된 비교함 데이터를 로컬 스토리지에 저장
-            localStorage.setItem(userKey, JSON.stringify(cartData));
-
-            console.log(this.fund.prdNo + "번 상품을 비교함에 담았습니다.");
-            alert("상품을 비교함에 담았습니다.");
-        },
-        ...mapActions(calculatorStore, ['addFund']),
         calcBtn(event) {
             event.stopPropagation();
             this.fund.amount = 0;
             this.addFund(this.fund);
             alert('상품을 계산기에 추가했습니다');
-        }
+        },
+        onSelectFund(event) {
+            this.isChecked = event.target.checked;
+            this.saveCheckboxState(); // 체크박스 상태 저장
+            this.$emit('select-fund', { fund: this.fund, selected: this.isChecked });
+        },
+        saveCheckboxState() {
+            const checkedFunds = JSON.parse(localStorage.getItem('checkedFunds')) || [];
+            if (this.isChecked) {
+                if (!checkedFunds.includes(this.fund.prdNo)) {
+                    checkedFunds.push(this.fund.prdNo);
+                }
+            } else {
+                // 체크가 해제되면 해당 펀드를 localStorage에서 제거
+                const index = checkedFunds.indexOf(this.fund.prdNo);
+                if (index > -1) {
+                    checkedFunds.splice(index, 1);
+                } 
+            }
+            localStorage.setItem('checkedFunds', JSON.stringify(checkedFunds));
+        },
+        loadCheckboxState() {
+            const checkedFunds = JSON.parse(localStorage.getItem('checkedFunds')) || [];
+            this.isChecked = checkedFunds.includes(this.fund.prdNo);
+        },
     }
 };
 </script>
 
+
 <style scoped>
 .fund-card {
+    width: 100%;
+    max-width: 1100px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 65%;
-    padding: 10px;
-    margin: 10px auto;
-    /* 가운데 정렬을 위해 auto 사용 */
+    padding: 15px;
+    margin: 10px 0;
     border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 12px;
     background-color: #fff;
-    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: box-shadow 0.3s ease;
 }
 
 .fund-card:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    /* 호버 시 그림자 효과 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .fund-content {
-    flex-grow: 1;
     display: flex;
-    gap: 10px;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+    /* 각 섹션 간 간격 추가 */
 }
 
-.fund-title {
-    width: 100%;
-    font-size: 20px;
-    color: #333;
+.fund-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    flex-grow: 1;
+    /* 왼쪽 정렬 */
+    margin-left: 0;
+}
+
+.tags {
+    display: flex;
+    gap: 10px;
     margin-bottom: 10px;
 }
 
-.fund-main-info {
-    flex: 1;
-    min-width: 150px;
+.tag {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
 }
 
-.fund-details p {
-    margin: 5px 0;
+.region-tag {
+    background-color: #3F72AF;
+    /* 팀 컬러 */
+}
+
+.risk-tag {
+    background-color: #DBE2EF;
+    /* 팀 컬러 */
+    color: #112D4E;
+    /* 텍스트 컬러 */
+}
+
+.type-tag {
+    background-color: #112D4E;
+    /* 팀 컬러 */
+}
+
+.fund-title {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.fund-nav {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+    text-align: left;
+}
+
+.highlight {
+    color: #3F72AF;
+    font-weight: bold;
 }
 
 .fund-rate-section {
-    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     min-width: 150px;
-    text-align: center;
+    margin-right: 20px;
 }
 
 .fund-rate-label {
     font-weight: bold;
-    margin-bottom: 5px;
+    color: #333;
 }
 
 .fund-rate {
     font-size: 24px;
+    font-weight: bold;
     color: #0080ff;
 }
 
-.grade-section {
-    flex: 1;
-    min-width: 150px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.grade-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    font-weight: 600;
-    text-align: center;
-    line-height: 40px;
-    font-size: 18px;
-    color: white;
-}
-
-.grade-text {
-    font-weight: bold;
-    margin-top: 5px;
-}
-
 .fund-actions {
-    text-align: left;
-}
-
-.button-group {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: flex-end;
     gap: 10px;
+    min-width: 150px;
 }
 
-.action-btn {
-    width: 120px;
-    padding: 10px 15px;
+.no-bg-btn {
+    background-color: transparent;
     border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.calc-btn {
+    background-color: #3F72AF;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 14px;
     font-weight: bold;
     transition: background-color 0.3s ease;
 }
 
-.compare-btn {
-    background-color: #f0f0f0;
-    color: #333;
-}
-
-.compare-btn:hover {
-    background-color: #e0e0e0;
-}
-
-.calc-btn {
-    background-color: #0080ff;
-    color: white;
-}
-
 .calc-btn:hover {
-    background-color: #0066cc;
+    background-color: #112D4E;
 }
 
-/* 각 위험 등급에 따른 색상 정의 */
-:root {
-    --grade-color: #146138;
+.like-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: #ccc;
+    transition: color 0.3s ease;
 }
 
-[style*="background-color: #146138"] {
-    --grade-color: #146138;
+.like-btn:hover {
+    color: #ff6b81;
 }
 
-[style*="background-color: #1D9A58"] {
-    --grade-color: #1D9A58;
+.fas.fa-heart {
+    color: #ff6b81;
 }
 
-[style*="background-color: #FBBF0A"] {
-    --grade-color: #FBBF0A;
+.far.fa-heart {
+    color: #ccc;
 }
 
-[style*="background-color: #F79E07"] {
-    --grade-color: #F79E07;
+
+/* check box */
+/* Custom Checkbox */
+.custom-checkbox {
+    position: relative;
+    display: inline-block;
+    padding-left: 40px; /* 체크박스가 커지므로 패딩 조정 */
+    margin-right: 15px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 16px;
 }
 
-[style*="background-color: #EB5908"] {
-    --grade-color: #EB5908;
+.custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
 }
 
-[style*="background-color: #DD1820"] {
-    --grade-color: #DD1820;
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 30px; /* 체크박스 크기 증가 */
+    width: 30px;
+    background-color: #eee;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
 }
+
+.custom-checkbox input:checked ~ .checkmark {
+    background-color: #007bff;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.custom-checkbox input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.custom-checkbox .checkmark:after {
+    left: 10px; /* 체크 표시 위치 조정 */
+    top: 7px;
+    width: 7px;  /* 체크 표시 크기 증가 */
+    height: 14px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
 </style>

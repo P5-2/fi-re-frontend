@@ -9,11 +9,6 @@
           <div class="profile-section p-4 card">
             <UserProfile v-if="user" :user="user" />
             <RiskChart v-if="user" :riskPoint="user.riskPoint" />
-            <FinancialGoals
-              v-if="user"
-              :goalAmount="user.goalAmount"
-              :currentAmount="user.assets"
-            />
           </div>
         </div>
         <div class="col-md-6 col-sm-12 mb-4">
@@ -26,6 +21,13 @@
               <p>뉴스는 레벨 2 이상부터 이용 가능합니다.</p>
             </div>
           </div>
+        </div>
+        <div>
+          <FinancialGoals
+            v-if="user"
+            :goalAmount="user.goalAmount"
+            :currentAmount="user.assets"
+          />
         </div>
       </div>
     </div>
@@ -193,11 +195,6 @@ body {
   border: none;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s;
-}
-
-.card:hover {
-  transform: translateY(-1px);
 }
 
 /* 프로필 카드 스타일 */

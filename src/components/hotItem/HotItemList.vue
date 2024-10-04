@@ -66,6 +66,9 @@ export default {
             console.log(err);
         })
     },
+    beforeUnmount(){
+        clearInterval(this.myInterval);
+    },
     methods : {
         arrowClick(){
             this.itemToggle = !this.itemToggle; //토글

@@ -26,7 +26,6 @@ export default {
                     params: { code, state },
                 });
 
-                console.log(response.data); //서버에서 받은 토큰 정보 처리
                 // Object를 JSON 문자열로 변환하여 sessionStorage에 저장
                 sessionStorage.setItem("token", JSON.stringify(response.data));
 
@@ -34,17 +33,17 @@ export default {
                 const tokenData = JSON.parse(sessionStorage.getItem("token"));
                 const accessToken = tokenData.accessToken;
 
-                const nameResponse = await axios.get("http://localhost:9000/naver/findname", {
+                const UserData = await axios.get("http://localhost:9000/naver/finduser", {
                     headers: {
                         Authorization: `Bearer ${accessToken}` // Authorization 헤더에 accessToken 포함
                     }
                 });
 
-                const nickname = nameResponse.data;
-                sessionStorage.setItem("nickname", nickname);
+                const { username, nickName } = UserData.data; // 서버에서 두 값을 함께 받음
+                sessionStorage.setItem("nickname", nickName);
                     
                 // Pinia의 login 함수 호출
-                userStore.login(nickname); // 로그인 상태 업데이트
+                userStore.login(username, nickName); // 로그인 상태 업데이트
                 
                 alert('네이버 로그인 성공!');
 
@@ -65,7 +64,6 @@ export default {
 
             if (code && state) {
                 // 서버로 인증 코드와 상태 값을 전달하여 토큰 요청
-                console.log("code: " + code + ", state: " + state);
                 handleNaverCallback(code, state);
             } else {
                 alert('네이버 로그인에 실패하였습니다.');
