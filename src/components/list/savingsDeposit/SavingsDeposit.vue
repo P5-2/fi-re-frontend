@@ -43,7 +43,7 @@ export default {
     "intrRate2",
     "saveTrm",
     "etcNote",
-    "productType",
+    "prdtDiv",
   ],
   setup(props) {
     const router = useRouter();
@@ -58,7 +58,10 @@ export default {
   },
   computed: {
     productTypeDisplay() {
-      return this.productType === "deposit" ? "예금" : "적금";
+      if (this.prdtDiv === null) {
+        return "예금/적금"; // prdtDiv가 null일 경우
+      }
+      return this.prdtDiv === "D" ? "예금" : "적금"; // 변경된 부분
     },
   },
   methods: {
@@ -72,7 +75,7 @@ export default {
         intrRate2: this.intrRate2,
         saveTrm: this.saveTrm,
         etcNote: this.etcNote,
-        productType: this.productType,
+        prdtDiv: this.prdtDiv,
         amount: 0,
       };
       this.addSavings(productData);
@@ -80,7 +83,7 @@ export default {
     },
     compareProduct() {
       axios
-        .get(`http://localhost:9000/finance/${this.productType}/get`, {
+        .get(`http://localhost:9000/finance/${this.finPrdtCd}`, {
           params: {
             finPrdtCd: this.finPrdtCd,
           },
@@ -96,7 +99,7 @@ export default {
           if (error.response && error.response.data) {
             alert(error.response.data);
           } else {
-            alert("Failed to add item to comparison.");
+            alert("비교함에 상품을 담지 못했습니다.");
           }
         });
     },

@@ -1,33 +1,13 @@
 <template>
   <div class="savings-list">
-    <div class="filter-buttons">
-      <button
-        @click="setFilter('all')"
-        :class="{ active: currentFilter === 'all' }"
-      >
-        전체
-      </button>
-      <button
-        @click="setFilter('deposit')"
-        :class="{ active: currentFilter === 'deposit' }"
-      >
-        예금
-      </button>
-      <button
-        @click="setFilter('savings')"
-        :class="{ active: currentFilter === 'savings' }"
-      >
-        적금
-      </button>
-    </div>
+    <FilterButtons :currentFilter="currentFilter" @filter="setFilter" />
     <div class="savings-container">
       <div
         v-for="product in filteredProducts"
-        :key="product.finPrdtCd"
+        :key="product.savingsDeposit.finPrdtCd"
         class="savings-item"
       >
-        <!-- <Savings v-bind="product" /> -->
-        <SavingsDeposit v-bind="product" />
+        <SavingsDeposit v-bind="product.savingsDeposit" />
       </div>
     </div>
     <div class="pagination">
@@ -52,66 +32,50 @@
 
 <script>
 import { ref, computed, onMounted } from "vue";
-import axios from "axios";
+import { useSavingsDepositStore } from "@/stores/savingsDepositStore.js";
 import SavingsDeposit from "@/components/list/savingsDeposit/SavingsDeposit.vue";
+import FilterButtons from "@/components/list/savingsDeposit/FilterButtons.vue";
 
 export default {
   name: "SavingsDepositList",
-  components: { SavingsDeposit },
+  components: { SavingsDeposit, FilterButtons },
   setup() {
-    const allProducts = ref([]);
-    const currentPage = ref(1);
-    const totalPages = ref(0);
-    const totalItems = ref(0);
-    const itemsPerPage = 5;
+    // Pinia 스토어 사용
+    const store = useSavingsDepositStore();
     const currentFilter = ref("all");
 
-    const fetchProducts = async (page = 1) => {
-      try {
-        const response = await axios.get(
-          `http://localhost:9000/finance/pageAll?page=${page}&size=${itemsPerPage}` //url 수정에 따른 수정
-        );
-        console.log("API response:", response.data);
-        allProducts.value = response.data.products;
-        totalItems.value = response.data.totalCount;
-        totalPages.value = response.data.totalPages;
-        currentPage.value = response.data.currentPage;
-      } catch (error) {
-        console.error("Error: fetching products", error);
-      }
-    };
-
     const filteredProducts = computed(() => {
-      if (currentFilter.value === "all") return allProducts.value;
-      return allProducts.value.filter(
-        (product) => product.productType === currentFilter.value
+      return (store.products || []).filter(
+        (product) =>
+          currentFilter.value === "all" ||
+          product.savingsDeposit.prdtDiv.toLowerCase() ===
+            currentFilter.value.charAt(0)
       );
     });
 
     const setFilter = (filter) => {
       currentFilter.value = filter;
-      currentPage.value = 1;
-      fetchProducts();
+      store.fetchProducts(store.currentPage, filter);
     };
 
     const changePage = async (direction) => {
-      const newPage = currentPage.value + direction;
-      if (newPage >= 1 && newPage <= totalPages.value) {
-        await fetchProducts(newPage);
+      const newPage = store.currentPage + direction;
+      if (newPage >= 1 && newPage <= store.totalPages) {
+        await store.fetchProducts(newPage, currentFilter.value);
       }
     };
 
     onMounted(() => {
-      fetchProducts();
+      store.fetchProducts();
     });
 
     return {
       filteredProducts,
-      currentPage,
-      totalPages,
-      changePage,
       currentFilter,
       setFilter,
+      changePage,
+      currentPage: store.currentPage,
+      totalPages: store.totalPages,
     };
   },
 };
