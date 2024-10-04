@@ -28,9 +28,14 @@
         </tr>
       </tbody>
     </table>
-    <button class="btn btn-primary" @click="restartSurvey">
+    <button
+      class="btn btn-primary"
+      @click="restartSurvey"
+      style="margin-right: 10px"
+    >
       다시 시작하기
     </button>
+    <a href="/recmd" class="btn btn-primary"> 추천상품 보러가기 </a>
   </div>
 </template>
 

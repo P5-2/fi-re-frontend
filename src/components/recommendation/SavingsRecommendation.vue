@@ -4,20 +4,34 @@
     <div v-if="usedKeywords.length" class="keywords-section">
       <h3 class="title">예금 추천 키워드</h3>
       <ul class="keyword-list">
-        <li v-for="(keyword, index) in usedKeywords" :key="index" class="hashtag">{{ keyword }}</li>
+        <li
+          v-for="(keyword, index) in usedKeywords"
+          :key="index"
+          class="hashtag"
+        >
+          {{ keyword }}
+        </li>
       </ul>
     </div>
 
     <div class="deposit-section">
       <div v-if="depositList.length">
-        <div v-for="(deposit, index) in depositList" :key="index" class="deposit-card"
-          @click="savingsItemClick(deposit.finPrdtCd)">
-          <img :src="getIcon(deposit.korCoNm)" alt="Deposit Icon" class="icon" />
+        <div
+          v-for="(deposit, index) in depositList"
+          :key="index"
+          class="deposit-card"
+          @click="savingsItemClick(deposit.finPrdtCd)"
+        >
+          <img
+            :src="getIcon(deposit.korCoNm)"
+            alt="Deposit Icon"
+            class="icon"
+          />
           <div class="deposit-info">
             <h3 class="deposit-name">{{ deposit.finPrdtNm }}</h3>
             <p class="deposit-rate">
-              기본 금리: <span class="rate">{{ deposit.intrRate }}%</span>, 최고 <span class="rate">{{ deposit.intrRate2
-                }}%</span>
+              기본 금리: <span class="rate">{{ deposit.intrRate }}%</span>, 최고
+              <span class="rate">{{ deposit.intrRate2 }}%</span>
             </p>
             <p class="deposit-period">
               기간: <span class="period">{{ deposit.saveTrm }}개월</span>
@@ -43,7 +57,7 @@ import { useRouter } from 'vue-router';
 import DefaultIcon from '@/assets/bank/defaultbank.png';
 
 export default {
-  name: "DepositRecommendations",
+  name: 'DepositRecommendations',
   setup() {
     const depositList = ref([]);
     const usedKeywords = ref([]);
@@ -65,10 +79,24 @@ export default {
 
     const loadIcons = async () => {
       const banks = [
-        '국민은행', '우리은행', '신한은행', '하나은행', '한국스탠다드차타드은행',
-        '아이엠뱅크', '부산은행', '광주은행', '제주은행', '전북은행',
-        '경남은행', '중소기업은행', '한국산업은행', '농협은행주식회사',
-        '주식회사 케이뱅크', '수협은행', '주식회사 카카오뱅크', '토스뱅크 주식회사'
+        '국민은행',
+        '우리은행',
+        '신한은행',
+        '하나은행',
+        '한국스탠다드차타드은행',
+        '아이엠뱅크',
+        '부산은행',
+        '광주은행',
+        '제주은행',
+        '전북은행',
+        '경남은행',
+        '중소기업은행',
+        '한국산업은행',
+        '농협은행주식회사',
+        '주식회사 케이뱅크',
+        '수협은행',
+        '주식회사 카카오뱅크',
+        '토스뱅크 주식회사',
       ];
 
       const promises = banks.map(async (bank) => {
@@ -87,17 +115,20 @@ export default {
       };
 
       try {
-        const response = await axios.get('http://localhost:9000/recommend/savings', config);
+        const response = await axios.get(
+          'http://localhost:9000/recommend/savings',
+          config
+        );
         depositList.value = response.data.savingsDeposits; // DTO에서 필터링된 예적금 목록 할당
         usedKeywords.value = response.data.usedKeywords; // 사용된 키워드 할당
-        console.log("savings : ", depositList.value);
+        console.log('savings : ', depositList.value);
       } catch (error) {
-        console.error("Error fetching deposits:", error);
+        console.error('Error fetching deposits:', error);
       }
     };
 
     const getAccessToken = () => {
-      const tokenData = JSON.parse(sessionStorage.getItem("token"));
+      const tokenData = JSON.parse(sessionStorage.getItem('token'));
       return tokenData?.accessToken;
     };
 
@@ -126,15 +157,14 @@ export default {
       getIcon,
       savingsItemClick,
     };
-  }
+  },
 };
 </script>
-
 
 <style scoped>
 .recommend-container {
   padding: 20px;
-  background-color: #DFE7F2;
+  background-color: #dfe7f2;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   margin: 0 auto;
@@ -145,7 +175,7 @@ export default {
   font-weight: 600;
   margin-left: 20px;
   margin-bottom: 10px;
-  color: #0A3459;
+  color: #0a3459;
   text-align: left;
 }
 
@@ -197,13 +227,13 @@ export default {
   font-size: 1.4em;
   /* 상품명 크기 조정 */
   font-weight: 700;
-  color: #007BFF;
+  color: #007bff;
   /* 브랜드 색상 */
 }
 
 .deposit-rate,
 .deposit-period {
-  color: #0A3459;
+  color: #0a3459;
   /* 텍스트 색상 */
   font-size: 0.9em;
   /* 텍스트 크기 조정 */
@@ -218,7 +248,7 @@ export default {
 
 .period {
   font-style: italic;
-  color: #007BFF;
+  color: #007bff;
   /* 기간 강조 색상 */
 }
 
@@ -228,15 +258,15 @@ export default {
   font-style: italic;
   text-align: center;
   padding: 1em;
-  border: 1px dashed #0A3459;
+  border: 1px dashed #0a3459;
   /* 경계 색상 */
   border-radius: 8px;
-  background-color: #F2F2F2;
+  background-color: #f2f2f2;
   /* 부드러운 배경색 추가 */
 }
 
 button {
-  background-color: #0A3459;
+  background-color: #0a3459;
   /* 버튼 색상 */
   color: white;
   border: none;
@@ -251,7 +281,7 @@ button {
 }
 
 button:hover {
-  background-color: #3C74A6;
+  background-color: #3c74a6;
   /* 버튼 hover 색상 */
   transform: scale(1.05);
   /* 버튼 hover 시 확대 효과 */
@@ -270,7 +300,7 @@ button:hover {
 
 .hashtag {
   display: inline-block;
-  background-color: #3C74A6;
+  background-color: #3c74a6;
   /* 연한 파란색 배경 */
   border-radius: 12px;
   padding: 6px 12px;
@@ -278,14 +308,13 @@ button:hover {
   margin-top: 5px;
   font-size: 14px;
   /* 해시태그 폰트 크기 조정 */
-  color: #F2F2F2;
+  color: #f2f2f2;
   /* 어두운 파란색 글자 */
   transition: background-color 0.3s ease;
   /* 배경 색상 전환 효과 */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   /* 그림자 추가 */
 }
-
 
 .hashtag:hover {
   background-color: #d1d1d1;

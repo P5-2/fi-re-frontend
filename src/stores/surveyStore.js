@@ -185,7 +185,7 @@ export const useSurveyStore = defineStore('survey', {
           } else if (selectedAge === 4) {
             this.age = '40'; // 40대
           } else if (selectedAge === 5) {
-            this.age = '60~'; // 60대 이상
+            this.age = '60'; // 60대 이상
           }
         }
 

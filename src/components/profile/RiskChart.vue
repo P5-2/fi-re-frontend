@@ -30,6 +30,7 @@
           </tr>
         </tbody>
       </table>
+      <a href="/recmd" class="btn btn-primary"> 추천상품 보러가기 </a>
     </div>
   </div>
 </template>
@@ -56,16 +57,16 @@ export default {
   computed: {
     investmentStyle() {
       if (this.riskPoint < 15) return '매우 보수적';
-      if (this.riskPoint < 25) return '보수적';
-      if (this.riskPoint < 35) return '중립적';
-      if (this.riskPoint < 45) return '적극적';
+      if (this.riskPoint < 21) return '보수적';
+      if (this.riskPoint < 27) return '중립적';
+      if (this.riskPoint < 33) return '적극적';
       return '매우 적극적';
     },
     investmentStyleColor() {
       if (this.riskPoint < 15) return '#A8E6CF';
-      if (this.riskPoint < 25) return '#B3E5FC';
-      if (this.riskPoint < 35) return '#FFEB3B';
-      if (this.riskPoint < 45) return '#FF9800';
+      if (this.riskPoint < 21) return '#B3E5FC';
+      if (this.riskPoint < 27) return '#FFEB3B';
+      if (this.riskPoint < 33) return '#FF9800';
       return '#FF5722';
     },
     investmentStyles() {
