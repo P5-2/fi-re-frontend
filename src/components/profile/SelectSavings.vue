@@ -34,9 +34,9 @@ export default {
       };
 
       try {
-        const savingsResponse = await axios.get('http://localhost:9000/finance/savingsDeposit/savings/all', config);
-        const depositResponse = await axios.get('http://localhost:9000/finance/savingsDeposit/deposit/all', config);
-        return [...savingsResponse.data, ...depositResponse.data];
+        const savingsResponse = await axios.get('http://localhost:9000/recommend/deposit', config);
+        const depositResponse = await axios.get('http://localhost:9000/recommend/savings', config);
+        return [...savingsResponse.data.savingsDeposits, ...depositResponse.data.savingsDeposits];
       } catch (error) {
         console.error('Error fetching products:', error);
         alert('상품을 불러오는 데 실패했습니다.');
@@ -54,12 +54,11 @@ export default {
 
       try {
         const response = await axios.get('http://localhost:9000/profile/goal', config);
-        // Check if response.data is an array
         if (Array.isArray(response.data)) {
-          memberSavings.value = response.data.map(item => item.finPrdtCd); // Extract only the product codes
+          memberSavings.value = response.data.map(item => item.finPrdtCd);
         } else {
           console.error('Expected response.data to be an array:', response.data);
-          memberSavings.value = []; // Initialize to an empty array if not an array
+          memberSavings.value = [];
         }
       } catch (error) {
         console.error('Error fetching member savings:', error);
@@ -68,10 +67,12 @@ export default {
     };
 
     const loadProducts = async () => {
-      await fetchMemberSavings(); // Fetch member savings first
+      await fetchMemberSavings();
       const products = await fetchProducts();
-      // Filter out products that the member has already saved
-      filteredProducts.value = products.filter(product => !memberSavings.value.includes(product.finPrdtCd));
+      // 중복된 finPrdtCd 제거
+      const uniqueProducts = Array.from(new Set(products.map(product => product.finPrdtCd)))
+        .map(finPrdtCd => products.find(product => product.finPrdtCd === finPrdtCd));
+      filteredProducts.value = uniqueProducts.filter(product => !memberSavings.value.includes(product.finPrdtCd));
     };
 
     const selectProduct = async () => {
@@ -86,7 +87,6 @@ export default {
         };
 
         try {
-          // targetAmount를 goalStore.currentGoal.targetAmount로 변경
           await axios.post('http://localhost:9000/profile/setgoal', {
             goalName: goalStore.currentGoal.goalName,
             finPrdtCd: selectedProduct.finPrdtCd,
@@ -94,7 +94,7 @@ export default {
             startDate: today,
             savedAmount: 0,
             monthlyDeposit: 0,
-            targetAmount: goalStore.currentGoal.targetAmount, // goalStore에서 가져온 targetAmount
+            targetAmount: goalStore.currentGoal.targetAmount,
             saveTrm: selectedProduct.saveTrm
           }, config);
 

@@ -144,6 +144,7 @@ export default {
 
       try {
         const response = await axios.get('http://localhost:9000/profile/goal', config);
+        console.log(response.data);
         userProducts.value = Array.isArray(response.data) ? response.data : [];
         goalStore.updateTotals(userProducts.value);
       } catch (error) {

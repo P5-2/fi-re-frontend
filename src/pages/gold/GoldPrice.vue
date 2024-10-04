@@ -73,6 +73,7 @@ export default {
       lastestPrice: 0,
       selectedDate: '',
       priceChange: 0,
+      yesterdayPrice: null,
     };
   },
   computed: {
