@@ -123,6 +123,8 @@ export default {
             this.selectedFunds = this.funds.filter(fund => this.selectedItems.has(fund.prdNo));
         },
         showComparisonModal() {
+
+            // fund, 적금, 예금에 대한 상품 분류해서 모달창 제작
             this.isComparisonModalVisible = true;
         },
         closeModalAndResetFunds() {
