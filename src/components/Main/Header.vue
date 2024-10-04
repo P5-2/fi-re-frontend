@@ -91,12 +91,8 @@
 
 <script>
 import Login from '../login/Login.vue';
-<<<<<<< HEAD
 import Quiz from '../quiz/Quiz.vue';
 import { useUserStore } from '@/stores/user';
-=======
-import { useUserStore } from '@/stores/user.js';
->>>>>>> 116c4093aaa82cb50f89c8676c0e85b04368deac
 
 export default {
   name: "Header",
@@ -291,6 +287,7 @@ header {
   color : rgb(37, 37, 37);
   font-size: 14px;
   padding : 12px 20px;
+  cursor: pointer;
 }
 
 .dropdown-content a:hover{
