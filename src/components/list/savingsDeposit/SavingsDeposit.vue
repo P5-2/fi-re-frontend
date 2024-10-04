@@ -31,7 +31,6 @@
 import { calculatorStore } from "@/stores/calculator";
 import { useRouter } from "vue-router";
 import { mapActions } from "pinia";
-import axios from "axios";
 
 export default {
   name: "SavingsDeposit",

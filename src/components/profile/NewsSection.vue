@@ -5,7 +5,11 @@
       <p class="news-date">{{ currentDate }}</p>
       <div v-if="randomNews.length > 0">
         <div v-for="(item, index) in randomNews" :key="index" class="news-item">
-          <h4 class="news-item-title">{{ filterTitle(item.title) }}</h4>
+          <h4 class="news-item-title">
+            <a :href="item.link" target="_blank" rel="noopener noreferrer">
+              {{ filterTitle(item.title) }}
+            </a>
+          </h4>
           <p class="news-description">
             {{ filterDescription(item.description) }}
           </p>
@@ -108,10 +112,14 @@ export default {
   padding: 10px 0;
 }
 
-.news-item-title {
+.news-item-title a {
   font-size: 1.2rem; /* 제목 크기 조정 */
   color: #007bff; /* 강조 색상 */
-  margin: 0; /* 기본 마진 제거 */
+  text-decoration: none; /* 링크 밑줄 제거 */
+}
+
+.news-item-title a:hover {
+  text-decoration: underline; /* 마우스 오버 시 밑줄 추가 */
 }
 
 .news-description {

@@ -37,8 +37,8 @@ export default {
         const tokenData = JSON.parse(sessionStorage.getItem("token"));
         const accessToken = tokenData.accessToken;
 
-        const nameResponse = await axios.get(
-          "http://localhost:9000/kakao/findname",
+        const UserData = await axios.get(
+          "http://localhost:9000/kakao/finduser",
           {
             headers: {
               Authorization: `Bearer ${accessToken}`, // Authorization 헤더에 accessToken 포함
@@ -46,11 +46,11 @@ export default {
           }
         );
 
-        const nickname = nameResponse.data;
-        sessionStorage.setItem("nickname", nickname);
+        const { username, nickName } = UserData.data; // 서버에서 두 값을 함께 받음
+        sessionStorage.setItem("nickname", nickName);
 
         // Pinia의 login 함수 호출
-        userStore.login(nickname); // 로그인 상태 업데이트
+        userStore.login(username, nickName); // 로그인 상태 업데이트
 
         alert("카카오 로그인 성공!");
 

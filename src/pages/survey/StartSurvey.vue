@@ -33,9 +33,23 @@
 <script>
 import { useRouter } from 'vue-router';
 import { useSurveyStore } from '../../stores/surveyStore';
+import { onMounted } from 'vue';
+import { useUserStore } from '@/stores/user';
 
 export default {
   setup() {
+    const userStore = useUserStore();
+
+    onMounted(() => {
+      userStore.checkLoginStatus(); // 로그인 상태 확인
+
+      // 로그인 상태에 따라 알림 띄우기
+      if (!userStore.isLoggedIn) {
+        alert('로그인이 필요합니다.');
+
+        router.push('/');
+      }
+    });
     const router = useRouter();
     const surveyStore = useSurveyStore(); // 스토어 초기화
 
@@ -46,6 +60,7 @@ export default {
 
     return {
       startSurvey,
+      userStore,
     };
   },
 };

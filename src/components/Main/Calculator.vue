@@ -1,19 +1,56 @@
-<template lang="">
-  <div id="calculator-wrapper">
-    <div id="calculator-btn" @click="btnClick">계산기 ↑</div>
-    <div id="calculator">
-      <div class="cal-wrapper">
-        <!--월 저금액 -->
-        <h3>계산기</h3>
-        <h6 class="mb-2">미래 자산을 계산해보세요</h6>
-        <label>월 저금액</label>
+<template>
+  <div id="floating-desc" class="floating-desc">
+    ! 계산기 탭을 여는 버튼입니다.
+  </div>
+  <div id="floating-arrow" class="floating-arrow"></div>
+  <button type="button" class="floating-btn" @click="openTab" @mouseover="btnOver" @mouseout="btnOut">
+    <img src="@/assets/calculator/calc.png" width="30" height="30"/>
+  </button>
+  <div id="sideTab" class="side-tab">
+    <a href="javascript:void(0)" class="close-btn" @click="closeTab">&times;</a>
+    <div class="cal-wrapper">
+      <h3>계산기</h3>
+      <h6>미래 자산을 계산해보세요</h6>
+    </div>
+    <div class="cal-wrapper">
+      <div class="mb-3">
+        <label class="fs-5">투자 개월 수 :</label>
         <input
           type="text"
-          class="form-control"
-          v-model="temp_monthlySave"
-          @input="setMonthlySaveHandler()"
+          class="month-input"
+          v-model="temp_month"
+          @input="setMonthHandler()"
         />
       </div>
+      <button class="btn btn-light" @click="cal_click">계산하기</button>
+      <br />
+      <div class="mt-3 fs-4">
+        <div>결과 :<br> <b id="result">0원</b></div>
+      </div>
+    </div>
+
+    <div class="cal-wrapper">
+      <label>월 저금액(원)</label> <br>
+      <input
+        type="text"
+        class="save-input"
+        v-model="temp_monthlySave"
+        @input="setMonthlySaveHandler()"
+      />
+    </div>
+
+    <div class="cal-wrapper">
+      <!-- 금 투자 -->
+      <h3>금</h3>
+      <label>금 투자금액(원)</label> <br>
+      <input
+        type="text"
+        class="save-input"
+        v-model="temp_gold"
+        @input="setGoldHandler()"
+      />
+    </div>
+    <div class="finance-wrapper">
       <div class="cal-wrapper">
         <!-- 예적금 상품 -->
         <h3>예적금</h3>
@@ -67,34 +104,6 @@
             />
           </li>
         </ol>
-      </div>
-      <div class="cal-wrapper">
-        <!-- 금 투자 -->
-        <h3>금</h3>
-        <label style="float: left">금 투자금액</label>
-        <input
-          type="text"
-          class="form-control"
-          v-model="temp_gold"
-          @input="setGoldHandler()"
-        />
-      </div>
-      <div class="cal-wrapper">
-        <!-- 개월 수 및 계산 버튼 및 결과 -->
-        <div class="mb-3">
-          <label class="fs-5">투자 개월 수 :</label>
-          <input
-            type="text"
-            class="month-input"
-            v-model="temp_month"
-            @input="setMonthHandler()"
-          />
-        </div>
-        <button class="btn btn-light" @click="cal_click">계산하기</button>
-        <br />
-        <div class="mt-3 fs-4">
-          <span>결과 : <b id="result">0원</b></span>
-        </div>
       </div>
     </div>
   </div>
@@ -199,6 +208,26 @@ export default {
     setSavingsAmountHandler: function (prdNo, amount) {
       this.setSavingsAmount(prdNo, amount);
     },
+    openTab : function(){
+      document.getElementById("sideTab").style.width = "350px";  /* 탭의 너비를 설정 */
+    },
+    closeTab : function(){
+      document.getElementById("sideTab").style.width = "0";  /* 탭을 닫을 때 너비를 0으로 설정 */
+    },
+    btnOver : function(){
+      let $floatingDesc = document.getElementById("floating-desc");
+      let $floatingArrow = document.getElementById("floating-arrow");
+
+      $floatingDesc.style.display = "block";
+      $floatingArrow.style.display = "block";
+    },
+    btnOut : function(){
+      let $floatingDesc = document.getElementById("floating-desc");
+      let $floatingArrow = document.getElementById("floating-arrow");
+
+      $floatingDesc.style.display = "none";
+      $floatingArrow.style.display = "none";
+    }
   },
 };
 </script>
@@ -225,27 +254,29 @@ export default {
   margin: auto;
   width: 1600px;
   height: 200px;
-  overflow: auto;
   padding: 10px;
   display: flex;
   justify-content: space-evenly;
 }
 .cal-wrapper {
-  width: 280px;
-  padding: 10px;
-  margin: 10px;
+  margin: auto;
   color: whitesmoke;
-}
-.cal-wrapper:not(:first-child) {
   text-align: center;
+  width: 300px;
+  margin-bottom: 30px;
 }
-ol,
-li {
+.finance-wrapper{
+  overflow-y: auto;
+  height: 350px;
+}
+ol, li {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 .savingWrapper {
+  width: 270px;
+  margin : auto;
   border: 2px solid black;
   background-color: #fefefe;
   border-radius: 10px;
@@ -273,5 +304,95 @@ li {
   border-radius: 5px;
   padding: 3px;
   text-align: center;
+}
+.side-tab {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  top: 0;
+  right: 0;
+  background-color: #333;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  color: whitesmoke;
+  z-index: 101;
+}
+
+/* 슬라이드 탭 안의 내용 스타일 */
+.side-tab a {
+  padding: 10px 10px;
+  text-decoration: none;
+  font-size: 25px;
+  color: white;
+  display: block;
+  transition: 0.3s;
+}
+
+.side-tab a:hover {
+  background-color: #575757;
+}
+
+/* 닫기 버튼 스타일 */
+.side-tab .close-btn {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  font-size: 36px;
+}
+
+
+/* 본문에 슬라이드 탭과 겹치는 내용 */
+.main-content {
+  padding: 20px;
+}
+
+.floating-btn {
+    background-color: #333;
+    color : white;
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    border-radius: 100%;
+    bottom: 30px;
+    right: 30px;
+    z-index: 100;
+}
+.floating-desc{
+  border-radius: 10px;
+  background-color: white;
+  border : 1px solid #333;
+  font-size: 14px;
+  position : fixed;
+  bottom: 110px;
+  right : 30px;
+  padding : 10px;
+  display: none;
+  transform: 0.2s;
+}
+.floating-arrow{
+  width: 0;
+  height: 0;
+  border-bottom: 10px solid transparent;;
+  border-top: 10px solid #333;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  position : fixed;
+  right : 50px;
+  bottom : 90px;
+  display: none;
+  transform: 0.2s;
+}
+.floating-btn:hover{
+  background-color: #444;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+.floating-btn:active{
+  transform: scale(1.2);
+}
+.save-input{
+  border-radius: 10px;
+  width: 150px;
+  padding: 5px;
 }
 </style>

@@ -1,37 +1,68 @@
 <template lang="">
-  <div class="header container">
+  <div class="header">
     <header
-      class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4"
+      class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-2"
     >
-      <div class="d-flex align-items-center">
-        <router-link :to="{ name: 'HotItemList' }" style="margin-right: 36px">
+    <div class="d-flex align-items-center">
+        <router-link to="/" style="margin-right: 15px">
           <img src="@/assets/header/logo.png" height="64" />
         </router-link>
         <ul class="nav col-md-auto justify-content-center">
           <li>
-            <router-link to="/finance" class="nav-item nav-link px-2 link-dark">
+            <router-link to="/savings" class="nav-item nav-link px-2">
               예적금
             </router-link>
           </li>
           <li>
-            <a href="/fund" class="nav-item nav-link px-2 link-dark">펀드</a>
+            <router-link to="/fund" class="nav-item nav-link px-2">
+              펀드
+            </router-link>
           </li>
           <li>
-            <a href="/GoldPrice" class="nav-item nav-link px-2 link-dark">금</a>
+            <router-link to="/GoldPrice" class="nav-item nav-link px-2">
+              금
+            </router-link>
           </li>
           <li>
-            <a href="/exchange" class="nav-item nav-link px-2 link-dark"
-              >외화</a
-            >
+            <router-link to="/exchange" class="nav-item nav-link px-2">
+              외화
+            </router-link>
           </li>
         </ul>
       </div>
 
       <div class="member-wrapper text-end">
+        <div class="dropdown" v-if="userStore.isLoggedIn">
+          <button class="dropbtn dropdown-toggle">
+            마이페이지
+          </button>
+          <div class="dropdown-content">
+            <router-link to="/profile">
+              <img src="@/assets/remocon/info.png" width="20" height="20" class="dc-img"/>
+              내 정보
+            </router-link>
+            <router-link to="/cart">
+              <img src="@/assets/remocon/shopping.png" width="20" height="20" class="dc-img"/>
+              즐겨찾기
+            </router-link>
+            <router-link to="/survey/start">
+              <img src="@/assets/remocon/survey.png" width="20" height="20" class="dc-img"/>
+              투자성향진단
+            </router-link>
+            <router-link to="/recmd">
+              <img src="@/assets/remocon/recommend.png" width="20" height="20" class="dc-img"/>
+              추천상품
+            </router-link>
+            <a @click="openQuiz">
+              <img src="@/assets/remocon/quiz.png" width="20" height="20" class="dc-img"/>
+              오늘의 퀴즈
+            </a>
+          </div>
+        </div>
         <div class="login-wrapper">
           <div v-if="userStore.isLoggedIn">
-            <b>{{ userStore.userName }}</b> 님<br />
-            <p @click="logout">로그아웃</p>
+            <b>{{ userStore.NickName }}</b> 님<br />
+            <span class="logout-btn" @click="logout">로그아웃</span>
           </div>
 
           <div v-else>
@@ -50,6 +81,7 @@
   </div>
   <!-- 로그인 모달창 -->
   <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
+<<<<<<< HEAD
     <div class="modal-content" @click.stop>
       <Login />
       <button class="close-btn" @click="closeModal">닫기</button>
@@ -60,15 +92,37 @@
 <script>
 import Login from "../login/Login.vue";
 import { useUserStore } from "@/stores/user";
+=======
+      <div class="modal-content" @click.stop>
+        <Login />
+        <button class="close-btn" @click="closeModal">닫기</button>
+      </div>
+  </div>
+  <Quiz v-model:isQuizOpen="isQuizOpen" @closeQuiz="closeQuiz"></Quiz>
+</template>
+
+<script>
+import Login from '../login/Login.vue';
+import Quiz from '../quiz/Quiz.vue';
+import { useUserStore } from '@/stores/user';
+>>>>>>> dc11671670654a48537b61cffa49e08f092911c1
 
 export default {
   name: "Header",
   components: {
+<<<<<<< HEAD
     Login,
+=======
+    Login, Quiz
+>>>>>>> dc11671670654a48537b61cffa49e08f092911c1
   },
   data() {
     return {
       isModalOpen: false,
+<<<<<<< HEAD
+=======
+      isQuizOpen : false
+>>>>>>> dc11671670654a48537b61cffa49e08f092911c1
     };
   },
 
@@ -88,23 +142,41 @@ export default {
     },
     logout() {
       this.userStore.logout();
+<<<<<<< HEAD
       alert("로그아웃 되었습니다.");
       this.$router.push("/"); // main 페이지로 이동
+=======
+      // 로컬 스토리지안의 개인정보 삭제하기
+      ['likedFunds', 'auth', 'checkedFunds'].forEach(item => localStorage.removeItem(item));
+      alert('로그아웃 되었습니다.');
+      this.$router.push('/'); // main 페이지로 이동
+>>>>>>> dc11671670654a48537b61cffa49e08f092911c1
     },
+    openQuiz() {
+      this.isQuizOpen = true;
+    },
+    closeQuiz() {
+      this.isQuizOpen = false;
+    }
   },
 };
 </script>
 
 <style scoped>
 .header {
+<<<<<<< HEAD
   background-color: #fefefe;
+=======
+  background-color: white;
+>>>>>>> dc11671670654a48537b61cffa49e08f092911c1
   position: sticky;
   top: 0px;
-  width: 1200px;
+  width: 100%;
 }
 
 header {
-  width: 1176px;
+  width: 1200px;
+  margin: auto;
 }
 
 .member-wrapper {
@@ -125,14 +197,17 @@ header {
 }
 
 .nav-item:hover {
-  background-color: #dedede;
+  background-color: #F9F7F7;
+  color: black;
 }
 
 .nav-item {
-  border-radius: 20px;
+  border-radius: 10px;
   width: 84px;
   font-size: large;
   text-align: center;
+  color: black;
+  font-weight: bold;
 }
 
 /* 로그인 버튼 */
@@ -163,6 +238,10 @@ header {
 .login-btn:active {
   background-color: #3e6f69;
   /* 클릭 시 배경색 */
+}
+
+.logout-btn{
+  cursor: pointer;
 }
 
 /* 모달 관련 스타일 */
@@ -202,4 +281,54 @@ header {
   font-size: 20px;
   cursor: pointer;
 }
+<<<<<<< HEAD
 </style>
+=======
+
+.dropdown{
+  position : relative;
+  display : inline-block;
+  margin-right: 20px;
+}
+
+.dropbtn{
+  border : none;
+  font-size: 16px;
+  border-radius : 3px;
+  border : 3px solid #F9F7F7;
+  background-color: white;
+  padding : 12px;
+  width :200px;
+  text-align: right;
+  cursor : pointer;
+}
+.dropdown-content{
+  display : none;
+  position : absolute;
+  z-index : 2; /*다른 요소들보다 앞에 배치*/
+  font-weight: 400;
+  background-color: #F9F7F7;
+  min-width : 200px;
+}
+
+.dropdown-content a{
+  display : block;
+  text-decoration : none;
+  color : rgb(37, 37, 37);
+  font-size: 14px;
+  padding : 12px 20px;
+  cursor: pointer;
+}
+
+.dropdown-content a:hover{
+  background-color : #ececec
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+.dc-img{
+  float:left
+}
+</style>
+>>>>>>> dc11671670654a48537b61cffa49e08f092911c1
