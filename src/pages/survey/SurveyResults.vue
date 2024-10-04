@@ -28,9 +28,14 @@
         </tr>
       </tbody>
     </table>
-    <button class="btn btn-primary" @click="restartSurvey">
+    <button
+      class="btn btn-primary"
+      @click="restartSurvey"
+      style="margin-right: 10px"
+    >
       다시 시작하기
     </button>
+    <a href="/recmd" class="btn btn-primary"> 추천상품 보러가기 </a>
   </div>
 </template>
 
@@ -68,23 +73,27 @@ export default {
     const investmentStyles = [
       {
         type: '매우 보수적',
-        color: '#b3e6b3',
+        color: '#A8E6CF', // 연한 초록색
         recommendations: '안전한 적금, 국채',
       },
       {
         type: '보수적',
-        color: '#66b3ff',
+        color: '#B3E5FC', // 연한 파란색
         recommendations: '채권형 펀드, 안정형 상품',
       },
-      { type: '중립적', color: '#ffd700', recommendations: '혼합형 펀드, ETF' },
+      {
+        type: '중립적',
+        color: '#FFEB3B', // 밝은 노란색
+        recommendations: '혼합형 펀드, ETF',
+      },
       {
         type: '적극적',
-        color: '#ffcc33',
+        color: '#FF9800', // 중간 주황색
         recommendations: '주식형 펀드, 해외 주식',
       },
       {
         type: '매우 적극적',
-        color: '#ff6666',
+        color: '#FF5722', // 밝은 빨간색
         recommendations: '암호화폐, 레버리지 투자',
       },
     ];
@@ -98,11 +107,11 @@ export default {
     });
 
     const investmentStyleColor = computed(() => {
-      if (props.totalScore <= 15) return '#66cc66';
-      if (props.totalScore <= 21) return '#66b3ff';
-      if (props.totalScore <= 27) return '#ffd700';
-      if (props.totalScore <= 33) return '#ffcc33';
-      return '#ff6666';
+      if (props.totalScore <= 15) return '#A8E6CF'; // 연한 초록색
+      if (props.totalScore <= 21) return '#B3E5FC'; // 연한 파란색
+      if (props.totalScore <= 27) return '#FFEB3B'; // 밝은 노란색
+      if (props.totalScore <= 33) return '#FF9800'; // 중간 주황색
+      return '#FF5722'; // 밝은 빨간색
     });
 
     const restartSurvey = () => {
@@ -167,15 +176,29 @@ export default {
 
 .highlight {
   border: 2px solid #000; /* 강조를 위한 테두리 */
-  font-weight: bold; /* 하이라이트된 부분의 폰트 굵게 설정 */
+  font-weight: 1000; /* 더 굵은 폰트 설정 */
+  background-color: #dbe2ef;
 }
 
 .highlight td {
-  font-weight: bold; /* 하이라이트된 셀의 텍스트 굵게 설정 */
+  font-weight: 1000; /* 하이라이트된 셀의 텍스트를 더 굵게 설정 */
 }
 
 .btn {
   padding: 10px 20px;
   font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.3s ease,
+    box-shadow 0.3s ease;
+  border: 2px solid transparent; /* 기본 테두리 설정 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 기본 그림자 */
+  text-transform: uppercase; /* 대문자화 */
+  font-weight: bold; /* 두껍게 설정 */
+}
+
+.btn:hover {
+  background-color: #007bff; /* 버튼 호버 시 색상 변경 */
+  transform: scale(1.002); /* 호버 시 크기 증가 */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 호버 시 그림자 변화 */
+  border: 2px solid #007bff; /* 호버 시 테두리 색상 변경 */
 }
 </style>
