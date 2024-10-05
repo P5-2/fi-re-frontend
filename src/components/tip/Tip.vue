@@ -38,19 +38,6 @@ export default {
         .catch((err)=>{
             console.log(err);
         })
-    },
-    mounted(){
-        // let $tipContent = document.getElementById("tipContent");
-        // console.log(this.tips.count);
-
-        // for(let i=1; i<=this.tips.count; i++){
-        //     let $img = document.createElement("img");
-        //     $img.src = `${this.tips.path}/img${i}.jpeg`;
-        //     $img.width = "500"
-        //     $img.height = "500"
-        //     console.log($img);
-        //     $tipContent.appendChild($img);
-        // }
     }
 }
 </script>
