@@ -1,6 +1,8 @@
 <template>
   <div class="container mt-4">
-    <div v-if="isLoading" class="loading">로딩 중...</div>
+    <div v-if="isLoading" class="loading-block">
+      <div class="loading">Loading...</div>
+    </div>
     <div v-else class="content-block">
       <div class="row">
         <div class="col-md-6 col-sm-12 mb-4">
@@ -11,15 +13,21 @@
         </div>
         <div class="col-md-6 col-sm-12 mb-4">
           <div class="news-section p-4 card">
-            <NewsSection v-if="news.length > 0" :news="news" />
+            <NewsSection
+              v-if="user && user.exp >= 6 && news.length > 0"
+              :news="news"
+            />
+            <div v-else-if="user && user.exp < 6" class="level-warning">
+              <p>뉴스는 레벨 2 이상부터 이용 가능합니다.</p>
+            </div>
           </div>
         </div>
         <div>
           <FinancialGoals
-              v-if="user"
-              :goalAmount="user.goalAmount"
-              :currentAmount="user.assets"
-            />
+            v-if="user"
+            :goalAmount="user.goalAmount"
+            :currentAmount="user.assets"
+          />
         </div>
       </div>
     </div>
@@ -29,7 +37,7 @@
 <script>
 import { useProfileStore } from '../../stores/profileStore';
 import { useUserStore } from '@/stores/user';
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, ref, computed } from 'vue';
 import axios from 'axios';
 import UserProfile from '../../components/profile/UserProfile.vue';
 import RiskChart from '../../components/profile/RiskChart.vue';
@@ -50,6 +58,31 @@ export default defineComponent({
     const router = useRouter();
     const isLoading = ref(true);
 
+    // console.log(riskPoint);
+    const riskPointToQuery = computed(() => {
+      const riskPoint = profileStore.user?.riskPoint ?? 0; // 기본값 0 설정
+
+      const keywords = {
+        매우보수: ['안전자산', '국채', '고정금리', '안정성'],
+        보수적: ['채권형 펀드', '안정형 상품', '배당주', '금리 인상'],
+        중립적: ['혼합형 펀드', 'ETF', '투자 전략', '주식 시장 동향'],
+        적극적: ['주식형 펀드', '해외 주식', '성장주', '시장 분석'],
+        매우적극: ['암호화폐', '비트코인', '블록체인', '선물 거래'],
+      };
+
+      const getRandomKeyword = (array) => {
+        const randomIndex = Math.floor(Math.random() * array.length);
+        return array[randomIndex];
+      };
+
+      // 투자 성향에 따라 랜덤 키워드 리턴
+      if (riskPoint <= 15) return getRandomKeyword(keywords.매우보수); // 매우 보수적
+      if (riskPoint <= 21) return getRandomKeyword(keywords.보수적); // 보수적
+      if (riskPoint <= 27) return getRandomKeyword(keywords.중립적); // 중립적
+      if (riskPoint <= 33) return getRandomKeyword(keywords.적극적); // 적극적
+      return getRandomKeyword(keywords.매우적극); // 매우 적극적
+    });
+
     const fetchData = async () => {
       const tokenData = JSON.parse(sessionStorage.getItem('token'));
       const accessToken = tokenData?.accessToken;
@@ -66,12 +99,28 @@ export default defineComponent({
             Authorization: `Bearer ${accessToken}`,
           },
         });
+
+        // 사용자 정보를 설정
+        profileStore.setUserTwo(userResponse.data);
+
+        // riskPointToQuery를 사용하여 쿼리 키워드 생성
+        const queryKeyword = riskPointToQuery.value;
         const newsResponse = await axios.get(
-          'http://localhost:9000/profile/news?query=금융'
+          `http://localhost:9000/profile/news?query=${queryKeyword}`
         );
 
         profileStore.setNews(newsResponse.data.items);
-        profileStore.setUserTwo(userResponse.data);
+        await axios.post(
+          `http://localhost:9000/exp`,
+          {
+            page: 'profile', // 현재 페이지 이름
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
       } catch (error) {
         console.error('데이터를 가져오는 데 실패했습니다:', error);
         alert('데이터를 가져오는 데 실패했습니다. 다시 시도해 주세요.');
@@ -82,7 +131,7 @@ export default defineComponent({
 
     onMounted(async () => {
       await userStore.checkLoginStatus(); // 로그인 상태 확인
-
+      await fetchData();
       if (!userStore.isLoggedIn) {
         alert('로그인이 필요합니다.');
         router.push('/');
@@ -108,6 +157,7 @@ export default defineComponent({
       user: profileStore.user,
       news: profileStore.news,
       isLoading,
+      riskPointToQuery,
     };
   },
 });
@@ -122,7 +172,7 @@ body {
 .container {
   margin-top: 20px;
   padding: 20px;
-  background-color: #ffe7a5;
+  background-color: #3f72af;
 }
 
 .loading {
@@ -203,6 +253,37 @@ body {
 .progress-bar {
   background-color: #007bff;
   transition: width 0.4s;
+}
+
+.loading-block {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* 화면 전체 높이 */
+  background-color: #ffffff; /* 하얀 배경 */
+  position: absolute; /* 다른 요소 위에 위치 */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000; /* 다른 요소들 위에 오도록 설정 */
+}
+
+.loading {
+  font-size: 1.5rem;
+  color: #333; /* 텍스트 색상 */
+}
+
+.level-warning {
+  background-color: #ffe4e1; /* 연한 빨간색 배경 */
+  border: 1px solid #ff6347; /* 토마토 색상 테두리 */
+  border-radius: 10px; /* 모서리 둥글게 */
+  padding: 15px; /* 내부 여백 */
+  color: #ff6347; /* 텍스트 색상 */
+  font-weight: bold; /* 텍스트 굵게 */
+  text-align: center; /* 가운데 정렬 */
+  margin-top: 20px; /* 위쪽 마진 */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
 }
 
 /* 반응형 디자인 */

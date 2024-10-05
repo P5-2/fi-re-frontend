@@ -1,5 +1,12 @@
 <template>
   <div class="exchange-rate-container">
+    <!-- 기준 일자 및 요청 일자 -->
+    <div class="date-info">
+      <p style="margin-bottom: 1px;">기준 일자: <strong>{{ searchDate }}</strong></p>
+      <p style="font-size: 13px;">기준 일자는 현재 날짜와 차이가 있을 수 있습니다</p>
+    </div>
+
+    <!-- 주요 통화 -->
     <div class="highlighted-currencies">
       <div class="currency-list">
         <div v-for="currency in mainCurrencies" :key="currency.curUnit" class="currency-item">
@@ -15,11 +22,8 @@
         </div>
       </div>
     </div>
-    <!-- 기준 일자 및 요청 일자 -->
-    <div class="dateInfo">
-      <p>기준 일자: <strong>{{ searchDate }}</strong></p>
-    </div>
 
+    <!-- 나머지 통화들 -->
     <table class="exchange-rate-table">
       <thead>
         <tr>
@@ -53,7 +57,7 @@ export default {
     return {
       exchangeRates: [],
       mainCurrencies: [],
-      searchDate: '', // 기준 일자
+      searchDate: '',
     };
   },
   mounted() {
@@ -72,18 +76,11 @@ export default {
     async fetchExchangeRates() {
       try {
         const today = new Date();
-        today.setDate(today.getDate());
-
-        // 날짜를 'yyyyMMdd' 형식으로 변환
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0'); // 0부터 시작하므로 +1
-        const day = String(today.getDate()).padStart(2, '0');
-        const formattedDate = `${year}${month}${day}`;
+        const formattedDate = today.toISOString().split('T')[0].replace(/-/g, '');
 
         const response = await axios.get(`http://localhost:9000/forex/date/${formattedDate}`);
         this.exchangeRates = response.data;
 
-        // 첫 번째 데이터에서 기준 일자 가져오기
         if (this.exchangeRates.length > 0) {
           this.searchDate = this.exchangeRates[0].searchDate || formattedDate;
           this.mainCurrencies = this.exchangeRates.filter(rate => ['USD', 'EUR', 'JPY(100)'].includes(rate.curUnit));
@@ -111,79 +108,128 @@ export default {
 .exchange-rate-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  font-family: 'Roboto', sans-serif;
 }
 
 .highlighted-currencies {
-  background-color: white;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  background-color: #DBE2EF;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  width: 100%; /* 부모 컴포넌트의 너비만큼 설정 */
+  /* box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); */
 }
+
 
 .currency-list {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  gap: 15px;
+  justify-content: center;
 }
 
 .currency-item {
-  margin: 10px;
+  width: 30%;
   padding: 15px;
-  background-color: #f5df65;
-  border: 1px solid #ddd;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  width: calc(33% - 20px);
   display: flex;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease-in-out;
+}
+
+.currency-item:hover {
+  transform: scale(1.05);
 }
 
 .flag-container {
-  margin-right: 10px;
+  margin-right: 15px;
 }
 
 .flag-icon {
-  width: 60px;
+  width: 50px;
   height: auto;
+  border-radius: 5px;
 }
 
 .currency-info {
   display: flex;
   flex-direction: column;
+  text-align: left; /* 좌측 정렬 적용 */
+}
+
+.currency-info h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.currency-info p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.date-info {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.date-info p {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
 }
 
 .exchange-rate-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 70px;
+  font-size: 16px;
+  margin-top: 30px;
 }
 
 .exchange-rate-table th,
 .exchange-rate-table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+  padding: 12px 20px;
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .exchange-rate-table th {
-  background-color: #f2f2f2;
+  background-color: #f0f0f0;
   font-weight: bold;
+  text-transform: uppercase;
 }
 
 .exchange-rate-table tr:hover {
-  background-color: #f1f1f1;
+  background-color: #f9f9f9;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .currency-item {
+    width: 45%;
+  }
+
   .exchange-rate-table {
     font-size: 14px;
   }
+}
 
+@media (max-width: 480px) {
   .currency-item {
     width: 100%;
+  }
+
+  .exchange-rate-table th,
+  .exchange-rate-table td {
+    padding: 10px;
   }
 }
 </style>

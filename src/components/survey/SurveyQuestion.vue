@@ -123,7 +123,7 @@ export default {
 }
 
 .option.selected {
-  background-color: #3dd2af;
+  background-color: #3f72af;
   color: white;
   font-weight: bold;
 }

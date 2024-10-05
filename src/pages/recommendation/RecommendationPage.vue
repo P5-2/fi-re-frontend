@@ -5,10 +5,10 @@
   <div class="container">
     <div class="button-section">
       <div class="toggle-container">
-        <button @click="toggleComponent('savings')" :class="{ 'active': activeComponents.includes('savings') }">
+        <button @click="toggleComponent('deposit')" :class="{ 'active': activeComponents.includes('deposit') }">
           예금
         </button>
-        <button @click="toggleComponent('deposit')" :class="{ 'active': activeComponents.includes('deposit') }">
+        <button @click="toggleComponent('savings')" :class="{ 'active': activeComponents.includes('savings') }">
           적금
         </button>
         <button @click="toggleComponent('fund')" :class="{ 'active': activeComponents.includes('fund') }">
@@ -18,8 +18,8 @@
     </div>
 
     <div class="recommendation-items">
-      <SavingsRecommendation v-if="activeComponents.includes('savings')" class="recommendation-item" />
       <DepositRecommendation v-if="activeComponents.includes('deposit')" class="recommendation-item" />
+      <SavingsRecommendation v-if="activeComponents.includes('savings')" class="recommendation-item" />
       <FundRecommendation v-if="activeComponents.includes('fund')" class="recommendation-item" />
     </div>
   </div>
@@ -40,7 +40,7 @@ export default {
   },
   data() {
     return {
-      activeComponents: ['savings', 'deposit', 'fund']
+      activeComponents: ['deposit', 'savings', 'fund']
     };
   },
   methods: {
