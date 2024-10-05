@@ -1,18 +1,27 @@
 <template>
     <div id="hotItem">
-        <div v-if="toggle">
-            <div class="itemWrapper savingsHover" @click="savingsItemClick">
-                <p class="itemName">{{ pname }}</p>
+        <div v-if="financeType === '적금'">
+            <div class="itemWrapper SHover" @click="savingsItemClick">
+                <p class="itemName" id="itemName">{{ financeItem.savingsDeposit.fin_prdt_nm }}</p>
                 <div>
-                    <span class="itemRate">최고 연 {{ maxRate }}%</span> <br>
-                    <span class="itemRate2">최저 연 {{ minRate }}%</span>
+                    <div class="itemRate">최고 연 {{ financeItem.options[0].intr_rate2 }}%</div>
+                    <div class="itemRate2">최저 연 {{ financeItem.options[0].intr_rate }}%</div>
                 </div>
             </div>
         </div>
-        <div v-else>
+        <div v-else-if="financeType === '예금'">
+            <div class="itemWrapper DHover" @click="savingsItemClick">
+                <p class="itemName" id="itemName">{{ financeItem.savingsDeposit.fin_prdt_nm }}</p>
+                <div>
+                    <div class="itemRate">최고 연 {{ financeItem.options[0].intr_rate2 }}%</div>
+                    <div class="itemRate2">최저 연 {{ financeItem.options[0].intr_rate }}%</div>
+                </div>
+            </div>
+        </div>
+        <div v-else-if="financeType === '펀드'">
             <div class="itemWrapper fundHover" @click="fundItemClick">
-                <p class="itemName">{{ pname }}</p>
-                <span class="itemRate">3개월 누적 이익<br> <span class="fs-3">{{ rate }}%</span></span>
+                <p class="itemName">{{ financeItem.pname }}</p>
+                <span class="itemRate">3개월 누적 이익<br> <span class="fs-3">{{ financeItem.rate }}%</span></span>
             </div>
         </div>
     </div>
@@ -20,15 +29,32 @@
 <script>
 export default {
     name : 'HotItem',
-    props : ['prdNo', 'pname', 'maxRate', 'minRate', 'toggle', 'rate'],
+    props : ['financeItem', 'financeType'], //financeItem : 예적금 상품, financeType : 상품타입(예금, 적금, 펀드)
     methods : {
         savingsItemClick(){
-            this.$router.push('/itemDetail/savings/'+this.prdNo)
-            console.log(this.prdNo);
+            this.$router.push(`/itemDetail/savings/${this.financeItem.savingsDeposit.fin_prdt_cd}/${this.financeItem.options[0].save_trm}`);
         },
         fundItemClick(){
-            this.$router.push('/itemDetail/fund/'+this.prdNo)
-            console.log(this.prdNo);
+            this.$router.push('/itemDetail/fund/'+this.financeItem.prdNo);
+        }
+    },
+    created(){
+        // console.log(this.financeItem);
+        // console.log(this.financeType);
+    },
+    updated(){
+        console.log(this.financeItem);
+        console.log(this.financeType);
+        let $itemName = document.getElementById("itemName");
+        let $rateWrapper = document.getElementById("rateWrapper");
+        if(this.financeType === "예금" || this.financeType === "적금"){
+            if($itemName !== null){
+                $itemName.textContent = this.financeItem.fin_prdt_nm;
+            }
+        } else if(this.financeType === "펀드"){
+            if($itemName !== null){
+                $itemName.textContent = this.financeItem.pname;
+            }
         }
     }
 }
@@ -48,19 +74,20 @@ export default {
         cursor: pointer;
         transition: all 0.2s;
     }
-    .savingsHover:hover{
-        background-color: #778DFF;
+    .itemWrapper:hover{
         color: white;
         width: 270px;
         height: 270px;
         text-align: center;
     }
+    .SHover:hover{
+        background-color: #3FAF4F;
+    }
+    .DHover:hover{
+        background-color: #3F72AF;
+    }
     .fundHover:hover{
-        background-color: #FA5454;
-        color: white;
-        width: 270px;
-        height: 270px;
-        text-align: center;
+        background-color: #AF3F4F;
     }
     .itemName{
         font-size : 20px;
