@@ -40,26 +40,46 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
-import axios from "axios";
-import Savings from "@/components/list/savings/Savings.vue";
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
+import Savings from '@/components/list/savings/Savings.vue';
 
 export default {
-  name: "SavingsList",
+  name: 'SavingsList',
   components: { Savings },
   setup() {
     const allSavings = ref([]);
     const currentPage = ref(1);
     const itemsPerPage = 5;
 
+    const trackPageVisit = async () => {
+      try {
+        const tokenData = JSON.parse(sessionStorage.getItem('token'));
+        const accessToken = tokenData?.accessToken;
+
+        await axios.post(
+          `http://localhost:9000/exp`,
+          {
+            page: 'savinglist', // 현재 페이지 이름
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+      } catch (error) {
+        console.error('Error tracking page visit:', error);
+      }
+    };
     const fetchSavings = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:9000/finance/savings/all"
+          'http://localhost:9000/finance/savings/all'
         );
         allSavings.value = response.data;
       } catch (error) {
-        console.error("Error: savings products", error);
+        console.error('Error: savings products', error);
       }
     };
 
@@ -81,6 +101,7 @@ export default {
     };
 
     onMounted(() => {
+      trackPageVisit();
       fetchSavings();
     });
 

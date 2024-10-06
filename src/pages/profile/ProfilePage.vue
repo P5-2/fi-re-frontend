@@ -128,10 +128,32 @@ export default defineComponent({
         isLoading.value = false; // 로딩 종료
       }
     };
+    const trackPageVisit = async () => {
+      try {
+        const tokenData = JSON.parse(sessionStorage.getItem('token'));
+        const accessToken = tokenData?.accessToken;
+
+        await axios.post(
+          `http://localhost:9000/exp`,
+          {
+            page: 'survey', // 현재 페이지 이름
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+      } catch (error) {
+        console.error('Error tracking page visit:', error);
+      }
+    };
 
     onMounted(async () => {
       await userStore.checkLoginStatus(); // 로그인 상태 확인
+      await trackPageVisit();
       await fetchData();
+
       if (!userStore.isLoggedIn) {
         alert('로그인이 필요합니다.');
         router.push('/');
