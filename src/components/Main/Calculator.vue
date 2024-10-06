@@ -6,6 +6,7 @@
   <button type="button" class="floating-btn" @click="openTab" @mouseover="btnOver" @mouseout="btnOut">
     <img src="@/assets/calculator/calc.png" width="30" height="30"/>
   </button>
+  <CalculatorResult v-bind:isCalcResultOpen="isCalcResultOpen" @closeCalcResult="closeCalcResult"></CalculatorResult>
   <div id="sideTab" class="side-tab">
     <a href="javascript:void(0)" class="close-btn" @click="closeTab">&times;</a>
     <div class="cal-wrapper">
@@ -23,10 +24,6 @@
         />
       </div>
       <button class="btn btn-light" @click="cal_click">계산하기</button>
-      <br />
-      <div class="mt-3 fs-4">
-        <div>결과 :<br> <b id="result">0원</b></div>
-      </div>
     </div>
 
     <div class="cal-wrapper">
@@ -54,20 +51,23 @@
       <div class="cal-wrapper">
         <!-- 예적금 상품 -->
         <h3>예적금</h3>
-        <ol v-for="(savings, index) in savingslist" :key="savings.prdNo">
+        <ol v-for="(savings, index) in savingslist">
           <li class="savingWrapper">
-            <button
-              type="button"
-              class="x-btn btn-close"
-              aria-label="Close"
-              @click="removeSavings(savings.prdNo, index)"
-            ></button>
-            <b class="b-pname">{{ savings.pname }}</b> <br />
+            <div class="x-btn">
+              <button
+                type="button"
+                class="btn-close"
+                aria-label="Close"
+                @click="removeSavings(index)"
+              ></button>
+            </div>
+            <b>{{ savings.savingsDeposit.fin_prdt_nm }}</b> <br />
             <hr />
-            이율 : <b>{{ savings.minRate }}</b
-            ><br />
-            금액 : <b>{{ savings.subAmount }}</b> <br />
-            기간 : <b>{{ savings.subPeriod }}개월</b> <br />
+            이율 : <b>{{ savings.options[0].intr_rate }}%</b>({{ savings.options[0].intr_rate_type_nm }})<br />
+            최대한도 :
+            <b v-if="savings.savingsDeposit.max_limit === null">없음</b>
+            <b v-else>{{savings.savingsDeposit.max_limit}}</b> <br />
+            기간 : <b>{{ savings.options[0].save_trm }}개월</b> <br />
             투자금액 :
             <input
               type="text"
@@ -87,15 +87,17 @@
         <h3>펀드</h3>
         <ol v-for="(fund, index) in fundlist" :key="fund.prdNo">
           <li class="savingWrapper">
-            <button
-              type="button"
-              class="x-btn btn-close"
-              aria-label="Close"
-              @click="removeFund(fund.prdNo, index)"
-            ></button>
-            <b class="b-pname">{{ fund.pname }}</b> <br />
+            <div class="x-btn">
+              <button
+                type="button"
+                class="btn-close"
+                aria-label="Close"
+                @click="removeFund(index)"
+              ></button>
+            </div>
+            <b>{{ fund.pname }}</b> <br />
             <hr />
-            누적이율 : <b>{{ fund.rate }}</b> <br />
+            3개월누적이율 : <b>{{ fund.rate }}%</b> <br />
             투자금액 :
             <input
               type="text"
@@ -111,12 +113,13 @@
 <script>
 import { calculatorStore } from '@/stores/calculator.js';
 import { mapState, mapActions } from 'pinia';
+import CalculatorResult from './CalculatorResult.vue';
 
 export default {
   name: 'Calculator',
+  components : {CalculatorResult},
   data() {
     return {
-      clicked: false,
       options: {
         duration: 500,
       },
@@ -125,6 +128,7 @@ export default {
       temp_monthlySave: 0,
       temp_savingsAmounts: [],
       temp_fundAmounts: [],
+      isCalcResultOpen : false
     };
   },
   computed: {
@@ -149,34 +153,6 @@ export default {
     });
   },
   methods: {
-    btnClick: function () {
-      let wrapper = document.getElementById('calculator-wrapper');
-      let btn = document.getElementById('calculator-btn');
-      let keyframes;
-      if (this.clicked) {
-        //계산기가 올라와 있으므로 내려야함
-        this.clicked = false;
-        keyframes = {
-          transform: ['translate(-50%, 180px)'],
-        };
-        wrapper.animate(keyframes, this.options);
-        setTimeout(function () {
-          wrapper.style.transform = 'translate(-50%, 180px)';
-        }, 450);
-        btn.textContent = '계산기 ↑';
-      } else {
-        //계산기가 내려와 있으므로 올려야함
-        this.clicked = true;
-        keyframes = {
-          transform: ['translate(-50%, 0)'],
-        };
-        wrapper.animate(keyframes, this.options);
-        setTimeout(function () {
-          wrapper.style.transform = 'translate(-50%, 0)';
-        }, 450);
-        btn.textContent = '계산기 ↓';
-      }
-    },
     ...mapActions(calculatorStore, [
       'calculate',
       'setMonth',
@@ -188,10 +164,8 @@ export default {
       'removeFund',
     ]),
     cal_click: function () {
-      let result = this.calculate();
-      console.log(result);
-      result += '원';
-      document.getElementById('result').textContent = result;
+      // let result = this.calculate();
+      this.isCalcResultOpen = true;
     },
     setMonthHandler: function () {
       this.setMonth(this.temp_month);
@@ -227,37 +201,14 @@ export default {
 
       $floatingDesc.style.display = "none";
       $floatingArrow.style.display = "none";
+    },
+    closeCalcResult : function(){
+      this.isCalcResultOpen = false;
     }
   },
 };
 </script>
 <style scoped>
-#calculator-wrapper {
-  position: fixed;
-  left: 50%;
-  transform: translate(-50%, 180px);
-  bottom: 0px;
-}
-#calculator-btn {
-  cursor: pointer;
-  margin-left: 1200px;
-  width: 100px;
-  height: 30px;
-  text-align: center;
-  line-height: 30px;
-  color: white;
-  background-color: #4b5664;
-}
-#calculator {
-  border-radius: 20px;
-  background-color: #4b5664;
-  margin: auto;
-  width: 1600px;
-  height: 200px;
-  padding: 10px;
-  display: flex;
-  justify-content: space-evenly;
-}
 .cal-wrapper {
   margin: auto;
   color: whitesmoke;
@@ -267,7 +218,7 @@ export default {
 }
 .finance-wrapper{
   overflow-y: auto;
-  height: 350px;
+  height: 400px;
 }
 ol, li {
   list-style: none;
@@ -293,10 +244,7 @@ ol, li {
   font-size: 14px;
 }
 .x-btn {
-  float: right;
-}
-.b-pname {
-  float: left;
+  text-align: right;
 }
 .month-input {
   margin-left: 5px;

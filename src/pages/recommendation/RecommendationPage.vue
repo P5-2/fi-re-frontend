@@ -6,14 +6,14 @@
     <div class="button-section">
       <div class="toggle-container">
         <button
-          @click="toggleComponent('savings')"
-          :class="{ active: activeComponents.includes('savings') }"
+          @click="toggleComponent('deposit')"
+          :class="{ active: activeComponents.includes('deposit') }"
         >
           예금
         </button>
         <button
-          @click="toggleComponent('deposit')"
-          :class="{ active: activeComponents.includes('deposit') }"
+          @click="toggleComponent('savings')"
+          :class="{ active: activeComponents.includes('savings') }"
         >
           적금
         </button>
@@ -27,12 +27,12 @@
     </div>
 
     <div class="recommendation-items">
-      <SavingsRecommendation
-        v-if="activeComponents.includes('savings')"
-        class="recommendation-item"
-      />
       <DepositRecommendation
         v-if="activeComponents.includes('deposit')"
+        class="recommendation-item"
+      />
+      <SavingsRecommendation
+        v-if="activeComponents.includes('savings')"
         class="recommendation-item"
       />
       <FundRecommendation
@@ -59,7 +59,7 @@ export default {
   },
   data() {
     return {
-      activeComponents: ['savings', 'deposit', 'fund'],
+      activeComponents: ['deposit', 'savings', 'fund'],
     };
   },
   mounted() {

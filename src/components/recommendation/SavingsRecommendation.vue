@@ -2,7 +2,7 @@
   <div class="recommend-container">
     <!-- 사용된 키워드 출력 -->
     <div v-if="usedKeywords.length" class="keywords-section">
-      <h3 class="title">예금 추천 키워드</h3>
+      <h3 class="title">적금 추천 키워드</h3>
       <ul class="keyword-list">
         <li
           v-for="(keyword, index) in usedKeywords"
@@ -41,7 +41,7 @@
       </div>
       <div v-else>
         <div class="empty-message">
-          <p>추천할 예금 상품이 없습니다.</p>
+          <p>추천할 적금 상품이 없습니다.</p>
           <p>더 나은 추천을 위해 간단한 설문조사를 진행해 주세요.</p>
           <button @click="goToSurvey">설문조사 시작하기</button>
         </div>
@@ -79,24 +79,10 @@ export default {
 
     const loadIcons = async () => {
       const banks = [
-        '국민은행',
-        '우리은행',
-        '신한은행',
-        '하나은행',
-        '한국스탠다드차타드은행',
-        '아이엠뱅크',
-        '부산은행',
-        '광주은행',
-        '제주은행',
-        '전북은행',
-        '경남은행',
-        '중소기업은행',
-        '한국산업은행',
-        '농협은행주식회사',
-        '주식회사 케이뱅크',
-        '수협은행',
-        '주식회사 카카오뱅크',
-        '토스뱅크 주식회사',
+        '국민은행', '우리은행', '신한은행', '하나은행', '한국스탠다드차타드은행',
+        '아이엠뱅크', '부산은행', '광주은행', '제주은행', '전북은행',
+        '경남은행', '중소기업은행', '한국산업은행', '농협은행주식회사',
+        '주식회사 케이뱅크', '수협은행', '주식회사 카카오뱅크', '토스뱅크 주식회사', '상상인플러스저축은행',
       ];
 
       const promises = banks.map(async (bank) => {
@@ -115,10 +101,7 @@ export default {
       };
 
       try {
-        const response = await axios.get(
-          'http://localhost:9000/recommend/savings',
-          config
-        );
+        const response = await axios.get('http://localhost:9000/recommend/deposit', config);
         depositList.value = response.data.savingsDeposits; // DTO에서 필터링된 예적금 목록 할당
         usedKeywords.value = response.data.usedKeywords; // 사용된 키워드 할당
         console.log('savings : ', depositList.value);
