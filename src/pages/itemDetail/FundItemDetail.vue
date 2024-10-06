@@ -124,8 +124,7 @@ export default {
         ...mapActions(calculatorStore, ['addFund']),
         calcBtn: function () {
             this.fund.amount = 0;
-            this.addFund(this.fund);
-            alert("상품을 계산기에 추가했습니다");
+            this.addFund(this.fund)
         },
         compareProduct() {
             // sessionStorage에서 token 값을 가져와 파싱

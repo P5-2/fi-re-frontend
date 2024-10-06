@@ -77,8 +77,9 @@ export default {
     created() {
         this.prdNo = this.$route.params.prdNo;
         this.saveTrm = this.$route.params.saveTrm;
+        this.intrRateTypeNm = this.$route.params.intrRateTypeNm;
         console.log(this.prdNo);
-        axios.get("http://localhost:9000/finance/get", { params: { finPrdtCd: this.prdNo, saveTrm: this.saveTrm } })
+        axios.get("http://localhost:9000/finance/get", { params: { finPrdtCd: this.prdNo, saveTrm: this.saveTrm, intrRateTypeNm: this.intrRateTypeNm } })
             .then((res) => {
                 this.savings = res.data;
                 console.log(this.savings);
@@ -92,7 +93,6 @@ export default {
         calcBtn: function () {
             this.savings.amount = 0;
             this.addSavings(this.savings);
-            alert("상품을 계산기에 추가했습니다");
         },
         compareProduct() {
 
