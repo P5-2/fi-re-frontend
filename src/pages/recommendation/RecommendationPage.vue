@@ -5,22 +5,40 @@
   <div class="container">
     <div class="button-section">
       <div class="toggle-container">
-        <button @click="toggleComponent('savings')" :class="{ 'active': activeComponents.includes('savings') }">
+        <button
+          @click="toggleComponent('savings')"
+          :class="{ active: activeComponents.includes('savings') }"
+        >
           예금
         </button>
-        <button @click="toggleComponent('deposit')" :class="{ 'active': activeComponents.includes('deposit') }">
+        <button
+          @click="toggleComponent('deposit')"
+          :class="{ active: activeComponents.includes('deposit') }"
+        >
           적금
         </button>
-        <button @click="toggleComponent('fund')" :class="{ 'active': activeComponents.includes('fund') }">
+        <button
+          @click="toggleComponent('fund')"
+          :class="{ active: activeComponents.includes('fund') }"
+        >
           펀드
         </button>
       </div>
     </div>
 
     <div class="recommendation-items">
-      <SavingsRecommendation v-if="activeComponents.includes('savings')" class="recommendation-item" />
-      <DepositRecommendation v-if="activeComponents.includes('deposit')" class="recommendation-item" />
-      <FundRecommendation v-if="activeComponents.includes('fund')" class="recommendation-item" />
+      <SavingsRecommendation
+        v-if="activeComponents.includes('savings')"
+        class="recommendation-item"
+      />
+      <DepositRecommendation
+        v-if="activeComponents.includes('deposit')"
+        class="recommendation-item"
+      />
+      <FundRecommendation
+        v-if="activeComponents.includes('fund')"
+        class="recommendation-item"
+      />
     </div>
   </div>
 </template>
@@ -30,18 +48,22 @@ import DepositRecommendation from '@/components/recommendation/DepositRecommenda
 import FundRecommendation from '@/components/recommendation/FundRecommendation.vue';
 import MemberComponent from '@/components/recommendation/MemberComponent.vue';
 import SavingsRecommendation from '@/components/recommendation/SavingsRecommendation.vue';
+import axios from 'axios'; // axios 추가
 
 export default {
   components: {
     DepositRecommendation,
     FundRecommendation,
     SavingsRecommendation,
-    MemberComponent
+    MemberComponent,
   },
   data() {
     return {
-      activeComponents: ['savings', 'deposit', 'fund']
+      activeComponents: ['savings', 'deposit', 'fund'],
     };
+  },
+  mounted() {
+    this.trackPageVisit();
   },
   methods: {
     toggleComponent(component) {
@@ -51,8 +73,28 @@ export default {
       } else {
         this.activeComponents.push(component);
       }
-    }
-  }
+    },
+    async trackPageVisit() {
+      try {
+        const tokenData = JSON.parse(sessionStorage.getItem('token'));
+        const accessToken = tokenData?.accessToken;
+
+        await axios.post(
+          `http://localhost:9000/exp`,
+          {
+            page: 'recommaendation', // 현재 페이지 이름
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+      } catch (error) {
+        console.error('Error tracking page visit:', error);
+      }
+    },
+  },
 };
 </script>
 
@@ -62,7 +104,7 @@ export default {
   font-weight: bold;
   text-align: center;
   margin-bottom: 30px;
-  color: #0A3459;
+  color: #0a3459;
 }
 
 .container {
@@ -92,7 +134,7 @@ export default {
   padding: 8px 20px;
   font-size: 14px;
   border: none;
-  background-color: #F2F2F2;
+  background-color: #f2f2f2;
   color: #333;
   border-radius: 20px;
   cursor: pointer;
@@ -100,12 +142,12 @@ export default {
 }
 
 .toggle-container button.active {
-  background-color: #0A3459;
+  background-color: #0a3459;
   color: #fff;
 }
 
 .toggle-container button:hover {
-  background-color: #3C74A6;
+  background-color: #3c74a6;
   color: #fff;
 }
 
