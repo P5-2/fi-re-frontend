@@ -29,8 +29,24 @@ export const calculatorStore = defineStore('calculator', {
             result += this.gold * (this.goldRate * 0.01) * (this.month / 12) + this.gold;
             return result;
         },
-        addSavings : function(savings){ //예적금 추가 함수
-            this.savingslist.push(savings);
+        addSavings : function(getSavings){ //예적금 추가 함수 중복된 상품이 있으면 false 반환
+            let result = true;
+            this.savingslist.forEach((savings)=>{
+                if(
+                    savings.savingsDeposit.fin_prdt_ct === getSavings.savingsDeposit.fin_prdt_ct
+                    && savings.options[0].save_trm === getSavings.options[0].save_trm
+                    && savings.options[0].intr_rate_type_nm === getSavings.options[0].intr_rate_type_nm
+                )//상품 코드와 투자개월 수가 같으면 같은 상품
+                {
+                    result = false;
+                }
+            })
+            if(result){
+                this.savingslist.push(getSavings);
+                return alert("상품을 게산기에 추가했습니다");
+            }else{
+                return alert("이미 상품이 계산기에 있습니다");
+            }
         },
         setSavingsAmount : function(prdNo, amount){
             this.savingslist = this.savingslist.map((savings)=>{
@@ -40,17 +56,28 @@ export const calculatorStore = defineStore('calculator', {
                 return savings
             })
         },
-        removeSavings : function(prdNo){ //예적금 제거 함수
-            this.savingslist = this.savingslist.filter((savings)=>{
-                return savings.prdNo !== prdNo;
+        removeSavings : function(getIndex){ //예적금 제거 함수
+            this.savingslist = this.savingslist.filter((savings, index)=>{
+                return index !== getIndex;
             })
         },
-        addFund : function(fund){ //펀드 추가 함수
-            this.fundlist.push(fund);
+        addFund : function(getFund){ //펀드 추가 함수 중복된 상품이 있으면 false 반환
+            let result = true;
+            this.fundlist.forEach((fund)=>{
+                if(fund.prdNo === getFund.prdNo){ //같은 번호가 있으면 이미 상품이 계산기에 있음
+                    result = false;
+                }
+            })
+            if(result){
+                this.fundlist.push(getFund);
+                return alert("상품을 게산기에 추가했습니다");
+            }else{
+                return alert("이미 상품이 계산기에 있습니다");
+            }
         },
-        removeFund : function(prdNo){ //펀드 제거 함수
-            this.fundlist = this.fundlist.filter((fund)=>{
-                return fund.prdNo !== prdNo;
+        removeFund : function(getIndex){ //펀드 제거 함수
+            this.fundlist = this.fundlist.filter((fund, index)=>{
+                return getIndex !== index;
             })
         },
         setFundAmount : function(prdNo, amount){ //펀드 투자액 설정

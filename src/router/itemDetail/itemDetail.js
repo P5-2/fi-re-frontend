@@ -3,7 +3,7 @@ import SavingsItemDetail from "@/pages/itemDetail/SavingsItemDetail.vue";
 
 export default [
     {
-        path : '/itemDetail/savings/:prdNo/:saveTrm',
+        path : '/itemDetail/savings/:prdNo/:saveTrm/:intrRateTypeNm',
         component : SavingsItemDetail,
     },
     {
