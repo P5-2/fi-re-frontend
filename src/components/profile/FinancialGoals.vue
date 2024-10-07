@@ -86,10 +86,6 @@
   </div>
 </template>
 
-<!--  -->
-<!--  -->
-<!-- 총 목표 금액 수정기능도 추가하기-->
-
 <script>
 import SetGoal from './SetGoal.vue';
 import SelectProduct from './SelectSavings.vue';
@@ -110,7 +106,7 @@ export default {
     const isSelectSavingsModalVisible = ref(false);
     const iconMap = ref({});
 
-    const checkUserProducts = async () => {
+    const updateUserProducts = async (shouldShowModal = false) => {
       const accessToken = goalStore.getAccessToken();
       const config = {
         headers: {
@@ -120,35 +116,33 @@ export default {
 
       try {
         const response = await axios.get('http://localhost:9000/profile/goal', config);
-        userProducts.value = Array.isArray(response.data) ? response.data.map(product => ({
-          ...product,
-          isExpanded: false
-        })) : [];
+
+        if (Array.isArray(response.data)) {
+          const uniqueProductsMap = new Map();
+
+          // finPrdtCd를 이용해서 중복 제거
+          response.data.forEach(product => {
+            if (!uniqueProductsMap.has(product.finPrdtCd)) {
+              uniqueProductsMap.set(product.finPrdtCd, {
+                ...product,
+                isExpanded: false,
+              });
+            }
+          });
+
+          userProducts.value = Array.from(uniqueProductsMap.values());
+        } else {
+          userProducts.value = [];
+        }
+
         goalStore.updateTotals(userProducts.value);
-        if (userProducts.value.length === 0) {
+
+        // 상품이 없을 경우 모달 보여주기
+        if (userProducts.value.length === 0 && shouldShowModal) {
           showSetGoalModal();
         }
       } catch (error) {
         console.error('Error fetching user products:', error);
-        userProducts.value = [];
-      }
-    };
-
-    const refreshUserProducts = async () => {
-      const accessToken = goalStore.getAccessToken();
-      const config = {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      };
-
-      try {
-        const response = await axios.get('http://localhost:9000/profile/goal', config);
-        console.log(response.data);
-        userProducts.value = Array.isArray(response.data) ? response.data : [];
-        goalStore.updateTotals(userProducts.value);
-      } catch (error) {
-        console.error('Error refreshing user products:', error);
         userProducts.value = [];
       }
     };
@@ -176,26 +170,6 @@ export default {
           };
         }
       });
-    };
-
-    const updateAllDepositAmounts = async () => {
-      try {
-        const accessToken = goalStore.getAccessToken();
-        const config = {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        };
-
-        const prdNosResponse = await axios.get('http://localhost:9000/profile/goal', config);
-        const prdNos = prdNosResponse.data; 
-        console.log(prdNos);
-        for (const prdNo of prdNos) {
-          await fetchDepositAmount(prdNo.finPrdtCd);
-        }
-      } catch (error) {
-        console.error('Error updating deposit amounts:', error);
-      }
     };
 
     const fetchDepositAmount = async (prdNo) => {
@@ -431,18 +405,22 @@ export default {
 
     onMounted(() => {
       loadIcons();
-      checkUserProducts();
-      updateAllDepositAmounts();
+      updateUserProducts(true);
     });
 
     return {
+      // 상태 관리
       userProducts,
       isSetGoalModalVisible,
       isSelectSavingsModalVisible,
+
+      // 목표 금액 관련
       totalGoalAmount,
       totalSavedAmount,
       totalSavedAmountFromProducts,
       overallProgressRate,
+
+      // 메서드
       handleGoalSet,
       handleProductSelected,
       showSetGoalModal,
@@ -450,17 +428,25 @@ export default {
       closeSetGoalModal,
       showSelectSavingsModal,
       closeSelectSavingsModal,
+      toggleCard,
+      fetchDepositAmount,
+
+      // 계산 관련 메서드
       calculateProductProgress,
       calculateMonthlyDeposit,
       calculateMaturityAmount,
+
+      // 날짜 관련 메서드
       remainingDays,
-      formatCurrency,
+      remainingMonths,
       formatDate,
+
+      // 통화 포맷팅
+      formatCurrency,
+
+      // 아이콘 관련 메서드
       getIcon,
       loadIcons,
-      toggleCard,
-      fetchDepositAmount,
-      updateAllDepositAmounts,
     };
   }
 };
