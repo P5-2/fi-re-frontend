@@ -27,16 +27,6 @@
     </div>
 
     <div class="cal-wrapper">
-      <label>월 저금액(원)</label> <br>
-      <input
-        type="text"
-        class="save-input"
-        v-model="temp_monthlySave"
-        @input="setMonthlySaveHandler()"
-      />
-    </div>
-
-    <div class="cal-wrapper">
       <!-- 금 투자 -->
       <h3>금</h3>
       <label>금 투자금액(원)</label> <br>
@@ -58,7 +48,7 @@
                 type="button"
                 class="btn-close"
                 aria-label="Close"
-                @click="removeSavings(index)"
+                @click="removeSavingsHandler(index)"
               ></button>
             </div>
             <b>{{ savings.savingsDeposit.fin_prdt_nm }}</b> <br />
@@ -74,7 +64,7 @@
               v-model="temp_savingsAmounts[index]"
               @input="
                 setSavingsAmountHandler(
-                  savings.prdNo,
+                  savings,
                   temp_savingsAmounts[index]
                 )
               "
@@ -157,14 +147,13 @@ export default {
       'calculate',
       'setMonth',
       'setGold',
-      'setMonthlySave',
       'setFundAmount',
       'setSavingsAmount',
       'removeSavings',
       'removeFund',
     ]),
-    cal_click: function () {
-      // let result = this.calculate();
+    cal_click: async function () {
+      await this.calculate();
       this.isCalcResultOpen = true;
     },
     setMonthHandler: function () {
@@ -173,14 +162,20 @@ export default {
     setGoldHandler: function () {
       this.setGold(this.temp_gold);
     },
-    setMonthlySaveHandler: function () {
-      this.setMonthlySave(this.temp_monthlySave);
-    },
     setFundAmountHandler: function (prdNo, amount) {
       this.setFundAmount(prdNo, amount);
     },
-    setSavingsAmountHandler: function (prdNo, amount) {
-      this.setSavingsAmount(prdNo, amount);
+    setSavingsAmountHandler: function (savings, amount) {
+      this.setSavingsAmount(savings, amount);
+    },
+    removeSavingsHandler : function(index){
+      this.temp_savingsAmounts.splice(index, 1);
+      console.log(this.temp_savingsAmounts);
+      this.removeSavings(index);
+    },
+    removeFundHandler : function(index){
+      this.temp_fundAmounts.splice(index, 1);
+      this.removeFund(index);
     },
     openTab : function(){
       document.getElementById("sideTab").style.width = "350px";  /* 탭의 너비를 설정 */
@@ -218,7 +213,7 @@ export default {
 }
 .finance-wrapper{
   overflow-y: auto;
-  height: 400px;
+  height: 500px;
 }
 ol, li {
   list-style: none;
