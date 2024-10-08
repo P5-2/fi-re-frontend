@@ -17,6 +17,11 @@
             </div>
             <table id="detailTable">
                 <tbody>
+                    <tr v-if="savings.options[0].rsrv_type !== null">
+                        <th>적금유형</th>
+                        <td v-if="savings.options[0].rsrv_type === 'S'">정기적금</td>
+                        <td v-else>자유적금</td>
+                    </tr>
                     <tr>
                         <th>가입대상</th>
                         <td>{{savings.savingsDeposit.join_member}}</td>
@@ -32,11 +37,11 @@
                     </tr>
                     <tr>
                         <th>이율</th>
-                        <td><b>최저 {{savings.options[0].intr_rate}}% ~ 최고 {{savings.options[0].intr_rate2}}%</b></td>
-                    </tr>
-                    <tr>
-                        <th>기간</th>
-                        <td>{{savings.options[0].save_trm}}개월</td>
+                        <td>
+                            <tr v-for="option in savings.options">
+                                <td><b>{{option.intr_rate}}% ~ {{option.intr_rate2}}% </b>({{option.save_trm}}개월)</td>
+                            </tr>
+                        </td>
                     </tr>
                     <tr>
                         <th>우대조건</th>
@@ -44,7 +49,8 @@
                     </tr>
                     <tr>
                         <th>가입방법</th>
-                        <td>{{savings.savingsDeposit.join_way}}</td>
+                        <td v-if="savings.savingsDeposit.join_way === null">-</td>
+                        <td v-else>{{savings.savingsDeposit.join_way}}</td>
                     </tr>
                     <tr v-if="savings.savingsDeposit.etc_note !== null">
                         <th>기타유의사항</th>
@@ -55,10 +61,11 @@
         </div>
 
         <div id="buttons">
-            <button class="calc-btn fs-5 left-btn" @click="compareProduct">상품비교</button>
+            <button class="calc-btn fs-5 left-btn" @click="compareProduct">즐겨찾기</button>
             <button class="calc-btn fs-5" @click="calcBtn">수익계산</button>
         </div>
     </div>
+    <OptionsCheckBox v-bind:options="savings.options" v-bind:isOptionsOpen="isOptionsOpen" @closeOptions="closeOptions" @submit="optionsControl"></OptionsCheckBox>
 </template>
 <script>
 import { ref, onMounted } from 'vue';
@@ -66,22 +73,36 @@ import { calculatorStore } from '@/stores/calculator';
 import axios from 'axios';
 import { mapActions } from 'pinia';
 import DefaultIcon from '@/assets/bank/defaultbank.png';
+import OptionsCheckBox from './OptionsCheckBox.vue';
 
 export default {
     name: 'SavingsItemDetail',
+    components : {OptionsCheckBox},
     data() {
         return {
-            savings: {},
+            savings: {
+                savingsDeposit : {},
+                options : []
+            },
+            isOptionsOpen : false,
         }
     },
     created() {
         this.prdNo = this.$route.params.prdNo;
-        this.saveTrm = this.$route.params.saveTrm;
         this.intrRateTypeNm = this.$route.params.intrRateTypeNm;
+        if(this.$route.params.rsrvType === 'null'){
+            this.rsrvType = null
+        }else{
+            this.rsrvType = this.$route.params.rsrvType;
+        }
         console.log(this.prdNo);
-        axios.get("http://localhost:9000/finance/get", { params: { finPrdtCd: this.prdNo, saveTrm: this.saveTrm, intrRateTypeNm: this.intrRateTypeNm } })
+        axios.get("http://localhost:9000/finance/get", { params: { finPrdtCd: this.prdNo, intrRateTypeNm: this.intrRateTypeNm, rsrvType: this.rsrvType } })
             .then((res) => {
-                this.savings = res.data;
+                this.savings.savingsDeposit = res.data[0].savingsDeposit;
+                for(let data of res.data){
+                    this.savings.options.push(data.options[0]);
+                }
+                console.log(res.data);
                 console.log(this.savings);
             })
             .catch((err) => {
@@ -90,9 +111,20 @@ export default {
     },
     methods: {
         ...mapActions(calculatorStore, ['addSavings']),
+        closeOptions: function(){
+            this.isOptionsOpen = false;
+        },
+        optionsControl: function(value){
+            this.isOptionsOpen = false;
+            let selectedSavings = {
+                amount : 0,
+                savingsDeposit : this.savings.savingsDeposit,
+                options : [this.savings.options[value]]
+            }
+            this.addSavings(selectedSavings);
+        },
         calcBtn: function () {
-            this.savings.amount = 0;
-            this.addSavings(this.savings);
+            this.isOptionsOpen = true;
         },
         compareProduct() {
 
