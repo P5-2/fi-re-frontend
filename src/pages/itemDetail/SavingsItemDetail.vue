@@ -1,72 +1,109 @@
 <template lang="">
     <div id="detailWrapper">
         <div id="title">
-            {{savings.pname}}
+            {{savings.savingsDeposit.fin_prdt_nm}}
             <hr>
         </div>
         <div id="contentWrapper">
             <div class="myRow">
-                <img class="logo" v-if="savings.bname === '국민은행'" src="@/assets/bank/국민은행.png" width="60" height="60">
-                <img class="logo" v-if="savings.bname === '신한은행'" src="@/assets/bank/신한은행.png" width="60" height="60">
-                <img class="logo" v-if="savings.bname === '우리은행'" src="@/assets/bank/우리은행.png" width="60" height="60">
-                <img class="logo" v-if="savings.bname === '하나은행'" src="@/assets/bank/하나은행.png" width="60" height="60">
+                <img :src="getIcon(savings.savingsDeposit.kor_co_nm)" alt="Deposit Icon" class="logo" width="60" height="60" />
                 <span class="content1">
-                    {{savings.bname}} <b>{{savings.type}}</b>
+                    {{savings.savingsDeposit.kor_co_nm}} 
+                    <sub class="myColor">
+                        <b v-if="savings.savingsDeposit.prdt_div === 'S'">적금</b>
+                        <b v-else>예금</b>
+                    </sub>
                 </span>
             </div>
-            <div class="description">
-                {{savings.description}}
-            </div>
-            <table id="rateTable">
+            <table id="detailTable">
                 <tbody>
+                    <tr v-if="savings.options[0].rsrv_type !== null">
+                        <th>적금유형</th>
+                        <td v-if="savings.options[0].rsrv_type === 'S'">정기적금</td>
+                        <td v-else>자유적금</td>
+                    </tr>
                     <tr>
                         <th>가입대상</th>
-                        <td>{{savings.target}}</td>
+                        <td>{{savings.savingsDeposit.join_member}}</td>
                     </tr>
                     <tr>
-                        <th>금액</th>
-                        <td>{{savings.subAmount}}</td>
+                        <th>최대한도</th>
+                        <td v-if="savings.savingsDeposit.max_limit === null">없음</td>
+                        <td v-else>{{savings.savingsDeposit.max_limit}}</td>
                     </tr>
                     <tr>
-                        <th>기간</th>
-                        <td>{{savings.subPeriod}}개월</td>
+                        <th>금리유형</th>
+                        <td>{{savings.options[0].intr_rate_type_nm}}</td>
                     </tr>
                     <tr>
                         <th>이율</th>
-                        <td><b>연 {{savings.minRate}}%</b> ~ <b>{{savings.maxRate}}%</b></td>
+                        <td>
+                            <tr v-for="option in savings.options">
+                                <td><b>{{option.intr_rate}}% ~ {{option.intr_rate2}}% </b>({{option.save_trm}}개월)</td>
+                            </tr>
+                        </td>
                     </tr>
                     <tr>
                         <th>우대조건</th>
-                        <td>{{savings.benefit}}</td>
+                        <td>{{savings.savingsDeposit.spcl_cnd}}</td>
+                    </tr>
+                    <tr>
+                        <th>가입방법</th>
+                        <td v-if="savings.savingsDeposit.join_way === null">-</td>
+                        <td v-else>{{savings.savingsDeposit.join_way}}</td>
+                    </tr>
+                    <tr v-if="savings.savingsDeposit.etc_note !== null">
+                        <th>기타유의사항</th>
+                        <td>{{savings.savingsDeposit.etc_note}}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
         <div id="buttons">
-            <button class="btn btn-secondary fs-5 left-btn" @click="compareProduct">상품비교</button>
-            <button class="btn btn-success fs-5" @click="calcBtn">수익계산</button>
+            <button class="calc-btn fs-5 left-btn" @click="compareProduct">즐겨찾기</button>
+            <button class="calc-btn fs-5" @click="calcBtn">수익계산</button>
         </div>
     </div>
+    <OptionsCheckBox v-bind:options="savings.options" v-bind:isOptionsOpen="isOptionsOpen" @closeOptions="closeOptions" @submit="optionsControl"></OptionsCheckBox>
 </template>
 <script>
+import { ref, onMounted } from 'vue';
 import { calculatorStore } from '@/stores/calculator';
 import axios from 'axios';
 import { mapActions } from 'pinia';
+import DefaultIcon from '@/assets/bank/defaultbank.png';
+import OptionsCheckBox from './OptionsCheckBox.vue';
 
 export default {
     name: 'SavingsItemDetail',
+    components : {OptionsCheckBox},
     data() {
         return {
-            savings: {},
-            prdNo: 0,
+            savings: {
+                savingsDeposit : {},
+                options : []
+            },
+            isOptionsOpen : false,
         }
     },
     created() {
         this.prdNo = this.$route.params.prdNo;
-        axios.get("http://localhost:9000/finance/savings/get", { params: { prdNo: this.prdNo } })
+        this.intrRateTypeNm = this.$route.params.intrRateTypeNm;
+        if(this.$route.params.rsrvType === 'null'){
+            this.rsrvType = null
+        }else{
+            this.rsrvType = this.$route.params.rsrvType;
+        }
+        console.log(this.prdNo);
+        axios.get("http://localhost:9000/finance/get", { params: { finPrdtCd: this.prdNo, intrRateTypeNm: this.intrRateTypeNm, rsrvType: this.rsrvType } })
             .then((res) => {
-                this.savings = res.data;
+                this.savings.savingsDeposit = res.data[0].savingsDeposit;
+                for(let data of res.data){
+                    this.savings.options.push(data.options[0]);
+                }
+                console.log(res.data);
+                console.log(this.savings);
             })
             .catch((err) => {
                 console.log(err);
@@ -74,10 +111,20 @@ export default {
     },
     methods: {
         ...mapActions(calculatorStore, ['addSavings']),
+        closeOptions: function(){
+            this.isOptionsOpen = false;
+        },
+        optionsControl: function(value){
+            this.isOptionsOpen = false;
+            let selectedSavings = {
+                amount : 0,
+                savingsDeposit : this.savings.savingsDeposit,
+                options : [this.savings.options[value]]
+            }
+            this.addSavings(selectedSavings);
+        },
         calcBtn: function () {
-            this.savings.amount = 0;
-            this.addSavings(this.savings);
-            alert("상품을 계산기에 추가했습니다");
+            this.isOptionsOpen = true;
         },
         compareProduct() {
 
@@ -119,19 +166,63 @@ export default {
 
             console.log(this.prdNo + "번 상품을 비교함에 담았습니다.");
             alert("상품을 비교함에 담았습니다.");
-        }
+        },
+    },
+    setup(){
+        const iconMap = ref({});
+
+        const getBankIcon = async (bankName) => {
+            const formats = ['png', 'jpg']; // 지원하는 이미지 형식
+            for (const format of formats) {
+                try {
+                const icon = await import(`@/assets/bank/${bankName}.${format}`);
+                return icon.default;
+                } catch (error) {
+                // Ignore the error and try the next format
+                }
+            }
+            return DefaultIcon; // 모든 형식에서 아이콘이 없으면 기본 아이콘 반환
+        };
+
+        const loadIcons = async () => {
+            const banks = [
+                '국민은행', '우리은행', '신한은행', '하나은행', '한국스탠다드차타드은행',
+                '아이엠뱅크', '부산은행', '광주은행', '제주은행', '전북은행',
+                '경남은행', '중소기업은행', '한국산업은행', '농협은행주식회사',
+                '주식회사 케이뱅크', '수협은행', '주식회사 카카오뱅크', '토스뱅크 주식회사'
+            ];
+
+            const promises = banks.map(async (bank) => {
+                iconMap.value[bank] = await getBankIcon(bank);
+            });
+            
+            await Promise.all(promises);
+        };
+
+        const getIcon = (bname) => {
+            return iconMap.value[bname] || DefaultIcon; // 기본 아이콘
+        };
+
+        onMounted(() => {
+            loadIcons();
+        });
+
+        return {
+        iconMap,
+        getIcon,
+        };
     }
 }
 </script>
 
 <style scoped>
 #detailWrapper {
-    background-color: #DFFDFF;
-    border-radius: 20px;
-    width: 1300px;
+    width: 1200px;
     margin: auto;
-    height: 700px;
-    padding: 30px;
+    padding: 30px 30px 60px 30px;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 #title {
@@ -154,10 +245,6 @@ export default {
     text-align: center;
 }
 
-.left-btn {
-    margin-right: 60px;
-}
-
 .myRow {
     display: flex;
     align-items: center;
@@ -165,31 +252,57 @@ export default {
 }
 
 .logo {
+    border : 2px solid black;
     border-radius: 100%;
 }
 
 .content1 {
+    background-color: none;
     margin-left: 26px;
     font-size: 28px;
 }
 
-.description {
-    padding: 0px 30px 0px 30px;
-    margin-bottom: 20px;
-    font-size: 18px;
-}
-
-#rateTable {
+#detailTable {
     width: 100%;
     font-size: 22px;
     border-collapse: separate;
-    border-spacing: 10px 10px;
-    background-color: #EFFFFF;
+    border-spacing: 20px 5px;
+    background-color: white;
     border-radius: 20px;
+    border : 1px solid black;
 }
 
 th {
+    text-align: left;
     border-right: 2px solid black;
     width: 200px;
+}
+
+td{
+    text-align: left;
+}
+.calc-btn {
+    background-color: #3F72AF;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+.calc-btn:hover {
+    background-color: #112D4E;
+}
+.left-btn {
+    margin-right: 60px;
+    background-color: #A9A9A9;
+}
+.left-btn:hover{
+    background-color: #696969;
+}
+.myColor{
+    color: #3F72AF;
 }
 </style>

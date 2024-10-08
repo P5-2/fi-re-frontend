@@ -33,7 +33,6 @@ export default {
     },
     beforeUpdate(){
         this.myTips = this.tips.slice(this.myLoc, this.myLoc+3);
-        console.log(this.myTips);
     },
     methods : {
         leftArrow : function(){

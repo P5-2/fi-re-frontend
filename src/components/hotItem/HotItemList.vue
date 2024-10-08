@@ -1,26 +1,32 @@
 <template>
     <div id="HotItemList" @mouseover="clearMyInterval" @mouseout="startMyInterval">
         <div id="titleWrapper">
-            <div id="HotItemTitle"><img src="@/assets/hotItem/fire.png" width="45" height="45"><span id="title">예적금 Hot 상품</span></div>
+            <div id="HotItemTitle"><img src="@/assets/hotItem/fire.png" width="45" height="45"><span id="title">적금 Hot 상품</span></div>
             <span id="content1">목돈 만들기의 시작!</span> <br>
-            <span id="content2">현재 가장 Hot한 예적금 상품으로 목돈을   만들어보세요</span>
+            <span id="content2">현재 가장 Hot한 적금 상품으로 목돈을 만들어보세요</span>
             <div id="HotItemToggle">
-                <img id="left-arrow" src="@/assets/hotItem/arrow-left.png" width="36" height="36" @click="arrowClick">
+                <img id="left-arrow" src="@/assets/hotItem/arrow-left.png" width="36" height="36" @click="arrowLeftClick">
                 <div id="left-circle"></div>
+                <div id="center-circle"></div>
                 <div id="right-circle"></div>
-                <img id="right-arrow" src="@/assets/hotItem/arrow-right.png" width="36" height="36" @click="arrowClick">
+                <img id="right-arrow" src="@/assets/hotItem/arrow-right.png" width="36" height="36" @click="arrowRightClick">
             </div>
         </div>
         <table>
             <tbody>
-                <tr v-if="itemToggle">
-                    <td v-for="savingsItem in savingsHotItemList" :key="savingsItem.pname">
-                        <HotItem v-bind="savingsItem" v-bind:toggle="itemToggle"></HotItem>
+                <tr v-if="currentType == 0"> <!--적금 리스트-->
+                    <td v-for="financeItem in SHotItemList" :key="financeItem.fin_prdt_cd">
+                        <HotItem v-bind:financeItem="financeItem" v-bind:financeType="itemType[0]"></HotItem>
                     </td>
                 </tr>
-                <tr v-else>
-                    <td v-for="fundItem in fundHotItemList" :key="fundItem.pname">
-                        <HotItem v-bind="fundItem" v-bind:toggle="itemToggle"></HotItem>
+                <tr v-else-if="currentType == 1"> <!--예금 리스트-->
+                    <td v-for="financeItem in DHotItemList" :key="financeItem.fin_prdt_cd">
+                        <HotItem v-bind:financeItem="financeItem" v-bind:financeType="itemType[1]"></HotItem>
+                    </td>
+                </tr>
+                <tr v-else-if="currentType == 2"> <!-- 펀드 리스트-->
+                    <td v-for="financeItem in fundHotItemList" :key="financeItem.pname">
+                        <HotItem v-bind:financeItem="financeItem" v-bind:financeType="itemType[2]"></HotItem>
                     </td>
                 </tr>
             </tbody>
@@ -36,23 +42,30 @@ export default {
     components : { HotItem },
     data(){
         return{
-            savingsHotItemList : [],
+            SHotItemList : [], //적금 리스트
+            DHotItemList : [], //예금 리스트
             fundHotItemList : [],
-            itemToggle : true,
+            itemType : ['적금', '예금', '펀드'],
+            currentType : 0,
             myInterval : setInterval(()=>{
-                this.itemToggle = !this.itemToggle
-                if(this.itemToggle){ //true면 예적금리스트로 전환
-                    this.toggledTrue();
-                }else{ //false면 펀드핫리스트로 전환
-                    this.toggledFalse();
-                }
+                this.arrowRightClick();
             }, 4000),
         }
     },
     created(){
-        axios.get("http://localhost:9000/finance/savings/hot")
+        axios.get("http://localhost:9000/finance/hot", {params : {prdtDiv : 'S'}})
         .then((res)=>{
-            this.savingsHotItemList = res.data;
+            this.SHotItemList = res.data;
+            console.log(this.SHotItemList);
+        })
+        .catch((err)=>{
+            console.log(err);
+        })
+
+        axios.get("http://localhost:9000/finance/hot", {params : {prdtDiv : 'D'}})
+        .then((res)=>{
+            this.DHotItemList = res.data;
+            console.log(this.DHotItemList);
         })
         .catch((err)=>{
             console.log(err);
@@ -61,6 +74,7 @@ export default {
         axios.get("http://localhost:9000/finance/fund/hot")
         .then((res)=>{
             this.fundHotItemList = res.data;
+            console.log(this.fundHotItemList);
         })
         .catch((err)=>{
             console.log(err);
@@ -70,63 +84,84 @@ export default {
         clearInterval(this.myInterval);
     },
     methods : {
-        arrowClick(){
-            this.itemToggle = !this.itemToggle; //토글
-            if(this.itemToggle){ //true면 예적금리스트로 전환
-                this.toggledTrue();
-            }else{ //false면 펀드핫리스트로 전환
-                this.toggledFalse();
+        arrowLeftClick(){
+            this.currentType = (this.currentType == 0) ? 2 : this.currentType-1;
+            this.toggleScreen();
+        },
+        arrowRightClick(){
+            this.currentType = (this.currentType == 2) ? 0 : this.currentType+1;
+            this.toggleScreen();
+        },
+        toggleScreen(){
+            switch(this.currentType){
+                case 0: //적금화면 구성
+                    this.toggledLeft()
+                    break;
+                case 1: //예금화면 구성
+                    this.toggledCenter()
+                    break;
+                case 2: //펀드화면 구성
+                    this.toggledRight();
+                    break;
             }
         },
-        toggledTrue : function(){
-            let $leftCircle = document.getElementById("left-circle");
-            let $rightCircle = document.getElementById("right-circle");
-            let $title = document.getElementById("title");
-            let $hotItemList = document.getElementById("HotItemList");
-            let $content1 = document.getElementById("content1");
-            let $content2 = document.getElementById("content2");
-
-            $rightCircle.style.background = "black";
-            $rightCircle.style.width = "18px";
-            $rightCircle.style.height = "14px";
-            $leftCircle.style.background = "#778DFF";
-            $leftCircle.style.width = "24px";
-            $leftCircle.style.height = "20px";
-            $title.textContent = "예적금 Hot 상품";
-            $hotItemList.style.background = "#E0E7FF";
-            $content1.textContent = "목돈 만들기의 시작!"
-            $content2.textContent = "현재 가장 Hot한 예적금 상품으로 목돈을 만들어보세요"
+        currentCircle : function($circle, color){
+            $circle.style.background = color;
+            $circle.style.width = "24px";
+            $circle.style.height = "20px";
         },
-        toggledFalse : function(){
-            let $leftCircle = document.getElementById("left-circle");
-            let $rightCircle = document.getElementById("right-circle");
-            let $title = document.getElementById("title");
+        otherCircle : function($circle){
+            $circle.style.background = "black";
+            $circle.style.width = "18px";
+            $circle.style.height = "14px";
+        },
+        makeContent : function(listColor, titleValue, content1Value, content2Value){
             let $hotItemList = document.getElementById("HotItemList");
+            let $title = document.getElementById("title");
             let $content1 = document.getElementById("content1");
             let $content2 = document.getElementById("content2");
 
-            $rightCircle.style.background = "#FA5454";
-            $rightCircle.style.width = "24px";
-            $rightCircle.style.height = "20px";
-            $leftCircle.style.background = "black";
-            $leftCircle.style.width = "18px";
-            $leftCircle.style.height = "14px";
-            $title.textContent = "펀드 Hot 상품";
-            $hotItemList.style.background = "#F8D7DA";
-            $content1.textContent = "다양한 자산 분산, 리스크 최소화!"
-            $content2.textContent = "현재 가장 Hot한 펀드 상품으로 자산관리를 시작하세요"
+            $hotItemList.style.background = listColor;
+            $title.textContent = titleValue;
+            $content1.textContent = content1Value;
+            $content2.textContent = content2Value;
+        },
+        toggledLeft : function(){//적금 상품
+            let $leftCircle = document.getElementById("left-circle");
+            let $rightCircle = document.getElementById("right-circle");
+            let $centerCircle = document.getElementById("center-circle");
+
+            this.otherCircle($rightCircle);
+            this.otherCircle($centerCircle);
+            this.currentCircle($leftCircle, "#3FAF4F")
+            this.makeContent("#DBEFDB ", "적금 Hot 상품", "목돈 만들기의 시작!", "현재 가장 Hot한 적금 상품으로 목돈을 만들어보세요");
+        },
+        toggledCenter : function(){//예금 상품
+            let $leftCircle = document.getElementById("left-circle");
+            let $rightCircle = document.getElementById("right-circle");
+            let $centerCircle = document.getElementById("center-circle");
+
+            this.otherCircle($rightCircle);
+            this.otherCircle($leftCircle);
+            this.currentCircle($centerCircle, "#3F72AF")
+            this.makeContent("#DBE2EF", "예금 Hot 상품", "부자가 되는 첫걸음!", "현재 가장 Hot한 예금 상품으로 목돈을 굴려보세요");
+        },
+        toggledRight : function(){//펀드 상품
+            let $leftCircle = document.getElementById("left-circle");
+            let $rightCircle = document.getElementById("right-circle");
+            let $centerCircle = document.getElementById("center-circle");
+
+            this.otherCircle($centerCircle);
+            this.otherCircle($leftCircle);
+            this.currentCircle($rightCircle, "#AF3F4F")
+            this.makeContent("#EFDBDB", "펀드 Hot 상품", "다양한 자산 분산, 리스크 최소화!", "현재 가장 Hot한 펀드 상품으로 자산관리를 시작하세요");
         },
         clearMyInterval : function(){
             clearInterval(this.myInterval);
         },
         startMyInterval : function(){
             this.myInterval =  setInterval(()=>{
-                this.itemToggle = !this.itemToggle
-                    if(this.itemToggle){ //true면 예적금리스트로 전환
-                        this.toggledTrue();
-                    }else{ //false면 펀드핫리스트로 전환
-                        this.toggledFalse();
-                    }
+                this.arrowRightClick();
             }, 4000);
         }
     },
@@ -137,7 +172,7 @@ export default {
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: #E0E7FF;
+        background-color: #DBEFDB  ;
         /* width: 1400px; */
         /* border-radius: 10px; */
         height: 500px;
@@ -176,25 +211,25 @@ export default {
         align-items: center;
         justify-content: center;
     }
-    #left-circle, #right-circle{
+    #left-circle, #right-circle, #center-circle{
         display: inline-block;
         width: 18px;
         height: 14px;
         border-radius: 5px;
         margin : 0px 10px 0px 10px;
         transition: all 0.2s;
+        background-color: black;
     }
     #left-circle{
         width: 24px;
         height: 20px;
         margin-left: 10px;
         margin-right: 5px;
-        background-color: #778DFF;
+        background-color: #3FAF4F  ;
     }
     #right-circle{
         margin-right: 10px;
         margin-left: 5px;
-        background-color: black;
     }
     #left-arrow, #right-arrow{
         cursor: pointer;

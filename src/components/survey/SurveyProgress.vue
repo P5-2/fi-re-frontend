@@ -33,7 +33,7 @@ export default {
 
 .mm-progress {
   height: 100%; /* 부모의 높이에 맞춰 설정 */
-  background-color: #4caf50; /* 진행 바 색상 */
+  background-color: #7cd658; /* 진행 바 색상 */
   transition: width 0.3s; /* 애니메이션 효과 */
 }
 </style>

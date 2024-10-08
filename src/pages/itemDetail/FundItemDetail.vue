@@ -19,8 +19,16 @@
                         <td>{{fund.type}}</td>
                     </tr>
                     <tr>
-                        <th>3개월누적이율</th>
-                        <td><b>{{fund.rate}}%</b></td>
+                        <th>기준가(원)</th>
+                        <td>{{fund.nav}}</td>
+                    </tr>
+                    <tr>
+                        <th>누적이율</th>
+                        <td>
+                            <b>{{fund.rate}}%</b><sub>3개월</sub>
+                            / <b>{{fund.sixMRate}}%</b><sub>6개월</sub>
+                            / <b>{{fund.oneYRate}}%</b><sub>1년</sub>
+                        </td>
                     </tr>
                     <tr>
                         <th>투자지역</th>
@@ -34,8 +42,8 @@
             </table>
         </div>
         <div id="buttons">
-            <button class="btn btn-secondary fs-5 left-btn" @click="compareProduct">상품비교</button>
-            <button class="btn btn-success fs-5" @click="calcBtn">수익계산</button>
+            <button class="fs-5 calc-btn left-btn" @click="compareProduct">즐겨찾기</button>
+            <button class="fs-5 calc-btn" @click="calcBtn">수익계산</button>
         </div>
     </div>
 </template>
@@ -116,13 +124,14 @@ export default {
         ...mapActions(calculatorStore, ['addFund']),
         calcBtn: function () {
             this.fund.amount = 0;
-            this.addFund(this.fund);
-            alert("상품을 계산기에 추가했습니다");
+            this.addFund(this.fund)
         },
         compareProduct() {
             // sessionStorage에서 token 값을 가져와 파싱
             const tokenData = JSON.parse(sessionStorage.getItem('token'));
-
+            if(tokenData === null){
+                return alert("로그인이 필요한 기능입니다");
+            }
             // accessToken을 가져온다
             const accessToken = tokenData.accessToken;
 
@@ -163,12 +172,12 @@ export default {
 </script>
 <style scoped>
 #detailWrapper {
-    background-color: #FFE9E0;
-    border-radius: 20px;
-    width: 1300px;
+    width: 1200px;
     margin: auto;
-    height: 700px;
-    padding: 30px;
+    padding: 30px 30px 60px 30px;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 #title {
@@ -227,14 +236,20 @@ export default {
     width: 100%;
     font-size: 22px;
     border-collapse: separate;
-    border-spacing: 10px 10px;
-    background-color: #FFF4F0;
+    border-spacing: 20px 5px;
+    border : 1px solid black;
     border-radius: 20px;
+    background-color: white;
 }
 
 th {
+    text-align: left;
     border-right: 2px solid black;
     width: 200px;
+}
+
+td{
+    text-align: left;
 }
 
 #buttons {
@@ -244,7 +259,25 @@ th {
     text-align: center;
 }
 
+.calc-btn {
+    background-color: #3F72AF;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+.calc-btn:hover {
+    background-color: #112D4E;
+}
 .left-btn {
     margin-right: 60px;
+    background-color: #A9A9A9;
+}
+.left-btn:hover{
+    background-color: #696969;
 }
 </style>

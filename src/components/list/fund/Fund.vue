@@ -41,6 +41,9 @@
 <script>
 import { addFundToCart, removeFundFromCart, checkFundInCart } from '@/services/cartServiceFund.js';
 import { useUserStore } from '@/stores/user';
+import { calculatorStore } from '@/stores/calculator';
+import { mapActions } from 'pinia';
+
 export default {
     props: {
         fund: {
@@ -68,6 +71,7 @@ export default {
         }
     },
     methods: {
+        ...mapActions(calculatorStore, ['addFund']),
         fundItemClick(prdNo) {
             this.$router.push('/itemDetail/fund/' + prdNo);
             console.log(prdNo + '번 펀드가 클릭되었습니다.');
@@ -113,7 +117,6 @@ export default {
             event.stopPropagation();
             this.fund.amount = 0;
             this.addFund(this.fund);
-            alert('상품을 계산기에 추가했습니다');
         },
         onSelectFund(event) {
             this.isChecked = event.target.checked;
