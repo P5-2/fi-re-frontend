@@ -1,142 +1,210 @@
 <template>
-  <div class="savings-list">
-    <FilterButtons :currentFilter="currentFilter" @filter="setFilter" />
-    <div class="savings-container">
-      <div
-        v-for="product in filteredProducts"
-        :key="product.savingsDeposit.finPrdtCd"
-        class="savings-item"
-      >
-        <SavingsDeposit v-bind="product.savingsDeposit" />
-      </div>
+  <div class="savings-container">
+    <FilterButtons :currentFilter="prdtDiv" @filter="setFilter" />
+    <!-- <button
+      class="compare-button"
+      @click="showComparisonModal"
+      :disabled="
+        selectedSavingsDeposit.length === 0 || selectedSavingsDeposit.length > 3
+      "
+    >
+      비교하기 ({{ selectedSavingsDeposit.length }}/3)
+    </button> -->
+
+    <div v-if="products && products.length">
+      <SavingsDeposit
+        v-for="product in products"
+        :key="product.savingsDeposit.fin_prdt_cd"
+        :savingsDeposit="product.savingsDeposit"
+        :options="product.options"
+      />
     </div>
+
+    <div v-else>
+      <p>상품 데이터를 가져오는 중입니다...</p>
+    </div>
+
     <div class="pagination">
-      <button
-        @click="changePage(-1)"
-        :disabled="currentPage === 1"
-        class="pagination-btn"
-      >
-        이전
-      </button>
-      <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
-      <button
-        @click="changePage(1)"
-        :disabled="currentPage === totalPages"
-        class="pagination-btn"
-      >
+      <button @click="previousPage" :disabled="pageNumber === 1">이전</button>
+      <span>{{ pageNumber }} / {{ totalPages }}</span>
+      <button @click="nextPage" :disabled="pageNumber === totalPages">
         다음
       </button>
     </div>
+
+    <!-- 비교 모달 컴포넌트 -->
+    <ComparisonModal
+      :selectedSavingsDeposit="selectedSavingsDeposit"
+      :isComparisonModalVisible="isComparisonModalVisible"
+      @close="closeModalAndResetSavingsDeposit"
+    />
   </div>
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
-import { useSavingsDepositStore } from "@/stores/savingsDepositStore.js";
+import { ref, onMounted } from "vue";
+import axios from "axios";
 import SavingsDeposit from "@/components/list/savingsDeposit/SavingsDeposit.vue";
+import ComparisonModal from "@/components/comparison/ComparisonModal.vue";
 import FilterButtons from "@/components/list/savingsDeposit/FilterButtons.vue";
 
 export default {
-  name: "SavingsDepositList",
-  components: { SavingsDeposit, FilterButtons },
+  components: {
+    SavingsDeposit,
+    ComparisonModal,
+    FilterButtons,
+  },
   setup() {
-    // Pinia 스토어 사용
-    const store = useSavingsDepositStore();
-    const currentFilter = ref("all");
+    const products = ref([]);
+    const pageNumber = ref(1);
+    const totalPages = ref(0);
+    const selectedSavingsDeposit = ref([]);
+    const isComparisonModalVisible = ref(false);
+    const prdtDiv = ref(null);
 
-    const filteredProducts = computed(() => {
-      return (store.products || []).filter(
-        (product) =>
-          currentFilter.value === "all" ||
-          product.savingsDeposit.prdtDiv.toLowerCase() ===
-            currentFilter.value.charAt(0)
-      );
-    });
-
-    const setFilter = (filter) => {
-      currentFilter.value = filter;
-      store.fetchProducts(store.currentPage, filter);
-    };
-
-    const changePage = async (direction) => {
-      const newPage = store.currentPage + direction;
-      if (newPage >= 1 && newPage <= store.totalPages) {
-        await store.fetchProducts(newPage, currentFilter.value);
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:9000/finance/pageAll",
+          {
+            params: {
+              pageNumber: pageNumber.value - 1,
+              prdtDiv: prdtDiv.value,
+            },
+          }
+        );
+        console.log("Fetched Products:", response.data.list); // 데이터 구조 확인
+        products.value = response.data.list || [];
+        totalPages.value = response.data.totalPages || 0;
+      } catch (error) {
+        console.error("상품 데이터를 가져오는 중 오류가 발생했습니다:", error);
       }
     };
 
+    const setFilter = (filter) => {
+      prdtDiv.value = filter;
+      fetchProducts();
+    };
+
+    const previousPage = () => {
+      if (pageNumber.value > 1) {
+        pageNumber.value--;
+        fetchProducts();
+      }
+    };
+
+    const nextPage = () => {
+      if (pageNumber.value < totalPages.value) {
+        pageNumber.value++;
+        fetchProducts();
+      }
+    };
+
+    const showComparisonModal = () => {
+      if (
+        selectedSavingsDeposit.value.length > 0 &&
+        selectedSavingsDeposit.value.length <= 3
+      ) {
+        isComparisonModalVisible.value = true;
+      }
+    };
+
+    const closeModalAndResetSavingsDeposit = () => {
+      isComparisonModalVisible.value = false;
+      selectedSavingsDeposit.value = [];
+    };
+
     onMounted(() => {
-      store.fetchProducts();
+      fetchProducts();
     });
 
     return {
-      filteredProducts,
-      currentFilter,
+      products,
+      pageNumber,
+      totalPages,
+      selectedSavingsDeposit,
+      isComparisonModalVisible,
+      previousPage,
+      nextPage,
+      showComparisonModal,
+      closeModalAndResetSavingsDeposit,
+      prdtDiv,
       setFilter,
-      changePage,
-      currentPage: store.currentPage,
-      totalPages: store.totalPages,
     };
   },
 };
 </script>
 
 <style scoped>
-.savings-list {
-  width: 1176px;
-  margin: 0 auto;
-  padding: 20px 0;
-}
-
 .savings-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
-.savings-item {
-  background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* .compare-button {
+  background-color: #3f72af;
+  color: #f9f7f7;
+} */
+
+.pagination {
+  display: block;
+  text-align: center;
 }
 
-.savings-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+.pagination button {
+  margin: 0 5px;
+}
+
+.pagination span {
+  margin: 0 10px;
+}
+</style>
+
+<style scoped>
+.savings-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.compare-button {
+  background-color: #3f72af;
+  color: #f9f7f7;
 }
 
 .pagination {
-  margin: 40px 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 100px;
 }
 
-.pagination-btn {
-  background-color: #0080ff;
-  color: white;
+.pagination button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  background-color: #3f72af;
+  color: #f9f7f7;
   border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  font-weight: bold;
 }
 
-.pagination-btn:hover:not(:disabled) {
-  background-color: #0066cc;
+.pagination button:hover {
+  background-color: #2c5985;
 }
 
-.pagination-btn:disabled {
-  background-color: #cccccc;
+.pagination button:disabled {
+  background-color: #dbe2ef;
+  color: #112d4e;
   cursor: not-allowed;
 }
 
-.page-info {
-  font-size: 16px;
+.pagination span {
+  margin: 0 10px;
   font-weight: bold;
-  color: #333;
 }
 </style>

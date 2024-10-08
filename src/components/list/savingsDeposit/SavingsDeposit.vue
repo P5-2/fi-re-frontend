@@ -2,191 +2,167 @@
   <div class="product-card" @click="viewDetails">
     <div class="product-content">
       <div class="product-main-info">
-        <h2 class="product-title">{{ finPrdtNm }}</h2>
-        <p class="bank-name">{{ korCoNm }}</p>
-        <p class="product-type">{{ productTypeDisplay }}</p>
+        <h2 class="product-title">{{ savingsDeposit.fin_prdt_nm }}</h2>
+        <p class="bank-name">{{ savingsDeposit.kor_co_nm }}</p>
       </div>
-      <div class="product-details">
-        <p class="interest-rate">
-          금리: <span>{{ intrRate }}% ~ {{ intrRate2 }}%</span>
-        </p>
-        <p class="period">
-          가입기간: <span>{{ saveTrm }}개월</span>
-        </p>
-        <p class="description">{{ etcNote }}</p>
+      <div class="product-details" v-if="options && options.length">
+        <div class="interest-rates">
+          <p class="interest-rate highest-rate">
+            최고 <span>{{ options[0].intr_rate2 }}%</span>
+          </p>
+          <p class="interest-rate base-rate">
+            기본 <span>{{ options[0].intr_rate }}%</span>
+          </p>
+        </div>
       </div>
     </div>
     <div class="button-group">
-      <button @click.stop="calculateProfit" class="action-btn calc-btn">
-        수익 계산
+      <button @click.stop.prevent="cartProduct" class="action-btn cart-btn">
+        <img src="@/assets/calculator/heart.png" alt="cart" class="icon" />
       </button>
-      <button @click.stop="compareProduct" class="action-btn cart-btn">
-        상품 비교
+      <button @click.stop.prevent="calculateProfit" class="action-btn calc-btn">
+        <img src="@/assets/calculator/calc.png" alt="Calculate" class="icon" />
       </button>
     </div>
   </div>
 </template>
 
 <script>
-import { calculatorStore } from "@/stores/calculator";
 import { useRouter } from "vue-router";
 import { mapActions } from "pinia";
+import { calculatorStore } from "@/stores/calculator";
 
 export default {
   name: "SavingsDeposit",
-  props: [
-    "finPrdtCd",
-    "finPrdtNm",
-    "korCoNm",
-    "intrRate",
-    "intrRate2",
-    "saveTrm",
-    "etcNote",
-    "prdtDiv",
-  ],
+  props: ["savingsDeposit", "options"],
   setup(props) {
     const router = useRouter();
 
     const viewDetails = () => {
-      router.push("/itemDetail/finance/" + props.finPrdtCd);
+      router.push("/itemDetail/finance/" + props.savingsDeposit.fin_prdt_cd);
     };
 
     return {
       viewDetails,
     };
   },
-  computed: {
-    productTypeDisplay() {
-      if (this.prdtDiv === null) {
-        return "예금/적금"; // prdtDiv가 null일 경우
-      }
-      return this.prdtDiv === "D" ? "예금" : "적금"; // 변경된 부분
-    },
-  },
   methods: {
     ...mapActions(calculatorStore, ["addSavings"]),
     calculateProfit() {
-      const productData = {
-        finPrdtCd: this.finPrdtCd,
-        finPrdtNm: this.finPrdtNm,
-        korCoNm: this.korCoNm,
-        intrRate: this.intrRate,
-        intrRate2: this.intrRate2,
-        saveTrm: this.saveTrm,
-        etcNote: this.etcNote,
-        prdtDiv: this.prdtDiv,
+      const savingsData = {
+        prdNo: this.savingsDeposit.fin_prdt_cd,
+        pname: this.savingsDeposit.fin_prdt_nm,
+        bname: this.savingsDeposit.kor_co_nm,
+        minRate: this.options[0].intr_rate,
+        maxRate: this.options[0].intr_rate2,
+        subPeriod: this.options[0].save_trm,
         amount: 0,
       };
-      this.addSavings(productData);
+      this.addSavings(savingsData);
       alert("상품을 계산기에 추가했습니다");
-    },
-    compareProduct() {
-      axios
-        .get(`http://localhost:9000/finance/${this.finPrdtCd}`, {
-          params: {
-            finPrdtCd: this.finPrdtCd,
-          },
-          headers: {
-            Accept: "text/plain;charset=UTF-8",
-          },
-        })
-        .then((response) => {
-          console.log(this.finPrdtCd + "번 상품을 비교함에 담았습니다.");
-          alert(response.data);
-        })
-        .catch((error) => {
-          if (error.response && error.response.data) {
-            alert(error.response.data);
-          } else {
-            alert("비교함에 상품을 담지 못했습니다.");
-          }
-        });
     },
   },
 };
 </script>
 
 <style scoped>
-.savings-card {
+.product-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  cursor: pointer;
+  margin-bottom: 25px; /* 컴포넌트 간의 간격 추가 */
+  background-color: #f9f7f7;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease; /* 애니메이션 효과 추가 */
 }
 
-.savings-content {
-  flex-grow: 1;
+.product-card:hover {
+  transform: translateY(-5px); /* 호버 시 위로 살짝 이동 */
+}
+
+.product-content {
   display: flex;
-  gap: 20px;
+  align-items: center; /* 수직 정렬 */
+  justify-content: space-between; /* 요소들 간의 공간 분배 */
+  width: 100%; /* 전체 너비 사용 */
 }
 
-.savings-main-info {
-  width: 200px;
+.product-main-info {
+  width: auto; /* 너비를 자동으로 조정하여 공간 활용 */
 }
 
-.savings-title {
+.product-title {
   font-size: 20px;
-  color: #333;
+  color: #112d4e;
+  white-space: nowrap;
   margin-bottom: 5px;
 }
 
 .bank-name {
   font-weight: bold;
-  color: #0080ff;
+  color: #3f72af;
 }
 
-.savings-details {
+.product-details {
   flex-grow: 1;
 }
 
-.interest-rate,
-.period {
-  margin: 5px 0;
+.interest-rates {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
-.interest-rate span,
-.period span {
-  font-weight: bold;
-  color: #0080ff;
+.highest-rate {
+  font-size: 24px;
+  color: #112d4e;
+  font-weight: bold; /* 글씨체를 굵게 설정 */
 }
 
-.description {
-  font-size: 14px;
-  color: #666;
-  margin-top: 10px;
-  width: 660px;
+.base-rate {
+  font-size: 16px;
+  color: #3f72af;
 }
 
 .button-group {
   display: flex;
-  gap: 10px;
+  gap: 1px; /* 버튼 간의 간격 */
+  align-items: center; /* 수직 정렬 */
 }
 
 .action-btn {
   padding: 10px 15px;
-  border: none;
   border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
 }
 
-.calc-btn {
-  background-color: #f0f0f0;
-  color: #333;
-}
-
-.calc-btn:hover {
-  background-color: #e0e0e0;
-}
-
+.calc-btn,
 .cart-btn {
-  background-color: #0080ff;
-  color: white;
+  background-color: transparent; /* 배경 제거 */
+  border: none;
+  cursor: pointer;
+}
+
+.calc-btn .icon {
+  width: 35px; /* 아이콘 크기 조정 */
+  height: auto;
+  filter: brightness(0) saturate(100%) invert(83%) sepia(6%) saturate(748%)
+    hue-rotate(180deg) brightness(92%) contrast(90%);
+  transition: filter 0.3s ease-in-out; /* 부드러운 전환 효과 */
+}
+
+.calc-btn:hover .icon {
+  filter: brightness(0) saturate(100%) invert(13%) sepia(100%) saturate(7496%)
+    hue-rotate(199deg) brightness(92%) contrast(106%);
+}
+
+.cart-btn .icon {
+  width: 33px; /* 아이콘 크기 조정 */
+  height: auto;
+  margin-right: 1px;
 }
 
 .cart-btn:hover {
-  background-color: #0066cc;
 }
 </style>

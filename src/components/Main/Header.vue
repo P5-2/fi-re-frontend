@@ -3,13 +3,13 @@
     <header
       class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-2"
     >
-    <div class="d-flex align-items-center">
+      <div class="d-flex align-items-center">
         <router-link to="/" style="margin-right: 15px">
           <img src="@/assets/header/logo.png" height="64" />
         </router-link>
         <ul class="nav col-md-auto justify-content-center">
           <li>
-            <router-link to="/savings" class="nav-item nav-link px-2">
+            <router-link to="/finance" class="nav-item nav-link px-2">
               예적금
             </router-link>
           </li>
@@ -33,28 +33,51 @@
 
       <div class="member-wrapper text-end">
         <div class="dropdown" v-if="userStore.isLoggedIn">
-          <button class="dropbtn dropdown-toggle">
-            마이페이지
-          </button>
+          <button class="dropbtn dropdown-toggle">마이페이지</button>
           <div class="dropdown-content">
             <router-link to="/profile">
-              <img src="@/assets/remocon/info.png" width="20" height="20" class="dc-img"/>
+              <img
+                src="@/assets/remocon/info.png"
+                width="20"
+                height="20"
+                class="dc-img"
+              />
               내 정보
             </router-link>
             <router-link to="/cart">
-              <img src="@/assets/remocon/shopping.png" width="20" height="20" class="dc-img"/>
+              <img
+                src="@/assets/remocon/shopping.png"
+                width="20"
+                height="20"
+                class="dc-img"
+              />
               즐겨찾기
             </router-link>
             <router-link to="/survey/start">
-              <img src="@/assets/remocon/survey.png" width="20" height="20" class="dc-img"/>
+              <img
+                src="@/assets/remocon/survey.png"
+                width="20"
+                height="20"
+                class="dc-img"
+              />
               투자성향진단
             </router-link>
             <router-link to="/recmd">
-              <img src="@/assets/remocon/recommend.png" width="20" height="20" class="dc-img"/>
+              <img
+                src="@/assets/remocon/recommend.png"
+                width="20"
+                height="20"
+                class="dc-img"
+              />
               추천상품
             </router-link>
             <a @click="openQuiz">
-              <img src="@/assets/remocon/quiz.png" width="20" height="20" class="dc-img"/>
+              <img
+                src="@/assets/remocon/quiz.png"
+                width="20"
+                height="20"
+                class="dc-img"
+              />
               오늘의 퀴즈
             </a>
           </div>
@@ -81,48 +104,29 @@
   </div>
   <!-- 로그인 모달창 -->
   <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
-<<<<<<< HEAD
     <div class="modal-content" @click.stop>
       <Login />
       <button class="close-btn" @click="closeModal">닫기</button>
     </div>
   </div>
-</template>
-
-<script>
-import Login from "../login/Login.vue";
-import { useUserStore } from "@/stores/user";
-=======
-      <div class="modal-content" @click.stop>
-        <Login />
-        <button class="close-btn" @click="closeModal">닫기</button>
-      </div>
-  </div>
   <Quiz v-model:isQuizOpen="isQuizOpen" @closeQuiz="closeQuiz"></Quiz>
 </template>
 
 <script>
-import Login from '../login/Login.vue';
-import Quiz from '../quiz/Quiz.vue';
-import { useUserStore } from '@/stores/user';
->>>>>>> dc11671670654a48537b61cffa49e08f092911c1
+import Login from "../login/Login.vue";
+import Quiz from "../quiz/Quiz.vue";
+import { useUserStore } from "@/stores/user";
 
 export default {
   name: "Header",
   components: {
-<<<<<<< HEAD
     Login,
-=======
-    Login, Quiz
->>>>>>> dc11671670654a48537b61cffa49e08f092911c1
+    Quiz,
   },
   data() {
     return {
       isModalOpen: false,
-<<<<<<< HEAD
-=======
-      isQuizOpen : false
->>>>>>> dc11671670654a48537b61cffa49e08f092911c1
+      isQuizOpen: false,
     };
   },
 
@@ -142,33 +146,26 @@ export default {
     },
     logout() {
       this.userStore.logout();
-<<<<<<< HEAD
+      // 로컬 스토리지안의 개인정보 삭제하기
+      ["likedFunds", "auth", "checkedFunds"].forEach((item) =>
+        localStorage.removeItem(item)
+      );
       alert("로그아웃 되었습니다.");
       this.$router.push("/"); // main 페이지로 이동
-=======
-      // 로컬 스토리지안의 개인정보 삭제하기
-      ['likedFunds', 'auth', 'checkedFunds'].forEach(item => localStorage.removeItem(item));
-      alert('로그아웃 되었습니다.');
-      this.$router.push('/'); // main 페이지로 이동
->>>>>>> dc11671670654a48537b61cffa49e08f092911c1
     },
     openQuiz() {
       this.isQuizOpen = true;
     },
     closeQuiz() {
       this.isQuizOpen = false;
-    }
+    },
   },
 };
 </script>
 
 <style scoped>
 .header {
-<<<<<<< HEAD
-  background-color: #fefefe;
-=======
   background-color: white;
->>>>>>> dc11671670654a48537b61cffa49e08f092911c1
   position: sticky;
   top: 0px;
   width: 100%;
@@ -197,7 +194,7 @@ header {
 }
 
 .nav-item:hover {
-  background-color: #F9F7F7;
+  background-color: #f9f7f7;
   color: black;
 }
 
@@ -240,7 +237,7 @@ header {
   /* 클릭 시 배경색 */
 }
 
-.logout-btn{
+.logout-btn {
   cursor: pointer;
 }
 
@@ -281,54 +278,50 @@ header {
   font-size: 20px;
   cursor: pointer;
 }
-<<<<<<< HEAD
-</style>
-=======
 
-.dropdown{
-  position : relative;
-  display : inline-block;
+.dropdown {
+  position: relative;
+  display: inline-block;
   margin-right: 20px;
 }
 
-.dropbtn{
-  border : none;
+.dropbtn {
+  border: none;
   font-size: 16px;
-  border-radius : 3px;
-  border : 3px solid #F9F7F7;
+  border-radius: 3px;
+  border: 3px solid #f9f7f7;
   background-color: white;
-  padding : 12px;
-  width :200px;
+  padding: 12px;
+  width: 200px;
   text-align: right;
-  cursor : pointer;
+  cursor: pointer;
 }
-.dropdown-content{
-  display : none;
-  position : absolute;
-  z-index : 2; /*다른 요소들보다 앞에 배치*/
+.dropdown-content {
+  display: none;
+  position: absolute;
+  z-index: 2; /*다른 요소들보다 앞에 배치*/
   font-weight: 400;
-  background-color: #F9F7F7;
-  min-width : 200px;
+  background-color: #f9f7f7;
+  min-width: 200px;
 }
 
-.dropdown-content a{
-  display : block;
-  text-decoration : none;
-  color : rgb(37, 37, 37);
+.dropdown-content a {
+  display: block;
+  text-decoration: none;
+  color: rgb(37, 37, 37);
   font-size: 14px;
-  padding : 12px 20px;
+  padding: 12px 20px;
   cursor: pointer;
 }
 
-.dropdown-content a:hover{
-  background-color : #ececec
+.dropdown-content a:hover {
+  background-color: #ececec;
 }
 
 .dropdown:hover .dropdown-content {
   display: block;
 }
-.dc-img{
-  float:left
+.dc-img {
+  float: left;
 }
 </style>
->>>>>>> dc11671670654a48537b61cffa49e08f092911c1
