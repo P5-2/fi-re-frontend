@@ -18,7 +18,7 @@
     </div>
     <div class="button-group">
       <button @click.stop.prevent="cartProduct" class="action-btn cart-btn">
-        <img src="@/assets/calculator/gray-heart.png" alt="cart" class="icon" />
+        <img src="@/assets/calculator/heart.png" alt="cart" class="icon" />
       </button>
       <button @click.stop.prevent="calculateProfit" class="action-btn calc-btn">
         <img src="@/assets/calculator/calc.png" alt="Calculate" class="icon" />
