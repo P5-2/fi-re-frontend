@@ -135,6 +135,10 @@ export default {
           userProducts.value = [];
         }
 
+        userProducts.value.forEach(product => {
+          fetchDepositAmount(product.finPrdtCd);
+        });
+
         goalStore.updateTotals(userProducts.value);
 
         // 상품이 없을 경우 모달 보여주기
@@ -403,7 +407,7 @@ export default {
     const totalGoalAmount = computed(() => goalStore.totalGoalAmount);
     const totalSavedAmount = computed(() => goalStore.totalSavedAmount);
 
-    onMounted(() => {
+    onMounted(async () => {
       loadIcons();
       updateUserProducts(true);
     });
