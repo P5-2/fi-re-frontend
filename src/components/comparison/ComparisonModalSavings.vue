@@ -12,7 +12,8 @@
                             <option v-for="savings in selectedSavingsWithOptions"
                                 :key="savings.savingsDeposit.fin_prdt_cd + '-' + savings.options[0].intr_rate_type_nm + '-' + savings.savingsDeposit.save_trm"
                                 :value="savings.savingsDeposit.fin_prdt_cd">
-                                {{ savings.savingsDeposit.fin_prdt_nm }} ({{ savings.savingsDeposit.kor_co_nm }})-({{ savings.options[0].intr_rate_type_nm }})
+                                {{ savings.savingsDeposit.fin_prdt_nm }} ({{ savings.savingsDeposit.kor_co_nm }})-({{
+                                    savings.options[0].intr_rate_type_nm }})
                             </option>
 
 
@@ -45,15 +46,7 @@
                     </div>
                 </div>
 
-                <!-- 선택된 상품의 상세 정보 -->
-                <div v-if="selectedSavingsId && selectedSavingsDetail" class="selected-savings-details">
-                    <h4>선택된 상품 상세 정보</h4>
-                    <p><strong>금융사:</strong> {{ selectedSavingsDetail.savingsDeposit.kor_co_nm }}</p>
-                    <p><strong>상품명:</strong> {{ selectedSavingsDetail.savingsDeposit.fin_prdt_nm }}</p>
-                    <p><strong>가입방법:</strong> {{ selectedSavingsDetail.savingsDeposit.join_way }}</p>
-                    <p><strong>우대조건:</strong> {{ selectedSavingsDetail.savingsDeposit.spcl_cnd }}</p>
-                    <p><strong>가입대상:</strong> {{ selectedSavingsDetail.savingsDeposit.join_member }}</p>
-                </div>
+
 
                 <!-- 표 구조 개선 -->
                 <table class="comparison-table">
@@ -77,6 +70,17 @@
                     </tbody>
 
                 </table>
+
+
+                <!-- 선택된 상품의 상세 정보 -->
+                <div v-if="selectedSavingsId && selectedSavingsDetail" class="selected-savings-details">
+                    <h4>선택된 상품 상세 정보</h4>
+                    <p><strong>금융사:</strong> {{ selectedSavingsDetail.savingsDeposit.kor_co_nm }}</p>
+                    <p><strong>상품명:</strong> {{ selectedSavingsDetail.savingsDeposit.fin_prdt_nm }}</p>
+                    <p><strong>가입방법:</strong> {{ selectedSavingsDetail.savingsDeposit.join_way }}</p>
+                    <p><strong>우대조건:</strong> {{ selectedSavingsDetail.savingsDeposit.spcl_cnd }}</p>
+                    <p><strong>가입대상:</strong> {{ selectedSavingsDetail.savingsDeposit.join_member }}</p>
+                </div>
             </div>
 
             <div class="modal-footer">
@@ -244,7 +248,8 @@ export default {
 
 .selected-savings-details {
     margin: 20px 0;
-    background-color: #f1f1f1;
+    background-color: #f1f3f5;
+    text-align: left;
     padding: 10px;
     border-radius: 5px;
 }

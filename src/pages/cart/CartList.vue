@@ -17,9 +17,13 @@
             </div>
 
             <button class="compare-button" @click="showComparisonModal"
-                :disabled="selectedItems.size === 0 || selectedItems.size > 3">
-                비교하기 ({{ selectedItems.size }}/3)
+                :disabled="(selectedTab === 'fund' && (selectedFundsItems.size === 0 || selectedFundsItems.size > 3)) ||
+                        (selectedTab === 'saving' && (selectedSavingsItems.size === 0 || selectedSavingsItems.size > 3)) ||
+                        (selectedTab === 'deposit' && (selectedDepositsItems.size === 0 || selectedDepositsItems.size > 3))">
+                비교하기 ({{ selectedTab === 'fund' ? selectedFundsItems.size : selectedTab === 'saving' ? selectedSavingsItems.size : selectedDepositsItems.size }}/3)
             </button>
+
+
 
             <button @click="removeSelectedItems" class="remove-btn">선택한 항목 삭제</button>
         </div>
@@ -28,20 +32,19 @@
             <h3>{{ tabTitle }}</h3>
             <ul v-if="selectedTab === 'deposit'">
                 <p>모든 상품의 이율은 <b style="color: red;">최고 금리</b> 입니다.</p>
-                <DepositItem v-for="(item, index) in currentItems" :key="index" :item="item" :isSelected="Array.from(selectedItems).some(selected =>
-                    selected.prdNo === item.savingsDeposit.fin_prdt_cd &&
-                    selected.intr_rate_type_nm === item.options[0].intr_rate_type_nm
-                )" @update-selected-items="updateSelectedItems" />
+                <DepositItem v-for="(item, index) in currentItems" :key="index" :item="item" 
+                    :isSelected="selectedDepositsItems.has(`${item.savingsDeposit.fin_prdt_cd}-${item.options[0].intr_rate_type_nm}`)" 
+                    @update-selected-items="updateSelectedItemsDeposit" />
             </ul>
             <ul v-if="selectedTab === 'saving'">
                 <p>모든 상품의 이율은 <b style="color: red;">최고 금리</b> 입니다.</p>
                 <SavingsItem v-for="(item, index) in currentItems" :key="index" :item="item"
-                    :isSelected="Array.from(selectedItems).some(selected => selected.prdNo === item.savingsDeposit.fin_prdt_cd && selected.intr_rate_type_nm === item.options[0].intr_rate_type_nm)"
-                    @update-selected-items="updateSelectedItems" />
+                    :isSelected="selectedSavingsItems.has(`${item.savingsDeposit.fin_prdt_cd}-${item.options[0].intr_rate_type_nm}`)" 
+                    @update-selected-items="updateSelectedItemsSavings" />
             </ul>
             <ul v-if="selectedTab === 'fund'">
                 <FundItem v-for="(item, index) in currentItems" :key="index" :item="item"
-                    :isSelected="selectedItems.has(item.prdNo)" @update-selected-items="updateSelectedItemsFund" />
+                    :isSelected="selectedFundsItems.has(item.prdNo)" @update-selected-items="updateSelectedItemsFund" />
             </ul>
         </div>
         <div v-else>
@@ -91,7 +94,9 @@ export default {
             funds: [], // 펀드 데이터를 저장
             savings: [], // 적금 데이터를 저장
             deposits: [], // 예금 데이터를 저장
-            selectedItems: new Set(), // 선택된 항목을 관리
+            selectedFundsItems: new Set(), // 선택된 펀드 항목 관리
+            selectedSavingsItems: new Set(), // 선택된 적금 항목 관리
+            selectedDepositsItems: new Set(), // 선택된 예금 항목 관리
             selectedFunds: [], // 선택된 펀드들
             selectedDeposits: [], // 선택된 예금들
             selectedSavings: [], // 선택된 적금들
@@ -168,15 +173,13 @@ export default {
         },
         updateSelectedItemsFund({ prdNo, isSelected }) {
             if (isSelected) {
-                this.selectedItems.add(prdNo);
+                this.selectedFundsItems.add(prdNo);
             } else {
-                this.selectedItems.delete(prdNo);
+                this.selectedFundsItems.delete(prdNo);
             }
-            if (this.selectedTab === 'fund') {
-                this.updateSelectedData();
-            }
+            this.updateSelectedData('fund');
         },
-        updateSelectedItems({ prdNo, intr_rate_type_nm, isSelected }) {
+        updateSelectedItemsSavings({ prdNo, intr_rate_type_nm, isSelected }) {
             if (intr_rate_type_nm === undefined) {
                 console.log("intr_rate_type_nm is undefined, not adding to selectedItems.");
                 return;
@@ -184,28 +187,41 @@ export default {
             const itemKey = `${prdNo}-${intr_rate_type_nm}`;
             console.log("itemKey: ", itemKey);
             if (isSelected.isSelected) {
-                this.selectedItems.add(itemKey);
+                this.selectedSavingsItems.add(itemKey);
                 console.log("Item added:", itemKey);
             } else {
-                const isDeleted = this.selectedItems.delete(itemKey);
+                const isDeleted = this.selectedSavingsItems.delete(itemKey);
                 console.log("Item deleted:", isDeleted, "itemKey:", itemKey);
             }
-            this.updateSelectedData();
+            this.updateSelectedData('saving');
         },
-        updateSelectedData() {
-            if (this.selectedTab === 'fund') {
-                this.selectedFunds = this.funds.filter(fund => {
-                    return Array.from(this.selectedItems).some(item => item === fund.prdNo);
-                });
-            } else if (this.selectedTab === 'saving') {
+        updateSelectedItemsDeposit({ prdNo, intr_rate_type_nm, isSelected }) {
+            if (intr_rate_type_nm === undefined) {
+                console.log("intr_rate_type_nm is undefined, not adding to selectedItems.");
+                return;
+            }
+            const itemKey = `${prdNo}-${intr_rate_type_nm}`;
+            console.log("itemKey: ", itemKey);
+            if (isSelected.isSelected) {
+                this.selectedDepositsItems.add(itemKey);
+            } else {
+                const isDeleted = this.selectedDepositsItems.delete(itemKey);
+                console.log("Item deleted:", isDeleted, "itemKey:", itemKey);
+            }
+            this.updateSelectedData('deposit');
+        },
+        updateSelectedData(type) {
+            if (type === 'fund') {
+                this.selectedFunds = this.funds.filter(fund => this.selectedFundsItems.has(fund.prdNo));
+            } else if (type === 'saving') {
                 this.selectedSavings = this.savings.filter(savings => {
                     const itemKey = `${savings.savingsDeposit.fin_prdt_cd}-${savings.options[0].intr_rate_type_nm}`;
-                    return Array.from(this.selectedItems).some(item => item === itemKey);
+                    return this.selectedSavingsItems.has(itemKey);
                 });
-            } else if (this.selectedTab === 'deposit') {
+            } else if (type === 'deposit') {
                 this.selectedDeposits = this.deposits.filter(deposit => {
                     const itemKey = `${deposit.savingsDeposit.fin_prdt_cd}-${deposit.options[0].intr_rate_type_nm}`;
-                    return Array.from(this.selectedItems).some(item => item === itemKey);
+                    return this.selectedDepositsItems.has(itemKey);
                 });
             }
         },
@@ -213,11 +229,15 @@ export default {
             this.isComparisonModalVisible = true;
         },
         closeModalAndReset() {
-            this.isComparisonModalVisible = false;
-            this.selectedItems.clear();
             this.selectedFunds = [];
             this.selectedSavings = [];
             this.selectedDeposits = [];
+
+            this.selectedFundsItems.clear();
+            this.selectedSavingsItems.clear();
+            this.selectedDepositsItems.clear();
+
+            this.isComparisonModalVisible = false;
         },
         async removeSelectedItems() {
             const username = this.getUsername();
@@ -225,7 +245,7 @@ export default {
             if (this.selectedTab === 'fund') {
                 let updatedItems = [];
                 for (const item of this.funds) {
-                    if (this.selectedItems.has(item.prdNo)) {
+                    if (this.selectedFundsItems.has(item.prdNo)) {
                         await removeFundFromCart(username, item.prdNo);
                     } else {
                         updatedItems.push(item);
@@ -235,10 +255,8 @@ export default {
             } else if (this.selectedTab === 'saving') {
                 let updatedItems = [];
                 for (const item of this.savings) {
-                    if (Array.from(this.selectedItems).some(selected =>
-                        selected.prdNo === item.savingsDeposit.fin_prdt_cd &&
-                        selected.intr_rate_type_nm === item.options[0].intr_rate_type_nm
-                    )) {
+                    const itemKey = `${item.savingsDeposit.fin_prdt_cd}-${item.options[0].intr_rate_type_nm}`;
+                    if (this.selectedSavingsItems.has(itemKey)) {
                         await removeSavingsFromCart(username, item.savingsDeposit.fin_prdt_cd, item.options[0].intr_rate_type_nm);
                     } else {
                         updatedItems.push(item);
@@ -248,10 +266,8 @@ export default {
             } else if (this.selectedTab === 'deposit') {
                 let updatedItems = [];
                 for (const item of this.deposits) {
-                    if (Array.from(this.selectedItems).some(selected =>
-                        selected.prdNo === item.savingsDeposit.fin_prdt_cd &&
-                        selected.intr_rate_type_nm === item.options[0].intr_rate_type_nm
-                    )) {
+                    const itemKey = `${item.savingsDeposit.fin_prdt_cd}-${item.options[0].intr_rate_type_nm}`;
+                    if (this.selectedDepositsItems.has(itemKey)) {
                         await removeDepositFromCart(username, item.savingsDeposit.fin_prdt_cd, item.options[0].intr_rate_type_nm);
                     } else {
                         updatedItems.push(item);
@@ -259,7 +275,9 @@ export default {
                 }
                 this.deposits = updatedItems;
             }
-            this.selectedItems.clear();
+            this.selectedFundsItems.clear();
+            this.selectedSavingsItems.clear();
+            this.selectedDepositsItems.clear();
         }
     }
 };

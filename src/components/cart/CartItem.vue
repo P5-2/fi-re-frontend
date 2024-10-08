@@ -106,6 +106,7 @@ export default {
     margin-bottom: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: box-shadow 0.3s ease;
+    border: 1px solid #DBE2EF; /* 연한 회색 테두리 추가 */
 }
 
 .cart-item:hover {
