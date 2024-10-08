@@ -43,3 +43,58 @@ export async function removeSavingsFromCart(username, finPrdtCd, intrRateTypeNm)
         throw error;
     }
 }
+
+
+// 적금 항목 추가 (단리/복리 구분 추가)
+export async function addSavingsToCart(username, finPrdtCd, intrRateTypeNm) {
+    try {
+        const response = await axios.post('http://localhost:9000/cart/savings', {
+            username,
+            finPrdtCd,  // 변경된 부분: prdNo -> finPrdtCd
+            intrRateTypeNm // 변경된 부분: intr_rate_type_nm -> intrRateTypeNm
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error adding savings to cart:', error);
+        throw error;
+    }
+}
+
+// 예금 항목 추가 (단리/복리 구분 추가)
+export async function addDepositToCart(username, finPrdtCd, intrRateTypeNm) {
+    try {
+        const response = await axios.post('http://localhost:9000/cart/deposits', {
+            username,
+            finPrdtCd,  // 변경된 부분: prdNo -> finPrdtCd
+            intrRateTypeNm // 변경된 부분: intr_rate_type_nm -> intrRateTypeNm
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error adding deposit to cart:', error);
+        throw error;
+    }
+}
+
+
+
+// 적금 항목이 장바구니에 있는지 확인 (단리/복리 구분 포함)
+export async function checkSavingsInCart(username, finPrdtCd, intrRateTypeNm) {
+    try {
+        const response = await axios.get(`http://localhost:9000/cart/savings/${username}/${finPrdtCd}/${intrRateTypeNm}`);
+        return response.data.isInCart; // 장바구니에 있으면 true, 없으면 false 반환
+    } catch (error) {
+        console.error('Error checking savings in cart:', error);
+        throw error;
+    }
+}
+
+// 예금 항목이 장바구니에 있는지 확인 (단리/복리 구분 포함)
+export async function checkDepositInCart(username, finPrdtCd, intrRateTypeNm) {
+    try {
+        const response = await axios.get(`http://localhost:9000/cart/deposits/${username}/${finPrdtCd}/${intrRateTypeNm}`);
+        return response.data.isInCart; // 장바구니에 있으면 true, 없으면 false 반환
+    } catch (error) {
+        console.error('Error checking deposit in cart:', error);
+        throw error;
+    }
+}
