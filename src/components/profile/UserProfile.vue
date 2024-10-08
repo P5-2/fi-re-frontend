@@ -9,8 +9,13 @@
           <div class="nickname-container">
             <div class="nickname">
               <h3>{{ user.nickname }}</h3>
-              <span v-if="level >= 3" class="badge">
-                <i class="fas fa-star"></i> 레벨 {{ level }}
+              <span
+                v-if="level >= 3"
+                class="badge"
+                :class="{ 'level-badge': level >= 3 }"
+              >
+                <i class="fas fa-star" style="color: yellow"></i> 레벨
+                {{ level }}
               </span>
             </div>
           </div>
@@ -98,6 +103,7 @@ export default {
 <style scoped>
 .profile-layout {
   display: flex; /* 좌우로 나누기 */
+  gap: 20px; /* 좌측과 우측 사이의 간격 추가 */
 }
 
 .character-container {
@@ -136,12 +142,15 @@ export default {
 }
 
 .badge {
-  background-color: #3f72af; /* 배지 색상 */
-  color: white;
-  border-radius: 5px;
   padding: 3px 6px; /* 배지 패딩 증가 */
   margin-left: 5px; /* 이름과 배지 간의 간격 */
   font-size: 16px; /* 배지 텍스트 크기 */
+}
+
+.level-badge {
+  background-color: #3f72af; /* 배지 색상 */
+  color: white; /* 텍스트 색상 */
+  border-radius: 5px;
 }
 
 .progress-container {
