@@ -7,14 +7,15 @@ export const useSurveyStore = defineStore('survey', {
     total: 10, // 전체 페이지 수
     pages: [],
     keywords: [],
-    results: Array(9).fill(0),
-    specificScores: { 3: 0, 6: 0 },
+    results: Array(10).fill(0),
+    specificScores: { 4: 0, 7: 0 },
     // 2: 기간 5: 금액
     totalScore: 0,
     age: '',
     assets: 0,
+    salary: 0,
     showResults: false,
-    selectedOptions: Array(10).fill(null),
+    selectedOptions: Array(11).fill(null),
   }),
   actions: {
     async initializePages() {
@@ -34,13 +35,13 @@ export const useSurveyStore = defineStore('survey', {
         },
         {
           question: '당신의 자산은 어느 정도입니까?',
-          options: [
-            { text: '1000만 원 이하', score: 1 },
-            { text: '1000만 원 ~ 5000만 원', score: 2 },
-            { text: '5000만 원 ~ 1억 원', score: 3 },
-            { text: '1억 원 ~ 3억 원', score: 4 },
-            { text: '3억 원 이상', score: 5 },
-          ],
+          input: true,
+          value: 0,
+        },
+        {
+          question: '당신의 급여는 어느 정도입니까?',
+          input: true,
+          value: 0,
         },
         {
           question: '투자하고자 하는 자금의 투자 가능 기간은 얼마나 됩니까?',
@@ -132,15 +133,25 @@ export const useSurveyStore = defineStore('survey', {
 
     selectOption(index) {
       try {
+        // 현재 질문이 입력 질문인지 확인
+        if (this.pages[this.current].input) {
+          // 입력 질문일 경우, 입력된 자산 값을 저장
+          const inputValue = this.pages[this.current].value; // 입력값 가져오기
+          this.assets = inputValue; // 자산에 입력값 저장
+          this.selectedOptions[this.current] = null; // 선택된 옵션 없음으로 설정
+          return; // 더 이상 진행하지 않음
+        }
+
+        // 선택된 옵션 처리
         const selectedScore = this.pages[this.current].options[index].score;
         this.results[this.current] = selectedScore; // 선택된 점수 저장
         this.selectedOptions[this.current] = index;
 
         // 특정 페이지 점수 업데이트
-        if (this.current === 2) {
-          this.specificScores[3] = selectedScore; // 3페이지 점수 저장
-        } else if (this.current === 5) {
-          this.specificScores[6] = selectedScore; // 6페이지 점수 저장
+        if (this.current === 3) {
+          this.specificScores[4] = selectedScore; // 3페이지 점수 저장
+        } else if (this.current === 6) {
+          this.specificScores[7] = selectedScore; // 6페이지 점수 저장
         }
 
         // 총점 계산
@@ -157,12 +168,13 @@ export const useSurveyStore = defineStore('survey', {
     resetSurvey() {
       this.current = 0;
       this.results = Array(this.total).fill(0);
-      this.specificScores = { 3: 0, 6: 0 };
+      this.specificScores = { 4: 0, 7: 0 };
       this.totalScore = 0;
       this.showResults = false;
       this.assets = 0;
       this.age = ''; // 나이대 초기화
       this.keywords = []; // 키워드 초기화
+      this.salary = 0;
       this.initializePages();
     },
 
@@ -171,7 +183,10 @@ export const useSurveyStore = defineStore('survey', {
         // 나이대 및 키워드 설정
         const ageOption = this.selectedOptions[0]; // 첫 번째 질문의 선택된 옵션으로 나이대 결정
 
-        this.assets = 0;
+        if (this.assets <= 0) {
+          throw new Error('자산 입력값이 유효하지 않습니다.');
+        }
+
         if (ageOption !== null) {
           const selectedAge = this.pages[0].options[ageOption].score;
 
@@ -186,25 +201,6 @@ export const useSurveyStore = defineStore('survey', {
             this.age = '40'; // 40대
           } else if (selectedAge === 5) {
             this.age = '60'; // 60대 이상
-          }
-        }
-
-        // 자산 설정
-        const assetOption = this.selectedOptions[1];
-        if (assetOption !== null) {
-          const selectedAsset = this.pages[1].options[assetOption].score;
-
-          // 자산 문자열 변환
-          if (selectedAsset === 1) {
-            this.assets = 1000;
-          } else if (selectedAsset === 2) {
-            this.assets = 5000;
-          } else if (selectedAsset === 3) {
-            this.assets = 10000;
-          } else if (selectedAsset === 4) {
-            this.assets = 30000;
-          } else if (selectedAsset === 5) {
-            this.assets = 50000;
           }
         }
 
@@ -229,6 +225,7 @@ export const useSurveyStore = defineStore('survey', {
           age: this.age,
           assets: this.assets,
           keywords: this.keywords,
+          salary: this.salary,
         };
 
         const tokenData = JSON.parse(sessionStorage.getItem('token'));
