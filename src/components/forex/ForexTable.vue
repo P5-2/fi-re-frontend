@@ -135,8 +135,8 @@ export default {
 .currency-item {
   width: 30%;
   padding: 15px;
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
+  background-color: #fff;
+  border: 1px solid #f9f9f9;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -155,6 +155,7 @@ export default {
 .flag-icon {
   width: 50px;
   height: auto;
+  border: 1px solid #cccccc;
   border-radius: 5px;
 }
 
