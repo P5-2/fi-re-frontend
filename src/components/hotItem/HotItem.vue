@@ -32,7 +32,7 @@ export default {
     props : ['financeItem', 'financeType'], //financeItem : 예적금 상품, financeType : 상품타입(예금, 적금, 펀드)
     methods : {
         savingsItemClick(){
-            this.$router.push(`/itemDetail/savings/${this.financeItem.savingsDeposit.fin_prdt_cd}/${this.financeItem.options[0].save_trm}/${this.financeItem.options[0].intr_rate_type_nm}`);
+            this.$router.push(`/itemDetail/savings/${this.financeItem.savingsDeposit.fin_prdt_cd}/${this.financeItem.options[0].intr_rate_type_nm}/${this.financeItem.options[0].rsrv_type}`);
         },
         fundItemClick(){
             this.$router.push('/itemDetail/fund/'+this.financeItem.prdNo);

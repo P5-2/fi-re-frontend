@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import axios from 'axios';
 
 export const calculatorStore = defineStore('calculator', {
     state:()=>({
@@ -25,7 +26,7 @@ export const calculatorStore = defineStore('calculator', {
                 'rate' : this.goldRate,
                 'period' : this.month,
                 'amount' : this.gold,
-                'finalAmount' : (this.gold * (this.goldRate * 0.01) * (this.month/12)) + Number(this.gold)
+                'finalAmount' : Math.round((this.gold * (this.goldRate * 0.01) * (this.month/12)) + Number(this.gold))
             }
             this.result.process.push(goldProcessing);
             this.result.finalAmount += Number(goldProcessing.finalAmount);
@@ -34,9 +35,9 @@ export const calculatorStore = defineStore('calculator', {
                 if(savings.savingsDeposit.prdt_div === 'D'){ //예금인경우
                     if(savings.options[0].intr_rate_type_nm === "단리"){//예금, 단리인 경우
                         let period = savings.options[0].save_trm;
-                        period = (this.month <= period) ? this.month : period;
+                        period = ( Number(this.month) <= Number(period) ) ? this.month : period;
                         let rate = savings.options[0].intr_rate;
-                        let finalAmount = (savings.amount * (rate * 0.01) * (period/12)) + Number(savings.amount);
+                        let finalAmount = Math.round((savings.amount * (rate * 0.01) * (period/12)) + Number(savings.amount));
                         let processing = {
                             'name' : savings.savingsDeposit.fin_prdt_nm+"/단리",
                             'rate' : rate,
@@ -48,9 +49,9 @@ export const calculatorStore = defineStore('calculator', {
                         this.result.finalAmount += Number(finalAmount);
                     }else{//예금, 복리인 경우
                         let period = savings.options[0].save_trm;
-                        period = (this.month <= period) ? this.month : period;
+                        period = ( Number(this.month) <= Number(period) ) ? this.month : period;
                         let rate = savings.options[0].intr_rate;
-                        let finalAmount = savings.amount * Math.pow((1 + ((rate * 0.01) / 12)), (period / 12));
+                        let finalAmount = Math.round(savings.amount * Math.pow((1 + ((rate * 0.01) / 12)), (period / 12)));
                         let processing = {
                             'name' : savings.savingsDeposit.fin_prdt_nm+"/복리",
                             'rate' : rate,
@@ -64,9 +65,10 @@ export const calculatorStore = defineStore('calculator', {
                 }else { //적금인 경우
                     if(savings.options[0].intr_rate_type_nm === "단리"){//적금, 단리인 경우
                         let period = savings.options[0].save_trm;
-                        period = (this.month <= period) ? this.month : period;
+                        period = ( Number(this.month) <= Number(period) ) ? this.month : period;
+                        console.log(period);
                         let rate = savings.options[0].intr_rate;
-                        let finalAmount = (savings.amount * (period*(period+1)/2) * (rate*0.01/12)) + Number(savings.amount * period);
+                        let finalAmount = Math.round((savings.amount * (period*(period+1)/2) * (rate*0.01/12)) + Number(savings.amount * period));
                         let processing = {
                             'name' : savings.savingsDeposit.fin_prdt_nm+"/단리",
                             'rate' : rate,
@@ -78,9 +80,9 @@ export const calculatorStore = defineStore('calculator', {
                         this.result.finalAmount += Number(finalAmount);
                     }else{//적금, 복리인 경우
                         let period = savings.options[0].save_trm;
-                        period = (this.month <= period) ? this.month : period;
+                        period = ( Number(this.month) <= Number(period) ) ? this.month : period;
                         let rate = savings.options[0].intr_rate;
-                        let finalAmount = (savings.amount * ((Math.pow((1 + (rate * 0.01 / 12)), (period)) - 1)/(rate * 0.01 / 12)));
+                        let finalAmount = Math.round((savings.amount * ((Math.pow((1 + (rate * 0.01 / 12)), (period)) - 1)/(rate * 0.01 / 12))));
                         let processing = {
                             'name' : savings.savingsDeposit.fin_prdt_nm+"/단리",
                             'rate' : rate,
@@ -96,7 +98,7 @@ export const calculatorStore = defineStore('calculator', {
             this.fundlist.forEach((fund)=>{ //펀드 상품 계산
                 let period = this.month;
                 let rate = fund.oneYRate;
-                let finalAmount = (fund.amount * (rate * 0.01) * (period/12)) + Number(fund.amount);
+                let finalAmount = Math.round((fund.amount * (rate * 0.01) * (period/12)) + Number(fund.amount));
                 let processing = {
                     'name' : fund.pname,
                     'rate' : rate,
@@ -113,8 +115,8 @@ export const calculatorStore = defineStore('calculator', {
             let result = true;
             this.savingslist.forEach((savings)=>{
                 if(
-                    savings.savingsDeposit.fin_prdt_ct === getSavings.savingsDeposit.fin_prdt_ct
-                    && savings.options[0].save_trm === getSavings.options[0].save_trm
+                    savings.savingsDeposit.fin_prdt_cd === getSavings.savingsDeposit.fin_prdt_cd
+                    && savings.options[0].rsrv_type === getSavings.options[0].rsrv_type
                     && savings.options[0].intr_rate_type_nm === getSavings.options[0].intr_rate_type_nm
                 )//상품 코드와 투자개월 수가 같으면 같은 상품
                 {
@@ -123,6 +125,8 @@ export const calculatorStore = defineStore('calculator', {
             })
             if(result){
                 this.savingslist.push(getSavings);
+                //selectCount 증가
+                axios.get("http://localhost:9000/finance/count", {params : {finPrdtCd : getSavings.savingsDeposit.fin_prdt_cd}})
                 return alert("상품을 게산기에 추가했습니다");
             }else{
                 return alert("이미 상품이 계산기에 있습니다");
@@ -131,7 +135,7 @@ export const calculatorStore = defineStore('calculator', {
         setSavingsAmount : function(getSavings, amount){
             this.savingslist = this.savingslist.map((savings)=>{
                 if(
-                    savings.savingsDeposit.fin_prdt_ct === getSavings.savingsDeposit.fin_prdt_ct
+                    savings.savingsDeposit.fin_prdt_cd === getSavings.savingsDeposit.fin_prdt_cd
                     && savings.options[0].save_trm === getSavings.options[0].save_trm
                     && savings.options[0].intr_rate_type_nm === getSavings.options[0].intr_rate_type_nm
                 ){
@@ -154,6 +158,8 @@ export const calculatorStore = defineStore('calculator', {
             })
             if(result){
                 this.fundlist.push(getFund);
+                //selectCount 증가
+                axios.get("http://localhost:9000/finance/fund/count", {params : {prdNo : getFund.prdNo}})
                 return alert("상품을 게산기에 추가했습니다");
             }else{
                 return alert("이미 상품이 계산기에 있습니다");
