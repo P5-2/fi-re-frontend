@@ -55,173 +55,127 @@
 </template>
 
 <script>
+import { ref, onMounted, computed, nextTick } from 'vue';
 import axios from 'axios';
 import { Chart, registerables } from 'chart.js';
+
 export default {
-  data() {
-    return {
-      endBasDt: '', // 기준 날짜
-      numOfRows: 0, // 데이터 양(일수)
-      goldData: [], // 금 시세 데이터 배열
-      goldJsonData: '', // JSON 형태로 저장할 데이터
-      predictedGoldData: [], //예측 금 값 데이터 배열
-      predictedGoldJsonData: '',
-      chart: null, // Chart.js 인스턴스
-      pointDate: '',
-      pointPrice: 0,
-      lastestDate: '',
-      lastestPrice: 0,
-      selectedDate: '',
-      priceChange: 0,
-    };
-  },
-  computed: {
-    formattedLastestPrice() {
-      return this.lastestPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    },
-    formattedPointPrice() {
-      return this.pointPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    },
-    priceChangeText() {
-      return this.priceChange >= 0
-        ? `어제 대비 +${this.priceChange.toLocaleString()}원`
-        : `어제 대비 ${this.priceChange.toLocaleString()}원`;
-    },
-  },
-  methods: {
-    calculateYesterdayPrice() {
-      if (this.goldData.length < 2) {
-        this.yesterdayPrice = null;
-        this.priceChange = 0;
-        return;
-      }
+  setup() {
+    const endBasDt = ref('');
+    const numOfRows = ref(0);
+    const goldData = ref([]);
+    const predictedGoldData = ref([]);
+    const chart = ref(null);
+    const pointPrice = ref(0);
+    const lastestDate = ref('');
+    const lastestPrice = ref(0);
+    const selectedDate = ref('');
+    const priceChange = ref(0);
+    const yesterdayPrice = ref(null);
 
-      const yesterdayData = this.goldData[this.goldData.length - 2]; // 어제 데이터
-      this.yesterdayPrice = yesterdayData ? yesterdayData.clpr : null;
+    const formattedLastestPrice = computed(() => {
+      return lastestPrice.value
+        .toString()
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    });
 
-      // 가격 변동 계산
-      this.priceChange = this.lastestPrice - this.yesterdayPrice;
-    },
-    formatDate(dateString) {
-      // dateString이 문자열인지 확인하고, 숫자일 경우 문자열로 변환
+    const formattedPointPrice = computed(() => {
+      return pointPrice.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    });
+
+    const priceChangeText = computed(() => {
+      return priceChange.value >= 0
+        ? `어제 대비 +${priceChange.value.toLocaleString()}원`
+        : `어제 대비 ${priceChange.value.toLocaleString()}원`;
+    });
+
+    const formatDate = (dateString) => {
       if (typeof dateString !== 'string') {
         dateString = String(dateString);
       }
-
-      // YYYYMMDD 형식인지 확인
-      const regex = /^\d{8}$/; // 8자리 숫자
+      const regex = /^\d{8}$/;
       if (!regex.test(dateString)) {
-        return '날짜 없음'; // 기본값 반환
+        return '날짜 없음';
       }
-
-      // YYYYMMDD 형식에서 Date 객체 생성
       const year = parseInt(dateString.slice(0, 4), 10);
-      const month = parseInt(dateString.slice(4, 6), 10) - 1; // 월은 0부터 시작하므로 -1
+      const month = parseInt(dateString.slice(4, 6), 10) - 1;
       const day = parseInt(dateString.slice(6, 8), 10);
-
       const date = new Date(year, month, day);
-
-      // 유효한 날짜인지 확인
       if (isNaN(date.getTime())) {
-        return '날짜 없음'; // 기본값 반환
+        return '날짜 없음';
       }
-
-      // YYYY.MM.DD 형식으로 변환
       const formattedMonth = String(date.getMonth() + 1).padStart(2, '0');
       const formattedDay = String(date.getDate()).padStart(2, '0');
-
       return `${year}.${formattedMonth}.${formattedDay}`;
-    },
-    setPeriod(days) {
-      this.numOfRows = days;
-      this.endBasDt = this.getTodayInYYMMDD();
-      this.fetchGoldData();
-      this.fetchPredictedGoldPrice();
-    }, //controller의 gold/info를 가져오는 함수
-    async fetchGoldData() {
+    };
+
+    const calculateYesterdayPrice = () => {
+      if (goldData.value.length < 2) {
+        yesterdayPrice.value = null;
+        priceChange.value = 0;
+        return;
+      }
+      const yesterdayData = goldData.value[goldData.value.length - 2];
+      yesterdayPrice.value = yesterdayData ? yesterdayData.clpr : null;
+      priceChange.value = lastestPrice.value - yesterdayPrice.value;
+    };
+
+    const setPeriod = (days) => {
+      numOfRows.value = days;
+      endBasDt.value = getTodayInYYMMDD();
+      fetchGoldData();
+      fetchPredictedGoldPrice();
+    };
+
+    const fetchGoldData = async () => {
       try {
         const response = await axios.get('http://localhost:9000/gold/info', {
-          params: { endBasDt: this.endBasDt, numOfRows: this.numOfRows },
+          params: { endBasDt: endBasDt.value, numOfRows: numOfRows.value },
         });
-
-        this.goldData = response.data;
-
-        this.lastestDate = this.goldData[this.goldData.length - 1].basDt;
-        this.lastestPrice = this.goldData[this.goldData.length - 1].clpr;
-
-        // 데이터 양 업데이트
-        this.numOfRows = this.goldData.length;
-
-        // 차트 렌더링
-        this.$nextTick(() => {
-          this.renderChart();
-        });
+        goldData.value = response.data;
+        lastestDate.value = goldData.value[goldData.value.length - 1].basDt;
+        lastestPrice.value = goldData.value[goldData.value.length - 1].clpr;
+        calculateYesterdayPrice();
+        await nextTick(); // DOM 업데이트 후 차트 렌더링
+        renderChart();
       } catch (error) {
         console.error('Error fetching gold data:', error);
       }
-    },
+    };
 
-    async fetchPriceByDate() {
-      if (this.selectedDate) {
-        const formattedDate = this.selectedDate.replace(/-/g, ''); // YYYYMMDD 형식으로 변환
-        const data = this.goldData.find(
+    const fetchPriceByDate = () => {
+      if (selectedDate.value) {
+        const formattedDate = selectedDate.value.replace(/-/g, '');
+        const data = goldData.value.find(
           (item) => item.basDt === Number(formattedDate)
         );
-        this.pointPrice = data ? data.clpr : '데이터 없음';
+        pointPrice.value = data ? data.clpr : '데이터 없음';
       } else {
-        this.pointPrice = '데이터 없음'; // 선택된 날짜가 없을 때의 처리
+        pointPrice.value = '데이터 없음';
       }
-    },
-    getPriceByDate(date) {
-      const data = this.goldData.find((item) => item.basDt === date);
-      return data ? data.clpr : '데이터 없음';
-    },
-    //예측된 금 값을 받아오는 함수
-    async fetchPredictedGoldPrice() {
+    };
+
+    const fetchPredictedGoldPrice = async () => {
       try {
         const response = await axios.get('http://localhost:9000/gold/predict');
-        const predictedData = response.data;
-        // 로컬 스토리지에 저장
-        localStorage.setItem(
-          'predictedGoldData',
-          JSON.stringify(predictedData, null, 2)
-        );
-        // 필요에 따라 상태 업데이트
-        this.predictedGoldData = predictedData;
+        predictedGoldData.value = response.data;
       } catch (error) {
         console.error('Error fetching predicted gold price:', error);
       }
-    },
-    async getLastGoldData() {
-      try {
-        const response = await axios.get('http://localhost:9000/gold/info', {
-          params: {
-            endBasDt: this.endBasDt,
-            numOfRows: 1,
-          },
-        });
+    };
 
-        if (response.data) {
-          this.lastGoldDate = response.data[0].basDt;
-        }
-      } catch (error) {
-        console.error('Error fetching gold data:', error);
-      }
-    },
-    //차트 그리기(로컬스토리지에서 받아온 데이터로 그림)
-    async renderChart() {
-      const self = this; // Vue 인스턴스의 this를 self로 바인딩
-      if (!self.goldData.length || !self.predictedGoldData.length) return;
+    const renderChart = () => {
+      if (!goldData.value.length || !predictedGoldData.value.length) return;
 
       const combinedData = [];
-      self.goldData.forEach((item) => {
+      goldData.value.forEach((item) => {
         combinedData.push({
           basDt: item.basDt,
           price: item.clpr,
           isPredicted: false,
         });
       });
-      self.predictedGoldData.forEach((item) => {
+      predictedGoldData.value.forEach((item) => {
         combinedData.push({
           price: item.dayPrc,
           basDt: item.pbasDt,
@@ -239,26 +193,28 @@ export default {
         return;
       }
       const ctx = canvas.getContext('2d');
-      if (self.chart) {
-        self.chart.destroy();
+      if (chart.value) {
+        chart.value.destroy();
       }
       Chart.register(...registerables);
 
-      const actualPrices = self.goldData.map((item) => item.clpr);
+      const actualPrices = goldData.value.map((item) => item.clpr);
       const minIndex = actualPrices.indexOf(Math.min(...actualPrices));
       const maxIndex = actualPrices.indexOf(Math.max(...actualPrices));
       const canvasResolution = (canvas.width * canvas.height) / 1000;
       const size = canvasResolution * 0.05;
       const pointRadius = size > 3 ? 3 : size;
 
-      self.chart = new Chart(ctx, {
+      chart.value = new Chart(ctx, {
         type: 'line',
         data: {
           labels: labels,
           datasets: [
             {
-              label: '',
+              label: '금 시세',
               data: prices,
+              borderColor: 'rgba(245, 194, 66, 1)',
+              backgroundColor: 'rgba(245, 194, 66, 0.1)',
               pointBackgroundColor: (ctx) => {
                 const index = ctx.dataIndex;
                 return index === maxIndex
@@ -364,14 +320,13 @@ export default {
                     .replace(/-/g, '');
 
                   // 로컬 스토리지에서 데이터 검색
-                  const oneDayAgoPriceData =
-                    this.findPriceDataByDate(oneDayAgoStr);
+                  const oneDayAgoPriceData = findPriceDataByDate(oneDayAgoStr);
                   const oneMonthAgoPriceData =
-                    this.findPriceDataByDate(oneMonthAgoStr);
+                    findPriceDataByDate(oneMonthAgoStr);
                   const sixMonthsAgoPriceData =
-                    this.findPriceDataByDate(sixMonthsAgoStr);
+                    findPriceDataByDate(sixMonthsAgoStr);
                   const oneYearAgoPriceData =
-                    this.findPriceDataByDate(oneYearAgoStr);
+                    findPriceDataByDate(oneYearAgoStr);
 
                   const changes = [];
                   if (oneYearAgoPriceData) {
@@ -436,86 +391,71 @@ export default {
           },
         },
       });
-    },
-    loadGoldDataFromLocalStorage() {
-      const storedData = localStorage.getItem('goldData'); // 로컬 스토리지에서 데이터 가져오기
-      if (storedData) {
-        this.goldData = JSON.parse(storedData); // JSON 문자열을 객체로 변환
-      } else {
-        console.error('No data found in local storage');
+    };
+
+    const trackPageVisit = async () => {
+      try {
+        const tokenData = JSON.parse(sessionStorage.getItem('token'));
+        const accessToken = tokenData?.accessToken;
+
+        await axios.post(
+          `http://localhost:9000/exp`,
+          {
+            page: 'goldprice', // 현재 페이지 이름
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+      } catch (error) {
+        console.error('Error tracking page visit:', error);
       }
-    },
-    // 특정 날짜에서 daysBefore 만큼 이전 날짜의 시세를 찾는 함수
-    findPriceDataByDate(targetDateStr) {
+    };
+    const findPriceDataByDate = (targetDateStr) => {
       return (
-        this.goldData.find((item) => item.basDt === Number(targetDateStr)) ||
+        goldData.value.find((item) => item.basDt === Number(targetDateStr)) ||
         null
       );
-    },
+    };
 
-    getTodayInYYMMDD() {
+    const getTodayInYYMMDD = () => {
       const today = new Date();
       const year = String(today.getFullYear()).slice(-2);
       const month = String(today.getMonth() + 1).padStart(2, '0');
       const day = String(today.getDate()).padStart(2, '0');
       return `${year}${month}${day}`;
-    },
+    };
 
-    mounted() {
-      this.setPeriod(365);
+    onMounted(() => {
+      console.log('Mounted 호출됨');
+      setPeriod(365);
+      trackPageVisit();
+    });
 
-      const storedData = localStorage.getItem('goldData');
-      const storedPredictedData = localStorage.getItem('predictedGoldData');
-      const loadGoldData = async () => {
-        if (storedData) {
-          const lastElement =
-            JSON.parse(storedData)[JSON.parse(storedData).length - 1];
-          if (lastElement) {
-            const lastBasDt = lastElement.basDt;
-            console.log('마지막 basDt:', lastBasDt);
-            if (lastBasDt == this.lastGoldDate) {
-              this.goldData = JSON.parse(storedData);
-              // 최신 날짜와 가격 설정
-              this.lastestDate = this.goldData[this.goldData.length - 1].basDt;
-              this.lastestPrice = this.goldData[this.goldData.length - 1].clpr;
-            } else {
-              this.endBasDt = this.getTodayInYYMMDD();
-              this.numOfRows = 365; // 1년
-              await this.fetchGoldData().then(() => {
-                console.log('Gold Data after fetching:', this.goldData); // 데이터 확인
-                this.renderChart(); // 차트 렌더링
-              });
-            }
-          }
-        } else {
-          this.endBasDt = this.getTodayInYYMMDD();
-          this.numOfRows = 365; // 1년
-          await this.fetchGoldData(); // 데이터 가져오기
-        }
-      };
-
-      const loadPredictedData = async () => {
-        if (storedPredictedData) {
-          this.predictedGoldData = JSON.parse(storedPredictedData);
-        } else {
-          console.log('예측 금 시세 데이터가 없습니다.');
-          await this.fetchPredictedGoldPrice(); // 예측 데이터 가져오기
-        }
-      };
-
-      // 데이터 로드 후 차트 렌더링
-      Promise.all([loadGoldData(), loadPredictedData()]).then(() => {
-        console.log('Data loaded, rendering chart...'); // 데이터 로드 후 차트 렌더링
-        if (this.goldData.length && this.predictedGoldData.length) {
-          this.renderChart(); // 차트 렌더링
-        }
-      });
-    },
-    beforeUnmount() {
-      if (this.chart) {
-        this.chart.destroy(); // 차트 인스턴스 정리
-      }
-    },
+    return {
+      endBasDt,
+      numOfRows,
+      goldData,
+      lastestDate,
+      lastestPrice,
+      selectedDate,
+      pointPrice,
+      priceChange,
+      yesterdayPrice,
+      predictedGoldData,
+      chart,
+      formattedLastestPrice,
+      formattedPointPrice,
+      priceChangeText,
+      fetchGoldData,
+      fetchPriceByDate,
+      fetchPredictedGoldPrice,
+      setPeriod,
+      renderChart,
+      formatDate,
+    };
   },
 };
 </script>

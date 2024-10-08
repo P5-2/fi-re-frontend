@@ -144,6 +144,7 @@ export default {
 
       try {
         const response = await axios.get('http://localhost:9000/profile/goal', config);
+        console.log(response.data);
         userProducts.value = Array.isArray(response.data) ? response.data : [];
         goalStore.updateTotals(userProducts.value);
       } catch (error) {
@@ -175,6 +176,41 @@ export default {
           };
         }
       });
+    };
+
+    const updateAllDepositAmounts = async () => {
+      try {
+        const accessToken = goalStore.getAccessToken();
+        const config = {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        };
+
+        const prdNosResponse = await axios.get('http://localhost:9000/profile/goal', config);
+        const prdNos = prdNosResponse.data; 
+        console.log(prdNos);
+        for (const prdNo of prdNos) {
+          await fetchDepositAmount(prdNo.finPrdtCd);
+        }
+      } catch (error) {
+        console.error('Error updating deposit amounts:', error);
+      }
+    };
+
+    const fetchDepositAmount = async (prdNo) => {
+      try {
+        const accessToken = goalStore.getAccessToken();
+        const config = {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        };
+        const response = await axios.get(`http://localhost:9000/profile/goal/fetch/${prdNo}`, config);
+        console.log(`Deposit amount for prdNo ${prdNo} updated:`, response.data);
+      } catch (error) {
+        console.error(`Error fetching deposit amount for prdNo ${prdNo}:`, error);
+      }
     };
 
     const handleGoalSet = () => {
@@ -396,6 +432,7 @@ export default {
     onMounted(() => {
       loadIcons();
       checkUserProducts();
+      updateAllDepositAmounts();
     });
 
     return {
@@ -422,6 +459,8 @@ export default {
       getIcon,
       loadIcons,
       toggleCard,
+      fetchDepositAmount,
+      updateAllDepositAmounts,
     };
   }
 };

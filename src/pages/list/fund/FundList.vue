@@ -1,59 +1,93 @@
 <template>
-    <div class="fund-container">
-        <!-- 비교하기 버튼 -->
-        <button class="compare-button" @click="showComparisonModal" :disabled="selectedFunds.length === 0 || selectedFunds.length > 3">
-            비교하기 ({{ selectedFunds.length }}/3)
-        </button>
+  <div class="fund-container">
+    <!-- 비교하기 버튼 -->
+    <button
+      class="compare-button"
+      @click="showComparisonModal"
+      :disabled="selectedFunds.length === 0 || selectedFunds.length > 3"
+    >
+      비교하기 ({{ selectedFunds.length }}/3)
+    </button>
 
-        <!-- 각 펀드 항목을 반복적으로 출력 -->
-        <div v-if="paginatedFunds.length">
-            <Fund v-for="fund in paginatedFunds" :key="fund.prdNo" :fund="fund" @select-fund="handleSelectFund" />
-        </div>
-
-        <!-- 데이터가 없을 때 표시할 메시지 -->
-        <div v-else>
-            <p>펀드 데이터를 가져오는 중입니다...</p>
-        </div>
-
-        <!-- 페이지네이션 컨트롤 -->
-        <div class="pagination">
-            <button @click="previousPage" :disabled="page === 1">이전</button>
-            <span>{{ page }} / {{ totalPages }}</span>
-            <button @click="nextPage" :disabled="page === totalPages">다음</button>
-        </div>
-
-        <!-- 비교 모달 컴포넌트 -->
-        <ComparisonModal :selectedFunds="selectedFunds" :isComparisonModalVisible="isComparisonModalVisible"
-            @close="closeModalAndResetFunds" />
+    <!-- 각 펀드 항목을 반복적으로 출력 -->
+    <div v-if="paginatedFunds.length">
+      <Fund
+        v-for="fund in paginatedFunds"
+        :key="fund.prdNo"
+        :fund="fund"
+        @select-fund="handleSelectFund"
+      />
     </div>
+
+    <!-- 데이터가 없을 때 표시할 메시지 -->
+    <div v-else>
+      <p>펀드 데이터를 가져오는 중입니다...</p>
+    </div>
+
+    <!-- 페이지네이션 컨트롤 -->
+    <div class="pagination">
+      <button @click="previousPage" :disabled="page === 1">이전</button>
+      <span>{{ page }} / {{ totalPages }}</span>
+      <button @click="nextPage" :disabled="page === totalPages">다음</button>
+    </div>
+
+    <!-- 비교 모달 컴포넌트 -->
+    <ComparisonModal
+      :selectedFunds="selectedFunds"
+      :isComparisonModalVisible="isComparisonModalVisible"
+      @close="closeModalAndResetFunds"
+    />
+  </div>
 </template>
 
 <script>
 import Fund from '@/components/list/fund/Fund.vue';
 import ComparisonModal from '@/components/comparison/ComparisonModalFund.vue';
 
+import axios from 'axios'; // axios 추가
 export default {
-    components: {
-        Fund,
-        ComparisonModal
+  components: {
+    Fund,
+    ComparisonModal,
+  },
+  data() {
+    return {
+      funds: [], // 펀드 데이터를 담을 배열
+      selectedFunds: [], // 선택된 펀드 항목을 담을 배열
+      page: 1, // 현재 페이지
+      size: 5, // 페이지당 항목 수
+      totalPages: 0, // 전체 페이지 수
+      isComparisonModalVisible: false, // 비교 모달 표시 여부
+    };
+  },
+  computed: {
+    paginatedFunds() {
+      return this.funds;
     },
-    data() {
-        return {
-            funds: [],             // 펀드 데이터를 담을 배열
-            selectedFunds: [],     // 선택된 펀드 항목을 담을 배열
-            page: 1,               // 현재 페이지
-            size: 5,               // 페이지당 항목 수
-            totalPages: 0,         // 전체 페이지 수
-            isComparisonModalVisible: false  // 비교 모달 표시 여부
-        };
-    },
-    computed: {
-        paginatedFunds() {
-            return this.funds;
-        }
+  },
+  methods: {
+    async trackPageVisit() {
+      try {
+        const tokenData = JSON.parse(sessionStorage.getItem('token'));
+        const accessToken = tokenData?.accessToken;
+
+        await axios.post(
+          `http://localhost:9000/exp`,
+          {
+            page: 'fundlist', // 현재 페이지 이름
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+      } catch (error) {
+        console.error('Error tracking page visit:', error);
+      }
     },
 
-    methods: {
+    
         async fetchFunds() {
             try {
                 const response = await fetch(`http://localhost:9000/finance/fund/pageAll?page=${this.page}&size=${this.size}`);
@@ -123,68 +157,66 @@ export default {
 
 <style scoped>
 .fund-container {
-    width: 100%;
-    max-width: 1200px; /* 페이지가 너무 넓어지지 않도록 최대 너비를 제한 */
-    margin: 0 auto;    /* 중앙 정렬 */
-    padding: 0 20px;   /* 양쪽 패딩을 추가해 화면과의 간격을 확보 */
+  width: 100%;
+  max-width: 1200px; /* 페이지가 너무 넓어지지 않도록 최대 너비를 제한 */
+  margin: 0 auto; /* 중앙 정렬 */
+  padding: 0 20px; /* 양쪽 패딩을 추가해 화면과의 간격을 확보 */
 }
 
 /* 기존 compare-button, pagination 등의 스타일은 유지 */
 .compare-button {
-    background-color: #3F72AF;
-    color: #F9F7F7;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-bottom: 20px;
+  background-color: #3f72af;
+  color: #f9f7f7;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 20px;
 }
 
 .compare-button:hover {
-    background-color: #2C5985;
+  background-color: #2c5985;
 }
 
 .compare-button:disabled {
-    background-color: #DBE2EF;
-    color: #112D4E;
-    cursor: not-allowed;
+  background-color: #dbe2ef;
+  color: #112d4e;
+  cursor: not-allowed;
 }
 
 .pagination {
-    display: block;
-    text-align: center;
-    margin-top: 20px;
-    margin-bottom: 100px;
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 100px;
 }
 
 .pagination button {
-    margin: 0 5px;
-    padding: 5px 10px;
-    background-color: #3F72AF;
-    color: #F9F7F7;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  margin: 0 5px;
+  padding: 5px 10px;
+  background-color: #3f72af;
+  color: #f9f7f7;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .pagination button:hover {
-    background-color: #2C5985;
+  background-color: #2c5985;
 }
 
 .pagination button:disabled {
-    background-color: #DBE2EF;
-    color: #112D4E;
-    cursor: not-allowed;
+  background-color: #dbe2ef;
+  color: #112d4e;
+  cursor: not-allowed;
 }
 
 .pagination span {
-    margin: 0 10px;
-    font-weight: bold;
+  margin: 0 10px;
+  font-weight: bold;
 }
-
 </style>
-

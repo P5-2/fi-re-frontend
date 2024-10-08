@@ -69,13 +69,6 @@
             <button @click="openModal" class="login-btn">로그인</button>
           </div>
         </div>
-
-        <img
-          class="member-img"
-          src="@/assets/header/unknown.png"
-          width="64"
-          height="64"
-        />
       </div>
     </header>
   </div>
@@ -145,6 +138,7 @@ export default {
   position: sticky;
   top: 0px;
   width: 100%;
+  z-index: 90;
 }
 
 header {
@@ -287,6 +281,7 @@ header {
   color : rgb(37, 37, 37);
   font-size: 14px;
   padding : 12px 20px;
+  cursor: pointer;
 }
 
 .dropdown-content a:hover{
