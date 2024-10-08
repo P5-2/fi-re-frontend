@@ -83,11 +83,11 @@ export default {
             fund.userLiked = !fund.userLiked;
 
             if (fund.userLiked) {
-                // 서버에 장바구니 추가 요청
+                // 서버에 즐겨찾기 추가 요청
                 await addFundToCart(this.userStore.username, fund.prdNo);
                 alert('상품을 즐겨찾기에 담았습니다!');
             } else {
-                // 서버에 장바구니 삭제 요청
+                // 서버에 즐겨찾기 삭제 요청
                 await removeFundFromCart(this.userStore.username, fund.prdNo);
                 alert('상품을 즐겨찾기에서 취소했습니다.');
             }
