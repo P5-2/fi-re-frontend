@@ -2,7 +2,7 @@
     <div v-if="isCalcResultOpen" class="modal-overlay" @click="$emit('closeCalcResult')">
         <div class="modal-content" @click.stop>
             <h2>계산 결과 : 총 <b>{{ formatCurrency(result.finalAmount) }}</b>원</h2>
-            <tr></tr>
+            
             <table class="table table-striped">
                 <thead>
                     <tr>
