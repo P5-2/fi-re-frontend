@@ -42,7 +42,8 @@
 
 <script>
 import Fund from '@/components/list/fund/Fund.vue';
-import ComparisonModal from '@/components/comparison/ComparisonModal.vue';
+import ComparisonModal from '@/components/comparison/ComparisonModalFund.vue';
+
 import axios from 'axios'; // axios 추가
 export default {
   components: {
@@ -85,72 +86,72 @@ export default {
         console.error('Error tracking page visit:', error);
       }
     },
-    async fetchFunds() {
-      try {
-        const response = await fetch(
-          `http://localhost:9000/finance/fund/pageAll?page=${this.page}&size=${this.size}`
-        );
-        const data = await response.json();
-        this.funds = data.funds; // 가져온 펀드 데이터를 저장
-        this.totalPages = data.totalPages; // 전체 페이지 수 업데이트
-        this.loadSelectedFunds(); // 선택된 펀드 복원
-      } catch (error) {
-        console.error('펀드 데이터를 가져오는 중 오류가 발생했습니다:', error);
-      }
-    },
-    handleSelectFund({ fund, selected }) {
-      if (selected) {
-        if (this.selectedFunds.length < 3) {
-          this.selectedFunds.push(fund);
-        } else {
-          alert('최대 3개의 펀드만 선택할 수 있습니다.');
-          return;
+
+    
+        async fetchFunds() {
+            try {
+                const response = await fetch(`http://localhost:9000/finance/fund/pageAll?page=${this.page}&size=${this.size}`);
+                const data = await response.json();
+                this.funds = data.funds;             // 가져온 펀드 데이터를 저장
+                this.totalPages = data.totalPages;   // 전체 페이지 수 업데이트
+                this.loadSelectedFunds();
+            } catch (error) {
+                console.error('펀드 데이터를 가져오는 중 오류가 발생했습니다:', error);
+            }
+        },
+        handleSelectFund({ fund, selected }) {
+            if (selected) {
+                if (this.selectedFunds.length < 3) {
+                    this.selectedFunds.push(fund);
+                } else {
+                   // alert("최대 3개의 펀드만 선택할 수 있습니다.");
+                    return;
+                }
+            } else {
+                this.selectedFunds = this.selectedFunds.filter(f => f.prdNo !== fund.prdNo);
+            }
+        },
+        showComparisonModal() {
+            if (this.selectedFunds.length > 0 && this.selectedFunds.length <= 3) {
+                this.isComparisonModalVisible = true;
+            }
+        },
+        closeModalAndResetFunds() {
+            this.isComparisonModalVisible = false;
+            this.clearLocalStorage();  // 모달이 닫힐 때 로컬스토리지 값 제거
+            window.location.href = '/fund';
+        },
+        clearLocalStorage() {
+            localStorage.removeItem('checkedFunds');  // 로컬스토리지 값 삭제
+            this.selectedFunds=[];
+        },
+        loadSelectedFunds() {
+            // localStorage에서 checkedFunds 가져오기
+            const checkFund = JSON.parse(localStorage.getItem('checkedFunds')) || [];
+
+            // checkedFunds에서 prdNo 값만 추출
+            checkFund.map(fund => fund.prdNo);
+
+            // 현재 로드된 funds 중 checkFundPrdNos에 해당하는 펀드만 selectedFunds에 추가
+            this.selectedFunds = checkFund;
+        },
+        previousPage() {
+            if (this.page > 1) {
+                this.page--;
+                this.fetchFunds();
+            }
+        },
+        nextPage() {
+            if (this.page < this.totalPages) {
+                this.page++;
+                this.fetchFunds();
+            }
         }
-      } else {
-        this.selectedFunds = this.selectedFunds.filter(
-          (f) => f.prdNo !== fund.prdNo
-        );
-      }
     },
-    showComparisonModal() {
-      if (this.selectedFunds.length > 0 && this.selectedFunds.length <= 3) {
-        this.isComparisonModalVisible = true;
-      }
-    },
-    closeModalAndResetFunds() {
-      this.isComparisonModalVisible = false;
-      this.clearLocalStorage(); // 모달이 닫힐 때 로컬스토리지 값 제거
-      window.location.href = '/fund';
-    },
-    clearLocalStorage() {
-      localStorage.removeItem('checkedFunds'); // 로컬스토리지 값 삭제
-      this.selectedFunds = [];
-    },
-    loadSelectedFunds() {
-      // localStorage에서 likedFunds 가져오기
-      const checkFund = JSON.parse(localStorage.getItem('checkedFunds')) || [];
-      // 현재 로드된 funds 중 checkFund 해당하는 펀드만 selectedFunds에 추가
-      this.selectedFunds = this.funds.filter((fund) =>
-        checkFund.includes(fund.prdNo)
-      );
-    },
-    previousPage() {
-      if (this.page > 1) {
-        this.page--;
-        this.fetchFunds();
-      }
-    },
-    nextPage() {
-      if (this.page < this.totalPages) {
-        this.page++;
-        this.fetchFunds();
-      }
-    },
-  },
-  mounted() {
-    this.trackPageVisit();
-    this.fetchFunds(); // 컴포넌트가 마운트되면 펀드 데이터를 가져옴
-  },
+    mounted() {
+        this.fetchFunds();  // 컴포넌트가 마운트되면 펀드 데이터를 가져옴
+        
+    }
 };
 </script>
 
