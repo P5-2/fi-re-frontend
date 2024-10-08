@@ -72,9 +72,6 @@ import CartItem from '@/components/cart/CartItem.vue';
 import FundItem from '@/components/cart/FundItem.vue';
 import SavingsItem from '@/components/cart/SavingsItem.vue';
 import DepositItem from '@/components/cart/DepositItem.vue';
-import ComparisonModalFund from '@/components/comparison/ComparisonModalFund.vue';
-import ComparisonModalDeposit from '@/components/comparison/ComparisionModalDeposit.vue';
-import ComparisonModalSavings from '@/components/comparison/ComparisonModalSavings.vue';
 import { loadFundsInCart, removeFundFromCart } from '@/services/cartServiceFund.js';
 import { loadSavingsDepositByUsername, loadDepositByUsername, removeDepositFromCart, removeSavingsFromCart } from '@/services/cartServiceSD'; // 서비스 파일 임포트
 
@@ -85,9 +82,6 @@ export default {
         FundItem,
         SavingsItem,
         DepositItem,
-        ComparisonModalFund,
-        ComparisonModalSavings,
-        ComparisonModalDeposit
     },
     data() {
         return {

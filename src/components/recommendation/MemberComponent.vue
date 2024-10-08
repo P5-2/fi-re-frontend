@@ -6,8 +6,8 @@
     <div class="info-section">
       <div class="info-row">
         <p><strong class="label">연령대:</strong> <span class="hashtag">{{ memberInfo.age }}대</span></p>
-        <p><strong class="label">급여:</strong> <span class="hashtag">{{ formattedSalary }} 원</span></p>
-        <p><strong class="label">자산:</strong> <span class="hashtag">{{ formattedAssets }} 원</span></p>
+        <p><strong class="label">급여:</strong> <span class="hashtag">{{ formattedSalary }} 만원</span></p>
+        <p><strong class="label">자산:</strong> <span class="hashtag">{{ formattedAssets }} 만원</span></p>
         <p><strong class="label">위험 선호도:</strong> <span class="hashtag">{{ memberRiskLevel }}</span></p>
       </div>
     </div>
