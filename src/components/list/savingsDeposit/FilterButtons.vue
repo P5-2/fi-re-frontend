@@ -27,22 +27,25 @@ defineProps(["currentFilter"]);
 }
 
 button {
-  margin: 0 5px;
-  padding: 5px 10px;
-  background-color: #3f72af;
-  color: #f9f7f7;
+  margin: 0 10px;
+  padding: 10px 20px;
+  background-color: #dbe2ef;
+  color: #112d4e;
   border: none;
-  border-radius: 4px;
+  border-radius: 40px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  font-weight: bold;
 }
 
 button:hover {
-  background-color: #2c5985;
+  background-color: #3f72af;
+  color: white;
 }
 
 button.active {
-  background-color: #2c5985; /* 활성화된 버튼의 색상 변경 */
+  background-color: #3f72af; /* 활성화된 버튼의 색상 변경 */
+  color: white;
 }
 
 button:disabled {
