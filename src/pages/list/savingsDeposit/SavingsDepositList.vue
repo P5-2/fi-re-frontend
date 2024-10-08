@@ -31,13 +31,6 @@
         다음
       </button>
     </div>
-
-    <!-- 비교 모달 컴포넌트 -->
-    <ComparisonModal
-      :selectedSavingsDeposit="selectedSavingsDeposit"
-      :isComparisonModalVisible="isComparisonModalVisible"
-      @close="closeModalAndResetSavingsDeposit"
-    />
   </div>
 </template>
 
@@ -45,13 +38,11 @@
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import SavingsDeposit from "@/components/list/savingsDeposit/SavingsDeposit.vue";
-import ComparisonModal from "@/components/comparison/ComparisonModal.vue";
 import FilterButtons from "@/components/list/savingsDeposit/FilterButtons.vue";
 
 export default {
   components: {
     SavingsDeposit,
-    ComparisonModal,
     FilterButtons,
   },
   setup() {
