@@ -29,7 +29,7 @@ export default {
         const month = String(today.getMonth() + 1).padStart(2, '0'); // 0부터 시작하므로 +1
         const day = String(today.getDate()).padStart(2, '0');
         const formattedDate = `${year}${month}${day}`;
-
+        
         // API 호출
         const response = await axios.get(
           `http://localhost:9000/forex/date/${formattedDate}`

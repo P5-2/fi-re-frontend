@@ -55,7 +55,7 @@
           <div class="progress-container">
             <div class="progress-info">
               <p><strong>시작일:</strong> {{ formatDate(product.startDate) }}</p>
-              <p><strong>마감일:</strong> {{ formatDate(product.endDate) }}</p>
+              <p><strong>만기일:</strong> {{ formatDate(product.endDate) }}</p>
               <p><strong>남은 기간:</strong> {{ remainingDays(product.endDate) }}일</p>
             </div>
             <progress :value="isFinite(calculateProductProgress(product)) ? calculateProductProgress(product) : 0"
@@ -188,13 +188,13 @@ export default {
     };
 
     const handleGoalSet = () => {
-      refreshUserProducts();
+      updateUserProducts();
       closeSetGoalModal();
       showSelectSavingsModal();
     };
 
     const handleProductSelected = () => {
-      refreshUserProducts();
+      updateUserProducts();
       closeSelectSavingsModal();
     };
 
@@ -328,7 +328,7 @@ export default {
         // 성공적으로 삭제된 경우
         if (response.status === 200) {
           // 상품 목록 갱신
-          await refreshUserProducts();
+          await updateUserProducts();
           alert('삭제가 완료되었습니다.'); // 성공 메시지 표시
         }
       } catch (error) {
@@ -339,12 +339,12 @@ export default {
 
     // UI에 삭제 버튼 추가 및 삭제 확인
     const showDeleteConfirmation = (product) => {
-      const prdNo = product.finPrdtCd; // 제품 번호
+      const prdNo = product.finPrdtCd;
       if (confirm('정말로 삭제하시겠습니까?')) {
         if (prdNo) {
           deleteMemberSavings(prdNo);
         } else {
-          alert('상품 번호가 유효하지 않습니다.'); // 유효하지 않은 상품 번호 경고
+          alert('상품 번호가 유효하지 않습니다.');
         }
       }
     };
