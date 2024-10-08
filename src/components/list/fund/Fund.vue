@@ -119,15 +119,26 @@ export default {
             this.addFund(this.fund);
         },
         onSelectFund(event) {
-            this.isChecked = event.target.checked;
+            const isChecked = event.target.checked;
+
+            // 선택된 펀드의 수가 3개 이상이면 추가 선택 방지
+            if (isChecked && this.$parent.selectedFunds.length >= 3) {
+                alert("최대 3개의 펀드만 선택할 수 있습니다.");
+                event.target.checked = false; // 체크박스를 다시 해제 상태로 돌림
+                return;
+            }
+
+            this.isChecked = isChecked;
             this.saveCheckboxState(); // 체크박스 상태 저장
             this.$emit('select-fund', { fund: this.fund, selected: this.isChecked });
         },
         saveCheckboxState() {
             const checkedFunds = JSON.parse(localStorage.getItem('checkedFunds')) || [];
             if (this.isChecked) {
-                if (!checkedFunds.includes(this.fund.prdNo)) {
-                    checkedFunds.push(this.fund.prdNo);
+                const fundExists = checkedFunds.some(fund => fund.prdNo === this.fund.prdNo);
+                if (!fundExists) {
+                    // 펀드 전체 데이터를 저장
+                    checkedFunds.push(this.fund);
                 }
             } else {
                 // 체크가 해제되면 해당 펀드를 localStorage에서 제거
@@ -140,7 +151,7 @@ export default {
         },
         loadCheckboxState() {
             const checkedFunds = JSON.parse(localStorage.getItem('checkedFunds')) || [];
-            this.isChecked = checkedFunds.includes(this.fund.prdNo);
+            this.isChecked = checkedFunds.some(fund => fund.prdNo === this.fund.prdNo);
         },
     }
 };
