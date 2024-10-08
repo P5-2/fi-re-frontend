@@ -30,7 +30,7 @@
 
 <script>
 import Fund from '@/components/list/fund/Fund.vue';
-import ComparisonModal from '@/components/comparison/ComparisonModal.vue';
+import ComparisonModal from '@/components/comparison/ComparisonModalFund.vue';
 
 export default {
     components: {

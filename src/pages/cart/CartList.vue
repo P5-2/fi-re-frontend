@@ -12,8 +12,8 @@
 
             <!-- 비교하기 버튼 -->
             <button class="compare-button" @click="showComparisonModal"
-                :disabled="selectedFunds.length === 0 || selectedFunds.length > 3">
-                비교하기 ({{ selectedFunds.length }}/3)
+                :disabled="selectedItems.size === 0 || selectedItems.size > 3">
+                비교하기 ({{ selectedItems.size }}/3)
             </button>
 
             <button @click="removeSelectedItems" class="remove-btn">선택한 항목 삭제</button>
@@ -21,11 +21,28 @@
 
         <div v-if="currentItems.length">
             <h3>{{ tabTitle }}</h3>
-            <ul>
-                <FundItem v-for="(item, index) in currentItems" :key="index" :item="item"
-                    :isSelected="selectedItems.has(item.prdNo)" @update-selected-items="updateSelectedItems" />
-                <!-- <CartItem v-for="(item, index) in currentItems" :key="index" :item="item" :type="selectedTab"
+            <ul v-if="selectedTab === 'deposit'">
+                <p>모든 상품의 이율은 <b style="color: red;">최고 금리</b> 입니다.</p>
+                <DepositItem v-for="(item, index) in currentItems" :key="index" :item="item" :isSelected="Array.from(selectedItems).some(selected =>
+                    selected.prdNo === item.savingsDeposit.fin_prdt_cd &&
+                    selected.intr_rate_type_nm === item.options[0].intr_rate_type_nm
+                )" @update-selected-items="updateSelectedItems" />
+
+                <!-- <DepositItem v-for="(item, index) in currentItems" :key="index" :item="item"
                     :isSelected="selectedItems.has(item.prdNo)" @update-selected-items="updateSelectedItems" /> -->
+            </ul>
+            <ul v-if="selectedTab === 'saving'">
+                <p>모든 상품의 이율은 <b style="color: red;">최고 금리</b> 입니다.</p>
+                <SavingsItem v-for="(item, index) in currentItems" :key="index" :item="item"
+                    :isSelected="Array.from(selectedItems).some(selected => selected.prdNo === item.savingsDeposit.fin_prdt_cd && selected.intr_rate_type_nm === item.options[0].intr_rate_type_nm)"
+                    @update-selected-items="updateSelectedItems" />
+
+                <!--  <SavingsItem v-for="(item, index) in currentItems" :key="index" :item="item"
+                    :isSelected="selectedItems.has(item.prdNo)" @update-selected-items="updateSelectedItems" /> -->
+            </ul>
+            <ul v-if="selectedTab === 'fund'">
+                <FundItem v-for="(item, index) in currentItems" :key="index" :item="item"
+                    :isSelected="selectedItems.has(item.prdNo)" @update-selected-items="updateSelectedItemsFund" />
             </ul>
         </div>
         <div v-else>
@@ -33,8 +50,19 @@
         </div>
 
         <!-- 비교 모달 컴포넌트 -->
-        <ComparisonModal :isComparisonModalVisible="isComparisonModalVisible" :selectedFunds="selectedFunds"
-            @close="closeModalAndResetFunds" />
+        <!-- 펀드 모달 -->
+        <ComparisonModalFund v-if="selectedTab === 'fund'" :isComparisonModalVisible="isComparisonModalVisible"
+            :selectedFunds="selectedFunds" @close="closeModalAndReset" />
+
+        <!-- 적금 모달 -->
+        <ComparisonModalSavings v-if="selectedTab === 'saving'" :isComparisonModalVisible="isComparisonModalVisible"
+            :selectedSavings="selectedSavings" @close="closeModalAndReset" />
+
+        <!-- 예금 모달 -->
+        <ComparisonModalDeposit v-if="selectedTab === 'deposit'" :isComparisonModalVisible="isComparisonModalVisible"
+            :selectedDeposits="selectedDeposits" @close="closeModalAndReset" />
+        <!-- <ComparisonModalFund :isComparisonModalVisible="isComparisonModalVisible" :selectedFunds="selectedFunds"
+            @close="closeModalAndResetFunds" /> -->
     </div>
 </template>
 
@@ -42,36 +70,51 @@
 <script>
 import CartItem from '@/components/cart/CartItem.vue';
 import FundItem from '@/components/cart/FundItem.vue';
-import ComparisonModal from '@/components/comparison/ComparisonModal.vue';
+import SavingsItem from '@/components/cart/SavingsItem.vue';
+import DepositItem from '@/components/cart/DepositItem.vue';
+import ComparisonModalFund from '@/components/comparison/ComparisonModalFund.vue';
+import ComparisonModalDeposit from '@/components/comparison/ComparisionModalDeposit.vue';
+import ComparisonModalSavings from '@/components/comparison/ComparisonModalSavings.vue';
 import { loadFundsInCart, removeFundFromCart } from '@/services/cartServiceFund.js'
+import { loadSavingsDepositByUsername, loadDepositByUsername, removeDepositFromCart, removeSavingsFromCart } from '@/services/cartServiceSD'; // 서비스 파일 임포트
 
 export default {
     name: 'CartList',
     components: {
         CartItem,
         FundItem,
-        ComparisonModal
+        SavingsItem,
+        DepositItem,
+        ComparisonModalFund,
+        ComparisonModalSavings,
+        ComparisonModalDeposit
     },
     data() {
         return {
-            funds: [],
-            selectedItems: new Set(),
-            selectedFunds: [],
-            selectedTab: 'fund',
-            isComparisonModalVisible: false,
+            funds: [], // 펀드 데이터를 저장
+            savings: [], // 적금 데이터를 저장
+            deposits: [], // 예금 데이터를 저장
+            selectedItems: new Set(), // 선택된 항목을 관리
+            selectedFunds: [], // 선택된 펀드들
+            selectedDeposits: [], // 선택된 예금들
+            selectedSavings: [], // 선택된 적금들
+            selectedTab: 'saving', // 기본으로 펀드 탭 선택
+            isComparisonModalVisible: false, // 비교 모달 상태
         };
     },
     computed: {
         currentItems() {
+            // 현재 선택된 탭에 맞는 데이터를 반환
             if (this.selectedTab === 'deposit') {
-                return []; // 예금 데이터가 없으므로 빈 배열 반환
+                return this.deposits; // 예금 데이터 반환
             } else if (this.selectedTab === 'saving') {
-                return []; // 적금 데이터가 없으므로 빈 배열 반환
+                return this.savings; // 적금 데이터 반환
             } else if (this.selectedTab === 'fund') {
-                return this.funds;
+                return this.funds; // 펀드 데이터 반환
             }
         },
         tabTitle() {
+            // 선택된 탭에 맞는 제목 반환
             if (this.selectedTab === 'deposit') {
                 return '예금 상품';
             } else if (this.selectedTab === 'saving') {
@@ -82,7 +125,9 @@ export default {
         }
     },
     created() {
-        this.loadFunds();
+        this.loadFunds(); // 펀드 데이터 로드
+        this.loadSavings(); // 적금 데이터 로드
+        this.loadDeposits(); // 예금 데이터 로드
     },
     methods: {
         getUsername() {
@@ -101,59 +146,152 @@ export default {
                 const username = this.getUsername();
 
                 const fundsData = await loadFundsInCart(username);
-                console.log("Loaded funds:", fundsData); // 데이터 확인
-
                 this.funds = fundsData; // 펀드 데이터 할당
             } catch (error) {
                 console.error("Error loading funds:", error);
             }
         },
-        updateSelectedItems({ prdNo, isSelected }) {
+        async loadSavings() {
+            // 적금 데이터를 로드하는 메서드
+            try {
+                const username = this.getUsername();
+                const savingsData = await loadSavingsDepositByUsername(username);
+                this.savings = savingsData; // 적금 데이터 할당
+            } catch (error) {
+                console.error("Error loading savings data:", error);
+            }
+        },
+        async loadDeposits() {
+            // 예금 데이터를 로드하는 메서드
+            try {
+                const username = this.getUsername();
+                const depositsData = await loadDepositByUsername(username);
+                this.deposits = depositsData; // 예금 데이터 할당
+            } catch (error) {
+                console.error("Error loading deposit data:", error);
+            }
+        },
+        updateSelectedItemsFund({ prdNo, isSelected }) {
             if (isSelected) {
+                // 펀드는 prdNo만 저장
                 this.selectedItems.add(prdNo);
             } else {
+                // 선택 해제된 항목은 Set에서 제거
                 this.selectedItems.delete(prdNo);
             }
 
             if (this.selectedTab === 'fund') {
-                this.updateSelectedFunds();
+                this.updateSelectedData();
             }
         },
-        updateSelectedFunds() {
-            this.selectedFunds = this.funds.filter(fund => this.selectedItems.has(fund.prdNo));
-        },
-        showComparisonModal() {
+        updateSelectedItems({ prdNo, intr_rate_type_nm, isSelected }) {
+            // intr_rate_type_nm이 undefined인 경우 추가하지 않음
+            if (intr_rate_type_nm === undefined) {
+                console.log("intr_rate_type_nm is undefined, not adding to selectedItems.");
+                return; // 추가하지 않고 함수 종료
+            }
 
+            const itemKey = `${prdNo}-${intr_rate_type_nm}`; // prdNo와 intr_rate_type_nm을 결합한 문자열로 처리
+            console.log("itemKey: ", itemKey);
+            console.log("isSelected: ", isSelected); // 선택 여부 확인
+
+            if (isSelected.isSelected) {
+                // 선택된 항목을 Set에 추가 (문자열로 추가)
+                this.selectedItems.add(itemKey);
+                console.log("Item added:", itemKey);
+            } else {
+                // 선택 해제된 항목을 Set에서 제거 (문자열로 삭제)
+                const isDeleted = this.selectedItems.delete(itemKey); // Set에서 삭제
+                console.log("Item deleted:", isDeleted, "itemKey:", itemKey); // 삭제 여부 확인
+            }
+
+            console.log('updateSelectedItems selectedItems', JSON.stringify(Array.from(this.selectedItems)));
+            this.updateSelectedData(); // 선택된 상품 목록 업데이트
+        },
+
+
+        updateSelectedData() {
+            console.log('updateSelectedData selectedItems', JSON.stringify(Array.from(this.selectedItems)));
+            if (this.selectedTab === 'fund') {
+                this.selectedFunds = this.funds.filter(fund => {
+                    // fund는 prdNo만 selectedItems에 들어가므로 item === fund.prdNo로 비교
+                    return Array.from(this.selectedItems).some(item => item === fund.prdNo);
+                });
+            } else if (this.selectedTab === 'saving') {
+                this.selectedSavings = this.savings.filter(savings => {
+                    const itemKey = `${savings.savingsDeposit.fin_prdt_cd}-${savings.options[0].intr_rate_type_nm}`;
+                    return Array.from(this.selectedItems).some(item => item === itemKey);
+                });
+            } else if (this.selectedTab === 'deposit') {
+                this.selectedDeposits = this.deposits.filter(deposit => {
+                    const itemKey = `${deposit.savingsDeposit.fin_prdt_cd}-${deposit.options[0].intr_rate_type_nm}`;
+                    return Array.from(this.selectedItems).some(item => item === itemKey);
+                });
+            }
+        },
+
+        showComparisonModal() {
+            console.log("모달 창 " + this.selectedFunds);
             // fund, 적금, 예금에 대한 상품 분류해서 모달창 제작
             this.isComparisonModalVisible = true;
         },
-        closeModalAndResetFunds() {
+        closeModalAndReset() {
             this.isComparisonModalVisible = false;
-            // 선택 항목 초기화 (필요 시)
-            this.selectedItems.clear();
-            this.selectedFunds = [];
-        },
-        removeSelectedItems() {
-            const username = this.getUsername();
-            if (this.selectedTab === 'deposit') {
-                // 예금 데이터가 없으므로 처리하지 않음
-            } else if (this.selectedTab === 'saving') {
-                // 적금 데이터가 없으므로 처리하지 않음
-            } else if (this.selectedTab === 'fund') {
-                // 선택된 펀드 삭제
-                const remainingFunds = [];
-                this.funds.forEach(async fund => {
-                    const isSelected = this.selectedItems.has(fund.prdNo);
-                    if (isSelected) {
-                        // 서버에서 장바구니에서 해당 펀드 삭제
-                        await removeFundFromCart(username, fund.prdNo);
-                    } else {
-                        remainingFunds.push(fund); // 선택되지 않은 펀드만 남겨둠
-                    }
-                });
 
-                // 남은 펀드 목록으로 업데이트
-                this.funds = remainingFunds;
+            // 모든 체크박스를 해제하기 위해 selectedItems도 초기화
+            this.selectedItems.clear();
+
+            // 선택된 항목들 초기화
+            this.selectedFunds = [];
+            this.selectedSavings = [];
+            this.selectedDeposits = [];
+        }
+        ,
+        async removeSelectedItems() {
+            const username = this.getUsername();
+            if (!username) return;
+
+            console.log('delete selectedItems', JSON.stringify(Array.from(this.selectedItems)));
+
+
+            // 각 탭에 따른 updatedItems 초기화 및 삭제 처리
+            if (this.selectedTab === 'fund') {
+                let updatedItems = [];  // 펀드의 경우 초기화
+                for (const item of this.funds) {
+                    if (this.selectedItems.has(item.prdNo)) {
+                        await removeFundFromCart(username, item.prdNo); // 펀드 삭제 API 호출
+                    } else {
+                        updatedItems.push(item);  // 선택되지 않은 항목은 유지
+                    }
+                }
+                this.funds = updatedItems;  // 업데이트된 펀드 목록 적용
+            } else if (this.selectedTab === 'saving') {
+                let updatedItems = [];  // 적금의 경우 초기화
+                for (const item of this.savings) {
+                    if (Array.from(this.selectedItems).some(selected =>
+                        selected.prdNo === item.savingsDeposit.fin_prdt_cd &&
+                        selected.intr_rate_type_nm === item.options[0].intr_rate_type_nm
+                    )) {
+                        console.log('saving delete');
+                        await removeSavingsFromCart(username, item.savingsDeposit.fin_prdt_cd, item.options[0].intr_rate_type_nm); // 적금 삭제 API 호출
+                    } else {
+                        updatedItems.push(item);  // 선택되지 않은 항목은 유지
+                    }
+                }
+                this.savings = updatedItems;  // 업데이트된 적금 목록 적용
+            } else if (this.selectedTab === 'deposit') {
+                let updatedItems = [];  // 예금의 경우 초기화
+                for (const item of this.deposits) {
+                    if (Array.from(this.selectedItems).some(selected =>
+                        selected.prdNo === item.savingsDeposit.fin_prdt_cd &&
+                        selected.intr_rate_type_nm === item.options[0].intr_rate_type_nm
+                    )) {
+                        await removeDepositFromCart(username, item.savingsDeposit.fin_prdt_cd, item.options[0].intr_rate_type_nm); // 예금 삭제 API 호출
+                    } else {
+                        updatedItems.push(item);  // 선택되지 않은 항목은 유지
+                    }
+                }
+                this.deposits = updatedItems;  // 업데이트된 예금 목록 적용
             }
 
             // 선택된 항목 초기화

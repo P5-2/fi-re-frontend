@@ -9,8 +9,14 @@
 
                 <!-- Bank Icon Images -->
                 <div class="item-bank">
-                    <img class="bank-logo" :src="getBankLogo(item.bname, type)" alt="Logo" />
-                    <span v-if="type === 'saving'" class="bank-name">{{ item.bname }}</span>
+                    <img class="bank-logo" :src="getBankLogo(item, type)" alt="Logo" />
+                    <span v-if="(type === 'saving' || type === 'deposit') && getBankName(item, type).length > 4"
+                        class="bank-name">
+                        {{ getBankName(item, type).slice(0, 4) }}<br>{{ getBankName(item, type).slice(4) }}
+                    </span>
+                    <span v-else class="bank-name">
+                        {{ getBankName(item, type) }}
+                    </span>
                 </div>
 
                 <div class="item-info">
@@ -49,15 +55,22 @@ export default {
     },
     methods: {
         emitSelectedItems(event) {
-            this.$emit('update-selected-items', {
-                prdNo: this.item.prdNo,
-                isSelected: event.target.checked,
-            });
+            // prdNo를 한 줄로 간결하게 처리
+            const prdNo = this.item.prdNo || this.item.fin_prdt_cd;
+
+            if (prdNo) {
+                // prdNo와 선택 상태를 emit
+                this.$emit('update-selected-items', {
+                    prdNo: prdNo,
+                    isSelected: event.target.checked,
+                });
+            } else {
+                console.error("prdNo를 찾을 수 없습니다.");
+            }
         },
-        getBankLogo(bname, type) {
-            // type에 따라 다른 이미지를 반환
+        getBankLogo(item, type) {
             if (type === 'fund') {
-                switch (this.item.type) {
+                switch (item.type) {
                     case 'MMF':
                         return '/src/assets/fund/mmf.png';
                     case '주식형':
@@ -67,11 +80,18 @@ export default {
                     default:
                         return '/src/assets/cart/fund.png'; // 기본 펀드 이미지
                 }
-            }else{
-                return `/src/assets/bank/${bname}.png;`
+            } else if (type === 'saving' || type === 'deposit') {
+                const bankName = item.savingsDeposit ? item.savingsDeposit.kor_co_nm : item.kor_co_nm;
+                return `/src/assets/bank/${bankName}.png`; // 은행 이미지 반환
             }
-            
         },
+        getBankName(item, type) {
+            // 적금 또는 예금의 경우, savingsDeposit에서 은행명을 가져옴
+            if (type === 'saving' || type === 'deposit') {
+                return item.savingsDeposit ? item.savingsDeposit.kor_co_nm : item.kor_co_nm;
+            }
+            return ''; // 기본값 반환
+        }
     },
 };
 </script>
@@ -131,97 +151,11 @@ export default {
     margin-left: 15px;
 }
 
-.item-name {
-    font-weight: bold;
-    font-size: 1.2em;
-    color: #333;
-    text-align: left;
-    line-height: 1.2;
-    margin-bottom: 5px;
-}
-
 .item-details {
     display: flex;
     flex-direction: column;
     gap: 5px;
     color: #555;
-    margin-top: 4px;
-}
-
-.tag-container {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.tag {
-    background-color: #f0f0f0;
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 0.9em;
-    color: #555;
-}
-
-.nav-tag {
-    background-color: #e0f7fa;
-    color: #007bff;
-}
-
-.item-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-direction: column;
-    justify-content: flex-start;
-    text-align: right;
-}
-
-.rate-section {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    margin-right: 3cm;
-}
-
-.rate-label {
-    font-size: 0.9em;
-    color: #666;
-}
-
-.rate-value {
-    font-size: 2em;
-    color: #007bff;
-    font-weight: bold;
-}
-
-.grade-section {
-    display: flex;
-    justify-content: center;
-}
-
-.grade-wrapper {
-    display: flex;
-    width: 100px;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    text-align: center;
-}
-
-.grade-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.grade-text {
-    font-size: 0.9em;
     margin-top: 4px;
 }
 
