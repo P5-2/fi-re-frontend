@@ -55,7 +55,7 @@
           <div class="progress-container">
             <div class="progress-info">
               <p><strong>시작일:</strong> {{ formatDate(product.startDate) }}</p>
-              <p><strong>마감일:</strong> {{ formatDate(product.endDate) }}</p>
+              <p><strong>만기일:</strong> {{ formatDate(product.endDate) }}</p>
               <p><strong>남은 기간:</strong> {{ remainingDays(product.endDate) }}일</p>
             </div>
             <progress :value="isFinite(calculateProductProgress(product)) ? calculateProductProgress(product) : 0"
@@ -86,10 +86,6 @@
   </div>
 </template>
 
-<!--  -->
-<!--  -->
-<!-- 총 목표 금액 수정기능도 추가하기-->
-
 <script>
 import SetGoal from './SetGoal.vue';
 import SelectProduct from './SelectSavings.vue';
@@ -110,7 +106,7 @@ export default {
     const isSelectSavingsModalVisible = ref(false);
     const iconMap = ref({});
 
-    const checkUserProducts = async () => {
+    const updateUserProducts = async (shouldShowModal = false) => {
       const accessToken = goalStore.getAccessToken();
       const config = {
         headers: {
@@ -120,35 +116,37 @@ export default {
 
       try {
         const response = await axios.get('http://localhost:9000/profile/goal', config);
-        userProducts.value = Array.isArray(response.data) ? response.data.map(product => ({
-          ...product,
-          isExpanded: false
-        })) : [];
+
+        if (Array.isArray(response.data)) {
+          const uniqueProductsMap = new Map();
+
+          // finPrdtCd를 이용해서 중복 제거
+          response.data.forEach(product => {
+            if (!uniqueProductsMap.has(product.finPrdtCd)) {
+              uniqueProductsMap.set(product.finPrdtCd, {
+                ...product,
+                isExpanded: false,
+              });
+            }
+          });
+
+          userProducts.value = Array.from(uniqueProductsMap.values());
+        } else {
+          userProducts.value = [];
+        }
+
+        userProducts.value.forEach(product => {
+          fetchDepositAmount(product.finPrdtCd);
+        });
+
         goalStore.updateTotals(userProducts.value);
-        if (userProducts.value.length === 0) {
+
+        // 상품이 없을 경우 모달 보여주기
+        if (userProducts.value.length === 0 && shouldShowModal) {
           showSetGoalModal();
         }
       } catch (error) {
         console.error('Error fetching user products:', error);
-        userProducts.value = [];
-      }
-    };
-
-    const refreshUserProducts = async () => {
-      const accessToken = goalStore.getAccessToken();
-      const config = {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      };
-
-      try {
-        const response = await axios.get('http://localhost:9000/profile/goal', config);
-        console.log(response.data);
-        userProducts.value = Array.isArray(response.data) ? response.data : [];
-        goalStore.updateTotals(userProducts.value);
-      } catch (error) {
-        console.error('Error refreshing user products:', error);
         userProducts.value = [];
       }
     };
@@ -178,14 +176,29 @@ export default {
       });
     };
 
+    const fetchDepositAmount = async (prdNo) => {
+      try {
+        const accessToken = goalStore.getAccessToken();
+        const config = {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        };
+        const response = await axios.get(`http://localhost:9000/profile/goal/fetch/${prdNo}`, config);
+        console.log(`Deposit amount for prdNo ${prdNo} updated:`, response.data);
+      } catch (error) {
+        console.error(`Error fetching deposit amount for prdNo ${prdNo}:`, error);
+      }
+    };
+
     const handleGoalSet = () => {
-      refreshUserProducts();
+      updateUserProducts();
       closeSetGoalModal();
       showSelectSavingsModal();
     };
 
     const handleProductSelected = () => {
-      refreshUserProducts();
+      updateUserProducts();
       closeSelectSavingsModal();
     };
 
@@ -319,7 +332,7 @@ export default {
         // 성공적으로 삭제된 경우
         if (response.status === 200) {
           // 상품 목록 갱신
-          await refreshUserProducts();
+          await updateUserProducts();
           alert('삭제가 완료되었습니다.'); // 성공 메시지 표시
         }
       } catch (error) {
@@ -330,12 +343,12 @@ export default {
 
     // UI에 삭제 버튼 추가 및 삭제 확인
     const showDeleteConfirmation = (product) => {
-      const prdNo = product.finPrdtCd; // 제품 번호
+      const prdNo = product.finPrdtCd;
       if (confirm('정말로 삭제하시겠습니까?')) {
         if (prdNo) {
           deleteMemberSavings(prdNo);
         } else {
-          alert('상품 번호가 유효하지 않습니다.'); // 유효하지 않은 상품 번호 경고
+          alert('상품 번호가 유효하지 않습니다.');
         }
       }
     };
@@ -396,17 +409,22 @@ export default {
 
     onMounted(() => {
       loadIcons();
-      checkUserProducts();
+      updateUserProducts(true);
     });
 
     return {
+      // 상태 관리
       userProducts,
       isSetGoalModalVisible,
       isSelectSavingsModalVisible,
+
+      // 목표 금액 관련
       totalGoalAmount,
       totalSavedAmount,
       totalSavedAmountFromProducts,
       overallProgressRate,
+
+      // 메서드
       handleGoalSet,
       handleProductSelected,
       showSetGoalModal,
@@ -414,15 +432,25 @@ export default {
       closeSetGoalModal,
       showSelectSavingsModal,
       closeSelectSavingsModal,
+      toggleCard,
+      fetchDepositAmount,
+
+      // 계산 관련 메서드
       calculateProductProgress,
       calculateMonthlyDeposit,
       calculateMaturityAmount,
+
+      // 날짜 관련 메서드
       remainingDays,
-      formatCurrency,
+      remainingMonths,
       formatDate,
+
+      // 통화 포맷팅
+      formatCurrency,
+
+      // 아이콘 관련 메서드
       getIcon,
       loadIcons,
-      toggleCard,
     };
   }
 };
