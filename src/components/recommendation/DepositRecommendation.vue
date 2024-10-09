@@ -11,7 +11,7 @@
     <div class="deposit-section">
       <div v-if="depositList.length">
         <div v-for="(deposit, index) in depositList" :key="index" class="deposit-card"
-          @click="savingsItemClick(deposit.finPrdtCd)">
+          @click="savingsItemClick(deposit)">
           <img :src="getIcon(deposit.korCoNm)" alt="Deposit Icon" class="icon" />
           <div class="deposit-info">
             <h3 class="deposit-name">{{ deposit.finPrdtNm }}</h3>
@@ -123,8 +123,9 @@ export default {
       router.push('/survey/start');
     };
 
-    const savingsItemClick = (prdNo) => {
-      router.push('/itemDetail/savings/' + prdNo);
+    const savingsItemClick = (deposit) => {
+      router.push(`/itemDetail/savings/${deposit.finPrdtCd}/${deposit.intrRateTypeNm}/${null}`);
+      // router.push('/itemDetail/savings/' + prdNo);
     };
 
     const getIcon = (bname) => {
