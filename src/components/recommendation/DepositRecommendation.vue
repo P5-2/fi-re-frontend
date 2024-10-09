@@ -125,7 +125,6 @@ export default {
 
     const savingsItemClick = (deposit) => {
       router.push(`/itemDetail/savings/${deposit.finPrdtCd}/${deposit.intrRateTypeNm}/${null}`);
-      // router.push('/itemDetail/savings/' + prdNo);
     };
 
     const getIcon = (bname) => {
