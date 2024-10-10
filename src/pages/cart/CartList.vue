@@ -288,7 +288,7 @@ export default {
 <style scoped>
 #CartList {
     padding: 20px;
-    width: 70%;
+    width: 1200px;
     margin: 0 auto;
     border-radius: 10px;
     margin-bottom: 20px;
