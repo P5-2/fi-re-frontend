@@ -11,7 +11,7 @@
     <div class="deposit-section">
       <div v-if="depositList.length">
         <div v-for="(deposit, index) in depositList" :key="index" class="deposit-card"
-          @click="savingsItemClick(deposit.finPrdtCd)">
+          @click="savingsItemClick(deposit)">
           <img :src="getIcon(deposit.korCoNm)" alt="Deposit Icon" class="icon" />
           <div class="deposit-info">
             <h3 class="deposit-name">{{ deposit.finPrdtNm }}</h3>
@@ -95,7 +95,7 @@ export default {
       await Promise.all(promises); // 모든 아이콘 로드 완료 대기
     };
 
-    // 예적금 데이터 가져오기
+    // 예금 데이터 가져오기
     const fetchDeposits = async () => {
       const accessToken = getAccessToken();
       const config = {
@@ -105,8 +105,8 @@ export default {
       };
 
       try {
-        const response = await axios.get('http://localhost:9000/recommend/savings', config);
-        depositList.value = response.data.savingsDeposits; // DTO에서 필터링된 예적금 목록 할당
+        const response = await axios.get('http://localhost:9000/recommend/deposit', config);
+        depositList.value = response.data.savingsDeposits; // DTO에서 필터링된 예금 목록 할당
         usedKeywords.value = response.data.usedKeywords; // 사용된 키워드 할당
         console.log("deposits: ", depositList.value);
       } catch (error) {
@@ -123,8 +123,8 @@ export default {
       router.push('/survey/start');
     };
 
-    const savingsItemClick = (prdNo) => {
-      router.push('/itemDetail/savings/' + prdNo);
+    const savingsItemClick = (deposit) => {
+      router.push(`/itemDetail/savings/${deposit.finPrdtCd}/${deposit.intrRateTypeNm}/${null}`);
     };
 
     const getIcon = (bname) => {

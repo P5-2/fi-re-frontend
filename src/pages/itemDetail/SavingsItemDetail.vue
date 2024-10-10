@@ -1,5 +1,6 @@
 <template lang="">
     <div id="detailWrapper">
+        <img class="back" src="@/assets/header/back.png" width="40" height="40" @click="back">
         <div id="title">
             {{savings.savingsDeposit.fin_prdt_nm}}
             <hr>
@@ -111,6 +112,9 @@ export default {
     },
     methods: {
         ...mapActions(calculatorStore, ['addSavings']),
+        back : function(){
+            this.$router.go(-1);
+        },
         closeOptions: function(){
             this.isOptionsOpen = false;
         },
@@ -304,5 +308,9 @@ td{
 }
 .myColor{
     color: #3F72AF;
+}
+.back{
+    float: left;
+    cursor: pointer;
 }
 </style>

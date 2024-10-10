@@ -126,6 +126,7 @@ export default {
   setup() {
     const userStore = useUserStore();
     userStore.checkLoginStatus(); // 로그인 상태 확인
+    console.log("NickName:", userStore.NickName); // 닉네임 확인
     return {
       userStore,
     };
@@ -140,7 +141,7 @@ export default {
     logout() {
       this.userStore.logout();
       // 로컬 스토리지안의 개인정보 삭제하기
-      ["likedFunds", "auth", "checkedFunds"].forEach((item) =>
+      ["likedFunds", "auth", "user"].forEach((item) =>
         localStorage.removeItem(item)
       );
       alert("로그아웃 되었습니다.");

@@ -9,7 +9,7 @@
 
                 <!-- Bank Icon Images -->
                 <div class="item-bank">
-                    <img class="bank-logo" :src="getBankLogo(item, type)" alt="Logo" />
+                    <img class="bank-logo" :src="getBankLogo(item, type)" alt="Logo"  @error="setDefaultBankLogo"/>
                     <span v-if="(type === 'saving' || type === 'deposit') && getBankName(item, type).length > 4"
                         class="bank-name">
                         {{ getBankName(item, type).slice(0, 4) }}<br>{{ getBankName(item, type).slice(4) }}
@@ -85,6 +85,10 @@ export default {
                 return `/src/assets/bank/${bankName}.png`; // 은행 이미지 반환
             }
         },
+        setDefaultBankLogo(event) {
+            // 이미지 로드 실패 시 기본 이미지로 설정
+            event.target.src = '/src/assets/bank/bluebank.png';
+        },
         getBankName(item, type) {
             // 적금 또는 예금의 경우, savingsDeposit에서 은행명을 가져옴
             if (type === 'saving' || type === 'deposit') {
@@ -106,7 +110,8 @@ export default {
     margin-bottom: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: box-shadow 0.3s ease;
-    border: 1px solid #DBE2EF; /* 연한 회색 테두리 추가 */
+    border: 1px solid #DBE2EF;
+    /* 연한 회색 테두리 추가 */
 }
 
 .cart-item:hover {
@@ -130,6 +135,9 @@ export default {
     flex-direction: column;
     align-items: center;
     gap: 5px;
+    min-width: 100px; /* 일정한 너비 설정 */
+    text-align: center;
+    flex-shrink: 0; /* 요소의 크기가 줄어들지 않도록 설정 */
 }
 
 .bank-logo {
@@ -149,7 +157,8 @@ export default {
     display: flex;
     flex-direction: column;
     white-space: nowrap;
-    margin-left: 15px;
+    flex-grow: 1;
+    margin-left: 30px; /* 추가 간격 설정 */
 }
 
 .item-details {
