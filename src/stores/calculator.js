@@ -6,7 +6,7 @@ export const calculatorStore = defineStore("calculator", {
     savingslist: [],
     fundlist: [],
     gold: 0,
-    goldRate: 1.5, //axios를 사용하여 month 후에 금 이율 예측
+    goldRate: 0, //axios를 사용하여 month 후에 금 이율 예측
     month: 0,
     result: {
       finalAmount: 0,
@@ -14,10 +14,12 @@ export const calculatorStore = defineStore("calculator", {
     },
   }),
   actions: {
-    calculate: function () {
+    calculate: async function () {
       //계산함수
       console.log(this.savingslist);
       console.log(this.fundlist);
+      let res = await axios.get("http://localhost:9000/gold/rate"); //미래 금 이율 가져오기
+      this.goldRate = res.data;
       this.result = {
         finalAmount: 0,
         process: [],
@@ -28,10 +30,10 @@ export const calculatorStore = defineStore("calculator", {
         period: this.month,
         amount: this.gold,
         finalAmount: Math.round(
-          this.gold * (this.goldRate * 0.01) * (this.month / 12) +
-            Number(this.gold)
+          Number(this.gold) + (this.gold * (this.goldRate * 0.01) * (this.month / 6))
         ),
       };
+      goldProcessing.rate += "(6개월 후 기준)"
       this.result.process.push(goldProcessing);
       this.result.finalAmount += Number(goldProcessing.finalAmount);
 
