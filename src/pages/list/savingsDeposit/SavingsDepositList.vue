@@ -1,15 +1,6 @@
 <template>
   <div class="savings-container">
     <FilterButtons :currentFilter="prdtDiv" @filter="setFilter" />
-    <!-- <button
-      class="compare-button"
-      @click="showComparisonModal"
-      :disabled="
-        selectedSavingsDeposit.length === 0 || selectedSavingsDeposit.length > 3
-      "
-    >
-      비교하기 ({{ selectedSavingsDeposit.length }}/3)
-    </button> -->
 
     <div v-if="products && products.length">
       <SavingsDeposit
@@ -73,10 +64,15 @@ export default {
     };
 
     const setFilter = (filter) => {
-      prdtDiv.value = filter;
+      if (prdtDiv.value === filter) {
+        // 같은 필터를 다시 클릭한 경우
+        prdtDiv.value = null; // 필터를 해제
+      } else {
+        // 다른 필터를 클릭한 경우
+        prdtDiv.value = filter;
+      }
       fetchProducts();
     };
-
     const previousPage = () => {
       if (pageNumber.value > 1) {
         pageNumber.value--;
@@ -91,20 +87,6 @@ export default {
       }
     };
 
-    const showComparisonModal = () => {
-      if (
-        selectedSavingsDeposit.value.length > 0 &&
-        selectedSavingsDeposit.value.length <= 3
-      ) {
-        isComparisonModalVisible.value = true;
-      }
-    };
-
-    const closeModalAndResetSavingsDeposit = () => {
-      isComparisonModalVisible.value = false;
-      selectedSavingsDeposit.value = [];
-    };
-
     onMounted(() => {
       fetchProducts();
     });
@@ -114,11 +96,8 @@ export default {
       pageNumber,
       totalPages,
       selectedSavingsDeposit,
-      isComparisonModalVisible,
       previousPage,
       nextPage,
-      showComparisonModal,
-      closeModalAndResetSavingsDeposit,
       prdtDiv,
       setFilter,
     };
@@ -159,11 +138,6 @@ export default {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
-}
-
-.compare-button {
-  background-color: #3f72af;
-  color: #f9f7f7;
 }
 
 .pagination {
