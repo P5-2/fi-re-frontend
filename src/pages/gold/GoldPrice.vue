@@ -1,41 +1,31 @@
 <template>
   <div class="mt-4 text-center">
-    <h1 class="text-title">Gold Price</h1>
-
-    <div
-      class="d-flex justify-content-between mb-4 mx-auto"
-      style="max-width: 600px"
-    >
-      <div class="info-box">
-        <div class="text-center">
-          <span class="info-date">{{ formatDate(lastestDate) }}</span>
-          <p class="info-price">{{ formattedLastestPrice }}&#8361;/g</p>
-          <p
-            v-if="yesterdayPrice !== null"
-            :style="{ color: priceChange >= 0 ? 'red' : 'blue' }"
-          >
-            {{ priceChangeText }}
-          </p>
+    <h1 class="text-title">금 시세 확인하기</h1>
+    <div v-if="isLoading" class="loading-block">
+      <div class="loading">Loading...</div>
+    </div>
+    <div v-else class="content-block">
+      <div class="d-flex justify-content-between mb-4 mx-auto" style="max-width: 600px">
+        <div class="info-box">
+          <div class="text-center">
+            <span class="info-date">{{ formatDate(lastestDate) }}</span>
+            <p class="info-price">{{ formattedLastestPrice }}&#8361;/g</p>
+            <p v-if="yesterdayPrice !== null" :style="{ color: priceChange >= 0 ? 'red' : 'blue' }">
+              {{ priceChangeText }}
+            </p>
+          </div>
         </div>
-      </div>
 
-      <div class="info-box">
-        <div class="text-center">
-          <input
-            type="date"
-            v-model="selectedDate"
-            @change="fetchPriceByDate"
-            class="form-control text-center"
-          />
-          <p class="info-price">{{ formattedPointPrice }}&#8361;/g</p>
+        <div class="info-box">
+          <div class="text-center">
+            <input type="date" v-model="selectedDate" @change="fetchPriceByDate" class="form-control text-center" />
+            <p class="info-price">{{ formattedPointPrice }}&#8361;/g</p>
+          </div>
         </div>
       </div>
     </div>
 
-    <div
-      class="chart-container"
-      style="max-width: 1440px; height: 810px; margin: 0 auto"
-    >
+    <div class="chart-container" style="max-width: 1440px; height: 810px; margin: 0 auto">
       <div class="d-flex justify-content-start mb-3">
         <button type="button" class="btn" @click="setPeriod(180)">6개월</button>
         <button type="button" class="btn" @click="setPeriod(365)">1년</button>
@@ -45,11 +35,7 @@
         <span class="gold-label">금 시세</span>
         <span class="predicted-label">예측 금 시세</span>
       </div>
-      <canvas
-        id="goldChart"
-        v-if="goldData.length"
-        style="width: auto; height: auto"
-      ></canvas>
+      <canvas id="goldChart" v-if="goldData.length" style="width: auto; height: auto"></canvas>
     </div>
   </div>
 </template>
@@ -72,6 +58,7 @@ export default {
     const selectedDate = ref('');
     const priceChange = ref(0);
     const yesterdayPrice = ref(null);
+    const isLoading = ref(true);
 
     const formattedLastestPrice = computed(() => {
       return lastestPrice.value
@@ -140,6 +127,8 @@ export default {
         renderChart();
       } catch (error) {
         console.error('Error fetching gold data:', error);
+      } finally {
+        isLoading.value = false; // 로딩 종료
       }
     };
 
@@ -220,8 +209,8 @@ export default {
                 return index === maxIndex
                   ? 'red'
                   : index === minIndex
-                  ? 'blue'
-                  : 'rgba(0, 0, 0, 0)';
+                    ? 'blue'
+                    : 'rgba(0, 0, 0, 0)';
               },
               pointRadius: (ctx) => {
                 const index = ctx.dataIndex;
@@ -332,8 +321,7 @@ export default {
                   if (oneYearAgoPriceData) {
                     const yearChange = price - oneYearAgoPriceData.clpr;
                     changes.push(
-                      `1년 전 대비: ${
-                        yearChange >= 0 ? '+' : ''
+                      `1년 전 대비: ${yearChange >= 0 ? '+' : ''
                       }${yearChange.toLocaleString()}원`
                     );
                   } else {
@@ -342,8 +330,7 @@ export default {
                   if (sixMonthsAgoPriceData) {
                     const sixMonthsChange = price - sixMonthsAgoPriceData.clpr;
                     changes.push(
-                      `6개월 전 대비: ${
-                        sixMonthsChange >= 0 ? '+' : ''
+                      `6개월 전 대비: ${sixMonthsChange >= 0 ? '+' : ''
                       }${sixMonthsChange.toLocaleString()}원`
                     );
                   } else {
@@ -352,8 +339,7 @@ export default {
                   if (oneMonthAgoPriceData) {
                     const monthChange = price - oneMonthAgoPriceData.clpr;
                     changes.push(
-                      `1개월 전 대비: ${
-                        monthChange >= 0 ? '+' : ''
+                      `1개월 전 대비: ${monthChange >= 0 ? '+' : ''
                       }${monthChange.toLocaleString()}원`
                     );
                   } else {
@@ -362,8 +348,7 @@ export default {
                   if (oneDayAgoPriceData) {
                     const dayChange = price - oneDayAgoPriceData.clpr;
                     changes.push(
-                      `하루 전 대비: ${
-                        dayChange >= 0 ? '+' : ''
+                      `하루 전 대비: ${dayChange >= 0 ? '+' : ''
                       }${dayChange.toLocaleString()}원`
                     );
                   } else {
@@ -455,6 +440,7 @@ export default {
       setPeriod,
       renderChart,
       formatDate,
+      isLoading,
     };
   },
 };
@@ -469,16 +455,20 @@ body {
 
 .container {
   padding: 30px;
-  border-radius: 15px; /* 둥근 모서리 */
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* 깊이감 있는 그림자 */
+  border-radius: 15px;
+  /* 둥근 모서리 */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  /* 깊이감 있는 그림자 */
 }
 
 .text-title {
   color: #2c3e50;
-  font-weight: 800; /* 두꺼운 글씨 */
+  font-weight: 800;
+  /* 두꺼운 글씨 */
   font-size: 2.5rem;
   text-transform: uppercase;
-  margin-bottom: 30px; /* 여백 추가 */
+  margin-bottom: 30px;
+  /* 여백 추가 */
 }
 
 .info-box {
@@ -486,8 +476,10 @@ body {
   margin: 0 10px;
   padding: 30px;
   background-color: #ffffff;
-  border-radius: 15px; /* 더 둥근 모서리 */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* 부드러운 그림자 */
+  border-radius: 15px;
+  /* 더 둥근 모서리 */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  /* 부드러운 그림자 */
 }
 
 .info-date {
@@ -504,27 +496,36 @@ body {
 
 .chart-container {
   background-color: #ffffff;
-  border-radius: 15px; /* 둥근 모서리 */
+  border-radius: 15px;
+  /* 둥근 모서리 */
   padding: 20px;
-  border: none; /* 카드 테두리 제거 */
+  border: none;
+  /* 카드 테두리 제거 */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  margin: 20px auto; /* 중앙 정렬 */
+  margin: 20px auto;
+  /* 중앙 정렬 */
 }
 
 .btn {
-  background-color: #3f72af; /* 단색 버튼 */
+  background-color: #3f72af;
+  /* 단색 버튼 */
   color: white;
   border: none;
-  border-radius: 10px; /* 둥근 모서리 */
-  padding: 12px 20px; /* 패딩 조정 */
+  border-radius: 10px;
+  /* 둥근 모서리 */
+  padding: 12px 20px;
+  /* 패딩 조정 */
   margin-right: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease; /* 애니메이션 효과 */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  /* 애니메이션 효과 */
 }
 
 .btn:hover {
-  background-color: #112d4e; /* Hover 시 색상 변경 */
-  transform: scale(1.02); /* Hover 시 크기 증가 */
+  background-color: #112d4e;
+  /* Hover 시 색상 변경 */
+  transform: scale(1.02);
+  /* Hover 시 크기 증가 */
   color: white;
 }
 
@@ -564,6 +565,25 @@ body {
   font-weight: bold;
 }
 
+.loading-block {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* 화면 전체 높이 */
+  background-color: #ffffff; /* 하얀 배경 */
+  position: absolute; /* 다른 요소 위에 위치 */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000; /* 다른 요소들 위에 오도록 설정 */
+}
+
+.loading {
+  font-size: 1.5rem;
+  color: #333; /* 텍스트 색상 */
+}
+
 /* 반응형 디자인 */
 @media (max-width: 768px) {
   .container {
@@ -578,7 +598,9 @@ body {
     font-size: 1.3rem;
   }
 }
+
 .text-right {
-  text-align: right; /* 텍스트를 오른쪽으로 정렬 */
+  text-align: right;
+  /* 텍스트를 오른쪽으로 정렬 */
 }
 </style>
