@@ -242,7 +242,6 @@ export default {
   font-size: 12px;
   font-weight: bold;
 }
-
 .info-box2 {
   background-color: #3f72af;
   color: white;
@@ -251,7 +250,6 @@ export default {
   font-size: 12px;
   font-weight: bold;
 }
-
 .info-box3 {
   background-color: #112d4e;
   color: white;
@@ -265,7 +263,6 @@ export default {
   display: flex;
   flex-direction: column;
 }
-
 .product-card {
   display: flex;
   justify-content: space-between;
@@ -287,27 +284,20 @@ export default {
 .product-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  /* 요소들 간의 공간 분배 */
-  width: 100%;
-  /* 전체 너비 사용 */
+  justify-content: space-between; /* 요소들 간의 공간 분배 */
+  width: 100%; /* 전체 너비 사용 */
 }
 
 .product-main-info {
   display: flex;
-  align-items: center;
-  /* 수평 정렬 */
+  align-items: center; /* 수평 정렬 */
 }
 
 .bank-logo {
-  width: 50px;
-  /* 로고 크기 조정 */
-  height: 50px;
-  /* 로고 크기 조정 */
-  border-radius: 50%;
-  /* 동그랗게 만들기 */
-  margin-right: 20px;
-  /* 텍스트와의 간격 */
+  width: 50px; /* 로고 크기 조정 */
+  height: 50px; /* 로고 크기 조정 */
+  border-radius: 50%; /* 동그랗게 만들기 */
+  margin-right: 20px; /* 텍스트와의 간격 */
 }
 
 .product-title {
@@ -376,14 +366,15 @@ export default {
 .calc-btn .icon {
   width: 35px;
   height: auto;
-  filter: brightness(0) saturate(100%) invert(60%) sepia(10%) saturate(800%) hue-rotate(180deg) brightness(85%) contrast(95%);
+  filter: brightness(0) saturate(100%) invert(60%) sepia(10%) saturate(800%)
+    hue-rotate(180deg) brightness(85%) contrast(95%);
   transition: filter 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
 .calc-btn:hover .icon {
-  filter: brightness(0) saturate(100%) invert(20%) sepia(100%) saturate(8000%) hue-rotate(200deg) brightness(95%) contrast(110%);
-  transform: scale(1.1);
-  /* 호버 시 확대 효과 */
+  filter: brightness(0) saturate(100%) invert(20%) sepia(100%) saturate(8000%)
+    hue-rotate(200deg) brightness(95%) contrast(110%);
+  transform: scale(1.1); /* 호버 시 확대 효과 */
 }
 
 .like-btn {
@@ -393,6 +384,18 @@ export default {
   font-size: 28px;
   color: #ccc;
   transition: color 0.3s ease;
+}
+
+.like-btn:hover {
+  color: #ff6b81;
+}
+
+.fas.fa-heart {
+  color: #ff6b81;
+}
+
+.far.fa-heart {
+  color: #ccc;
 }
 
 /* check box */

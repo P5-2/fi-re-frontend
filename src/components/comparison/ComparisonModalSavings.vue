@@ -78,8 +78,8 @@
                     <p><strong>금융사:</strong> {{ selectedSavingsDetail.savingsDeposit.kor_co_nm }}</p>
                     <p><strong>상품명:</strong> {{ selectedSavingsDetail.savingsDeposit.fin_prdt_nm }}</p>
                     <p><strong>가입방법:</strong> {{ selectedSavingsDetail.savingsDeposit.join_way }}</p>
-                    <p><strong>우대조건:</strong> {{ selectedSavingsDetail.savingsDeposit.spcl_cnd }}</p>
-                    <p><strong>가입대상:</strong> {{ selectedSavingsDetail.savingsDeposit.join_member }}</p>
+<!--                     <p><strong>우대조건:</strong> {{ selectedSavingsDetail.savingsDeposit.spcl_cnd }}</p>
+                    <p><strong>가입대상:</strong> {{ selectedSavingsDetail.savingsDeposit.join_member }}</p> -->
                 </div>
             </div>
 
