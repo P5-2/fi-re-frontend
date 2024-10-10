@@ -92,6 +92,11 @@ export default {
 
       if (prdtDiv.value === "DE") {
         if (isSelected) {
+
+          if (selectedDepositList.value.length >= 3) {
+            alert("3개 이상의 항목을 선택할 수 없습니다.");
+            return; // 3개를 초과하면 추가하지 않음
+          }
           const exists = selectedDepositList.value.some(
             (item) =>
               `${item.savingsDeposit.fin_prdt_cd}_${item.options[0].intr_rate_type_nm}` === uniqueKey
@@ -107,6 +112,10 @@ export default {
         }
       } else if (prdtDiv.value === "SA") {
         if (isSelected) {
+          if (selectedSavingsList.value.length >= 3) {
+            alert("3개 이상의 항목을 선택할 수 없습니다.");
+            return; // 3개를 초과하면 추가하지 않음
+          }
           const exists = selectedSavingsList.value.some(
             (item) =>
               `${item.savingsDeposit.fin_prdt_cd}_${item.options[0].intr_rate_type_nm}` === uniqueKey
@@ -315,5 +324,4 @@ export default {
   color: #112d4e;
   cursor: not-allowed;
 }
-
 </style>
