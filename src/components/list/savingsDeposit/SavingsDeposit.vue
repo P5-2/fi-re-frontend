@@ -262,6 +262,7 @@ export default {
   border-radius: 12px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
+  height: 140px;
 }
 
 .product-card:hover {
