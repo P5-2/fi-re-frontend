@@ -101,8 +101,8 @@ export default {
       };
 
       try {
-        const response = await axios.get('http://localhost:9000/recommend/deposit', config);
-        depositList.value = response.data.savingsDeposits; // DTO에서 필터링된 예적금 목록 할당
+        const response = await axios.get('http://localhost:9000/recommend/savings', config);
+        depositList.value = response.data.savingsDeposits; // DTO에서 필터링된 적금 목록 할당
         usedKeywords.value = response.data.usedKeywords; // 사용된 키워드 할당
         console.log('savings : ', depositList.value);
       } catch (error) {
