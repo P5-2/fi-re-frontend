@@ -78,13 +78,9 @@ export default {
       const intrRateTypeNm = props.options[0].intr_rate_type_nm;
       const rsrvType = props.options[0].rsrv_type;
 
-      if (productId && intrRateTypeNm && rsrvType) {
-        router.push(
-          `/itemDetail/savings/${productId}/${intrRateTypeNm}/${rsrvType}`
-        );
-      } else {
-        console.error("필요한 정보가 부족합니다.");
-      }
+      router.push(
+        `/itemDetail/savings/${productId}/${intrRateTypeNm}/${rsrvType}`
+      );
     };
 
     const getBankLogo = (bankName) => {

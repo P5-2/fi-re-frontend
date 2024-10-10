@@ -45,7 +45,7 @@ export const calculatorStore = defineStore("calculator", {
             //예금, 단리인 경우
             let period = savings.options[0].save_trm;
             period = Number(this.month) <= Number(period) ? this.month : period;
-            let rate = savings.options[0].intr_rate;
+            let rate = savings.options[0].intr_rate2;
             let finalAmount = Math.round(
               savings.amount * (rate * 0.01) * (period / 12) +
                 Number(savings.amount)
@@ -63,7 +63,7 @@ export const calculatorStore = defineStore("calculator", {
             //예금, 복리인 경우
             let period = savings.options[0].save_trm;
             period = Number(this.month) <= Number(period) ? this.month : period;
-            let rate = savings.options[0].intr_rate;
+            let rate = savings.options[0].intr_rate2;
             let finalAmount = Math.round(
               savings.amount * Math.pow(1 + (rate * 0.01) / 12, period / 12)
             );
@@ -84,7 +84,7 @@ export const calculatorStore = defineStore("calculator", {
             let period = savings.options[0].save_trm;
             period = Number(this.month) <= Number(period) ? this.month : period;
             console.log(period);
-            let rate = savings.options[0].intr_rate;
+            let rate = savings.options[0].intr_rate2;
             let finalAmount = Math.round(
               savings.amount *
                 ((period * (period + 1)) / 2) *
@@ -104,7 +104,7 @@ export const calculatorStore = defineStore("calculator", {
             //적금, 복리인 경우
             let period = savings.options[0].save_trm;
             period = Number(this.month) <= Number(period) ? this.month : period;
-            let rate = savings.options[0].intr_rate;
+            let rate = savings.options[0].intr_rate2;
             let finalAmount = Math.round(
               savings.amount *
                 ((Math.pow(1 + (rate * 0.01) / 12, period) - 1) /
@@ -201,7 +201,7 @@ export const calculatorStore = defineStore("calculator", {
         axios.get("http://localhost:9000/finance/fund/count", {
           params: { prdNo: getFund.prdNo },
         });
-        return alert("상품을 게산기에 추가했습니다");
+        return alert("상품을 계산기에 추가했습니다");
       } else {
         return alert("이미 상품이 계산기에 있습니다");
       }
