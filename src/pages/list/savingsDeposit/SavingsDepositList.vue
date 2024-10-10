@@ -163,7 +163,6 @@ export default {
       }
       fetchProducts();
     };
-
     const previousPage = () => {
       if (pageNumber.value > 1) {
         pageNumber.value--;
@@ -210,16 +209,16 @@ export default {
       totalPages,
       selectedDepositList,
       selectedSavingsList,
-      isComparisonModalVisible,
-      previousPage,
-      nextPage,
       showComparisonModal,
       closeModalAndResetSavingsDeposit,
+      previousPage,
+      nextPage,
       prdtDiv,
       setFilter,
       handleUpdateSelected,
       isComparisonDisabled,
-      isItemSelected
+      isItemSelected,
+      isComparisonModalVisible
     };
   },
 };
@@ -257,11 +256,6 @@ export default {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
-}
-
-.compare-button {
-  background-color: #3f72af;
-  color: #f9f7f7;
 }
 
 .pagination {

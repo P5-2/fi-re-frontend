@@ -1,5 +1,6 @@
 <template lang="">
     <div id="detailWrapper">
+        <img class="back" src="@/assets/header/back.png" width="40" height="40" @click="back">
         <div id="title">
             {{fund.pname}}
             <hr>
@@ -122,6 +123,9 @@ export default {
     },
     methods: {
         ...mapActions(calculatorStore, ['addFund']),
+        back : function(){
+            this.$router.go(-1);
+        },
         calcBtn: function () {
             this.fund.amount = 0;
             this.addFund(this.fund)
@@ -279,5 +283,9 @@ td{
 }
 .left-btn:hover{
     background-color: #696969;
+}
+.back{
+    float: left;
+    cursor: pointer;
 }
 </style>
