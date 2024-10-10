@@ -14,10 +14,10 @@
         <div class="product-info">
           <!-- 상품명 위에 위치한 정보 박스들 -->
           <div class="info-boxes">
-            <span class="info-box1">{{ options[0].intr_rate_type_nm }}</span>
             <span class="info-box2">{{
               getRsrvTypeLabel(options[0].rsrv_type)
             }}</span>
+            <span class="info-box1">{{ options[0].intr_rate_type_nm }}</span>
             <span class="info-box3">12개월 기준</span>
           </div>
           <h2 class="product-title">{{ savingsDeposit.fin_prdt_nm }}</h2>
@@ -234,8 +234,9 @@ export default {
 }
 
 .info-box1 {
-  background-color: #3f72af;
-  color: white;
+  background-color: #dbe2ef;
+  color: #112d4e;
+
   padding: 5px 10px;
   border-radius: 5px;
   font-size: 12px;
@@ -243,8 +244,8 @@ export default {
 }
 
 .info-box2 {
-  background-color: #dbe2ef;
-  color: #112d4e;
+  background-color: #3f72af;
+  color: white;
   padding: 5px 10px;
   border-radius: 5px;
   font-size: 12px;
