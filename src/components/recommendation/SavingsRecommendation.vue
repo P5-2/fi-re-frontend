@@ -20,7 +20,7 @@
           v-for="(deposit, index) in depositList"
           :key="index"
           class="deposit-card"
-          @click="savingsItemClick(deposit.finPrdtCd)"
+          @click="savingsItemClick(deposit)"
         >
           <img
             :src="getIcon(deposit.korCoNm)"
@@ -119,8 +119,8 @@ export default {
       router.push('/survey/start');
     };
 
-    const savingsItemClick = (prdNo) => {
-      router.push('/itemDetail/savings/' + prdNo);
+    const savingsItemClick = (deposit) => {
+      router.push(`/itemDetail/savings/${deposit.finPrdtCd}/${deposit.intrRateTypeNm}/${null}`);
     };
 
     const getIcon = (bname) => {

@@ -159,7 +159,7 @@ export const calculatorStore = defineStore('calculator', {
         axios.get('http://localhost:9000/finance/count', {
           params: { finPrdtCd: getSavings.savingsDeposit.fin_prdt_cd },
         });
-        return alert('상품을 게산기에 추가했습니다');
+        return alert('상품을 계산기에 추가했습니다');
       } else {
         return alert('이미 상품이 계산기에 있습니다');
       }
@@ -199,7 +199,7 @@ export const calculatorStore = defineStore('calculator', {
         axios.get('http://localhost:9000/finance/fund/count', {
           params: { prdNo: getFund.prdNo },
         });
-        return alert('상품을 계산기에 추가했습니다');
+        return alert('상품을 게산기에 추가했습니다');
       } else {
         return alert('이미 상품이 계산기에 있습니다');
       }

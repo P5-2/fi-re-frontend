@@ -407,7 +407,7 @@ export default {
     const totalGoalAmount = computed(() => goalStore.totalGoalAmount);
     const totalSavedAmount = computed(() => goalStore.totalSavedAmount);
 
-    onMounted(() => {
+    onMounted(async () => {
       loadIcons();
       updateUserProducts(true);
     });
