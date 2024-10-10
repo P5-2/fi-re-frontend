@@ -42,11 +42,13 @@
 
 <script>
 import Fund from '@/components/list/fund/Fund.vue';
+import ComparisonModal from '@/components/comparison/ComparisonModalFund.vue'
 
 import axios from 'axios'; // axios 추가
 export default {
   components: {
     Fund,
+    ComparisonModal
   },
   data() {
     return {
