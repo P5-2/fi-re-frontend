@@ -8,7 +8,7 @@
         <div class="user-info">
           <div class="nickname-container">
             <div class="nickname">
-              <h3>{{ user.nickname }}</h3>
+              <h3>{{ usertwo.nickname }}</h3>
               <span
                 v-if="level >= 3"
                 class="badge"
@@ -31,7 +31,7 @@
               ></div>
             </div>
             <p class="exp-text">
-              exp {{ user.exp }} / {{ expNeededForNextLevel }}
+              exp {{ displayedExp }} / {{ expNeededForNextLevel }}
             </p>
           </div>
         </div>
@@ -48,20 +48,20 @@ import defaultImage from '@/assets/exp/level4.png';
 
 export default {
   props: {
-    user: {
+    usertwo: {
       type: Object,
       required: true,
     },
   },
   computed: {
     level() {
-      return this.calculateLevel(this.user.exp);
+      return this.calculateLevel(this.usertwo.exp);
     },
     progressPercentage() {
-      return this.calculateProgressPercentage(this.user.exp);
+      return this.calculateProgressPercentage(this.usertwo.exp);
     },
     characterImage() {
-      if (!this.user || typeof this.user.exp !== 'number') {
+      if (!this.usertwo || typeof this.usertwo.exp !== 'number') {
         return defaultImage; // 기본 이미지 반환
       }
 
@@ -77,6 +77,9 @@ export default {
     },
     expNeededForNextLevel() {
       return 6 * this.level; // 다음 레벨까지 필요한 경험치
+    },
+    displayedExp() {
+      return this.level === 4 ? 24 : this.usertwo.exp; // 레벨 4일 때 exp를 24로 고정
     },
   },
   methods: {
