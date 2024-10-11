@@ -1,7 +1,7 @@
-import { defineStore } from "pinia";
-import axios from "axios";
+import { defineStore } from 'pinia';
+import axios from 'axios';
 
-export const calculatorStore = defineStore("calculator", {
+export const calculatorStore = defineStore('calculator', {
   state: () => ({
     savingslist: [],
     fundlist: [],
@@ -18,30 +18,31 @@ export const calculatorStore = defineStore("calculator", {
       //계산함수
       console.log(this.savingslist);
       console.log(this.fundlist);
-      let res = await axios.get("http://localhost:9000/gold/rate"); //미래 금 이율 가져오기
+      let res = await axios.get('http://localhost:9000/gold/rate'); //미래 금 이율 가져오기
       this.goldRate = res.data;
       this.result = {
         finalAmount: 0,
         process: [],
       };
       let goldProcessing = {
-        name: "금 투자",
+        name: '금 투자',
         rate: this.goldRate,
         period: this.month,
         amount: this.gold,
         finalAmount: Math.round(
-          Number(this.gold) + (this.gold * (this.goldRate * 0.01) * (this.month / 6))
+          Number(this.gold) +
+            this.gold * (this.goldRate * 0.01) * (this.month / 6)
         ),
       };
-      goldProcessing.rate += "(6개월 후 기준)"
+      goldProcessing.rate += '(6개월 후 기준)';
       this.result.process.push(goldProcessing);
       this.result.finalAmount += Number(goldProcessing.finalAmount);
 
       this.savingslist.forEach((savings) => {
         //예적금 상품 계산
-        if (savings.savingsDeposit.prdt_div === "D") {
+        if (savings.savingsDeposit.prdt_div === 'D') {
           //예금인경우
-          if (savings.options[0].intr_rate_type_nm === "단리") {
+          if (savings.options[0].intr_rate_type_nm === '단리') {
             //예금, 단리인 경우
             let period = savings.options[0].save_trm;
             period = Number(this.month) <= Number(period) ? this.month : period;
@@ -51,7 +52,7 @@ export const calculatorStore = defineStore("calculator", {
                 Number(savings.amount)
             );
             let processing = {
-              name: savings.savingsDeposit.fin_prdt_nm + "/단리",
+              name: savings.savingsDeposit.fin_prdt_nm + '/단리',
               rate: rate,
               period: period,
               amount: savings.amount,
@@ -68,7 +69,7 @@ export const calculatorStore = defineStore("calculator", {
               savings.amount * Math.pow(1 + (rate * 0.01) / 12, period / 12)
             );
             let processing = {
-              name: savings.savingsDeposit.fin_prdt_nm + "/복리",
+              name: savings.savingsDeposit.fin_prdt_nm + '/복리',
               rate: rate,
               period: period,
               amount: savings.amount,
@@ -79,7 +80,7 @@ export const calculatorStore = defineStore("calculator", {
           }
         } else {
           //적금인 경우
-          if (savings.options[0].intr_rate_type_nm === "단리") {
+          if (savings.options[0].intr_rate_type_nm === '단리') {
             //적금, 단리인 경우
             let period = savings.options[0].save_trm;
             period = Number(this.month) <= Number(period) ? this.month : period;
@@ -92,7 +93,7 @@ export const calculatorStore = defineStore("calculator", {
                 Number(savings.amount * period)
             );
             let processing = {
-              name: savings.savingsDeposit.fin_prdt_nm + "/단리",
+              name: savings.savingsDeposit.fin_prdt_nm + '/단리',
               rate: rate,
               period: period,
               amount: savings.amount,
@@ -111,7 +112,7 @@ export const calculatorStore = defineStore("calculator", {
                   ((rate * 0.01) / 12))
             );
             let processing = {
-              name: savings.savingsDeposit.fin_prdt_nm + "/단리",
+              name: savings.savingsDeposit.fin_prdt_nm + '/단리',
               rate: rate,
               period: period,
               amount: savings.amount,
@@ -158,12 +159,12 @@ export const calculatorStore = defineStore("calculator", {
       if (result) {
         this.savingslist.push(getSavings);
         //selectCount 증가
-        axios.get("http://localhost:9000/finance/count", {
+        axios.get('http://localhost:9000/finance/count', {
           params: { finPrdtCd: getSavings.savingsDeposit.fin_prdt_cd },
         });
-        return alert("상품을 계산기에 추가했습니다");
+        return alert('상품을 계산기에 추가했습니다');
       } else {
-        return alert("이미 상품이 계산기에 있습니다");
+        return alert('이미 상품이 계산기에 있습니다');
       }
     },
     setSavingsAmount: function (getSavings, amount) {
@@ -198,12 +199,12 @@ export const calculatorStore = defineStore("calculator", {
       if (result) {
         this.fundlist.push(getFund);
         //selectCount 증가
-        axios.get("http://localhost:9000/finance/fund/count", {
+        axios.get('http://localhost:9000/finance/fund/count', {
           params: { prdNo: getFund.prdNo },
         });
-        return alert("상품을 계산기에 추가했습니다");
+        return alert('상품을 계산기에 추가했습니다');
       } else {
-        return alert("이미 상품이 계산기에 있습니다");
+        return alert('이미 상품이 계산기에 있습니다');
       }
     },
     removeFund: function (getIndex) {

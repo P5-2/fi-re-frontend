@@ -7,26 +7,30 @@
       <div class="row">
         <div class="col-md-6 col-sm-12 mb-4">
           <div class="profile-section p-4 card">
-            <UserProfile v-if="user" :user="user" />
-            <RiskChart v-if="user" :riskPoint="user.riskPoint" />
+            <UserProfile v-if="usertwo" :usertwo="usertwo" />
+            <RiskChart
+              v-if="usertwo"
+              :nickname="usertwo.nickname"
+              :riskPoint="usertwo.riskPoint"
+            />
           </div>
         </div>
         <div class="col-md-6 col-sm-12 mb-4">
           <div class="news-section p-4 card">
             <NewsSection
-              v-if="user && user.exp >= 6 && news.length > 0"
+              v-if="usertwo && usertwo.exp >= 6 && news.length > 0"
               :news="news"
             />
-            <div v-else-if="user && user.exp < 6" class="level-warning">
+            <div v-else-if="usertwo && usertwo.exp < 6" class="level-warning">
               <p>뉴스는 레벨 2 이상부터 이용 가능합니다.</p>
             </div>
           </div>
         </div>
         <div>
           <FinancialGoals
-            v-if="user"
-            :goalAmount="user.goalAmount"
-            :currentAmount="user.assets"
+            v-if="usertwo"
+            :goalAmount="usertwo.goalAmount"
+            :currentAmount="usertwo.assets"
           />
         </div>
       </div>
@@ -60,7 +64,7 @@ export default defineComponent({
 
     // console.log(riskPoint);
     const riskPointToQuery = computed(() => {
-      const riskPoint = profileStore.user?.riskPoint ?? 0; // 기본값 0 설정
+      const riskPoint = profileStore.usertwo?.riskPoint ?? 0; // 기본값 0 설정
 
       const keywords = {
         매우보수: ['안전자산', '국채', '고정금리', '안정성'],
@@ -136,7 +140,7 @@ export default defineComponent({
         await axios.post(
           `http://localhost:9000/exp`,
           {
-            page: 'survey', // 현재 페이지 이름
+            page: 'profile', // 현재 페이지 이름
           },
           {
             headers: {
@@ -159,7 +163,7 @@ export default defineComponent({
         router.push('/');
       } else {
         // 로컬 스토리지에서 데이터 복원
-        const storedUser = JSON.parse(localStorage.getItem('user'));
+        const storedUser = JSON.parse(localStorage.getItem('usertwo'));
         const storedNews = JSON.parse(localStorage.getItem('news'));
 
         if (storedUser) {
@@ -176,7 +180,7 @@ export default defineComponent({
     });
 
     return {
-      user: profileStore.user,
+      usertwo: profileStore.usertwo,
       news: profileStore.news,
       isLoading,
       riskPointToQuery,
