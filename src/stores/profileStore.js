@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 
 export const useProfileStore = defineStore('profile', {
   state: () => ({
-    user: JSON.parse(localStorage.getItem('user')) || null,
+    usertwo: JSON.parse(localStorage.getItem('usertwo')) || null,
     news: JSON.parse(localStorage.getItem('news')) || [],
   }),
   actions: {
@@ -13,7 +13,7 @@ export const useProfileStore = defineStore('profile', {
     },
     setUserTwo(userData) {
       this.user = userData;
-      localStorage.setItem('user', JSON.stringify(userData)); // 로컬 스토리지에 저장
+      localStorage.setItem('usertwo', JSON.stringify(userData)); // 로컬 스토리지에 저장
     },
     setNews(newsData) {
       this.news = newsData;
@@ -22,7 +22,7 @@ export const useProfileStore = defineStore('profile', {
     clearData() {
       this.user = null;
       this.news = [];
-      localStorage.removeItem('user'); // 로컬 스토리지에서 제거
+      localStorage.removeItem('usertwo'); // 로컬 스토리지에서 제거
       localStorage.removeItem('news'); // 로컬 스토리지에서 제거
     },
   },
