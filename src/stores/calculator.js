@@ -6,7 +6,7 @@ export const calculatorStore = defineStore('calculator', {
     savingslist: [],
     fundlist: [],
     gold: 0,
-    goldRate: 1.5, //axios를 사용하여 month 후에 금 이율 예측
+    goldRate: 0, //axios를 사용하여 month 후에 금 이율 예측
     month: 0,
     result: {
       finalAmount: 0,
@@ -14,10 +14,12 @@ export const calculatorStore = defineStore('calculator', {
     },
   }),
   actions: {
-    calculate: function () {
+    calculate: async function () {
       //계산함수
       console.log(this.savingslist);
       console.log(this.fundlist);
+      let res = await axios.get('http://localhost:9000/gold/rate'); //미래 금 이율 가져오기
+      this.goldRate = res.data;
       this.result = {
         finalAmount: 0,
         process: [],
@@ -28,10 +30,11 @@ export const calculatorStore = defineStore('calculator', {
         period: this.month,
         amount: this.gold,
         finalAmount: Math.round(
-          this.gold * (this.goldRate * 0.01) * (this.month / 12) +
-            Number(this.gold)
+          Number(this.gold) +
+            this.gold * (this.goldRate * 0.01) * (this.month / 6)
         ),
       };
+      goldProcessing.rate += '(6개월 후 기준)';
       this.result.process.push(goldProcessing);
       this.result.finalAmount += Number(goldProcessing.finalAmount);
 
@@ -43,7 +46,7 @@ export const calculatorStore = defineStore('calculator', {
             //예금, 단리인 경우
             let period = savings.options[0].save_trm;
             period = Number(this.month) <= Number(period) ? this.month : period;
-            let rate = savings.options[0].intr_rate;
+            let rate = savings.options[0].intr_rate2;
             let finalAmount = Math.round(
               savings.amount * (rate * 0.01) * (period / 12) +
                 Number(savings.amount)
@@ -61,7 +64,7 @@ export const calculatorStore = defineStore('calculator', {
             //예금, 복리인 경우
             let period = savings.options[0].save_trm;
             period = Number(this.month) <= Number(period) ? this.month : period;
-            let rate = savings.options[0].intr_rate;
+            let rate = savings.options[0].intr_rate2;
             let finalAmount = Math.round(
               savings.amount * Math.pow(1 + (rate * 0.01) / 12, period / 12)
             );
@@ -82,7 +85,7 @@ export const calculatorStore = defineStore('calculator', {
             let period = savings.options[0].save_trm;
             period = Number(this.month) <= Number(period) ? this.month : period;
             console.log(period);
-            let rate = savings.options[0].intr_rate;
+            let rate = savings.options[0].intr_rate2;
             let finalAmount = Math.round(
               savings.amount *
                 ((period * (period + 1)) / 2) *
@@ -102,7 +105,7 @@ export const calculatorStore = defineStore('calculator', {
             //적금, 복리인 경우
             let period = savings.options[0].save_trm;
             period = Number(this.month) <= Number(period) ? this.month : period;
-            let rate = savings.options[0].intr_rate;
+            let rate = savings.options[0].intr_rate2;
             let finalAmount = Math.round(
               savings.amount *
                 ((Math.pow(1 + (rate * 0.01) / 12, period) - 1) /
@@ -199,7 +202,7 @@ export const calculatorStore = defineStore('calculator', {
         axios.get('http://localhost:9000/finance/fund/count', {
           params: { prdNo: getFund.prdNo },
         });
-        return alert('상품을 게산기에 추가했습니다');
+        return alert('상품을 계산기에 추가했습니다');
       } else {
         return alert('이미 상품이 계산기에 있습니다');
       }

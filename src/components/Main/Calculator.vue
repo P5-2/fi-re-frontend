@@ -53,7 +53,7 @@
             </div>
             <b>{{ savings.savingsDeposit.fin_prdt_nm }}</b> <br />
             <hr />
-            이율 : <b>{{ savings.options[0].intr_rate }}%</b>({{ savings.options[0].intr_rate_type_nm }})<br />
+            이율 : <b>{{ savings.options[0].intr_rate2 }}%</b>({{ savings.options[0].intr_rate_type_nm }})<br />
             최대한도 :
             <b v-if="savings.savingsDeposit.max_limit === null">없음</b>
             <b v-else>{{savings.savingsDeposit.max_limit}}</b> <br />

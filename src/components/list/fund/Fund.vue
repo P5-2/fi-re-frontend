@@ -34,7 +34,13 @@
           <i :class="fund.userLiked ? 'fas fa-heart' : 'far fa-heart'"></i>
         </button>
 
-        <button @click.stop="calcBtn" class="calc-btn">수익 계산</button>
+        <button @click.stop="calcBtn" class="calc-btn">
+          <img
+            src="@/assets/calculator/calc.png"
+            alt="Calculate"
+            class="icon"
+          />
+        </button>
       </div>
     </div>
   </div>
@@ -181,18 +187,18 @@ export default {
 
 <style scoped>
 .fund-card {
-  width: 100%;
-  max-width: 1100px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  margin: 10px 0;
+  padding: 20px;
+
+  margin-bottom: 25px;
   border: 1px solid #ddd;
   border-radius: 12px;
   background-color: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
+  height: 140px;
 }
 
 .fund-card:hover {
@@ -301,27 +307,33 @@ export default {
   cursor: pointer;
 }
 
-.calc-btn {
-  background-color: #3f72af;
-  color: #fff;
+.calc-btn,
+.cart-btn {
+  background-color: transparent;
+  /* 배경 제거 */
   border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
 }
 
-.calc-btn:hover {
-  background-color: #112d4e;
+.calc-btn .icon {
+  width: 35px;
+  height: auto;
+  filter: brightness(0) saturate(100%) invert(60%) sepia(10%) saturate(800%)
+    hue-rotate(180deg) brightness(85%) contrast(95%);
+  transition: filter 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.calc-btn:hover .icon {
+  filter: brightness(0) saturate(100%) invert(20%) sepia(100%) saturate(8000%)
+    hue-rotate(200deg) brightness(95%) contrast(110%);
+  transform: scale(1.1); /* 호버 시 확대 효과 */
 }
 
 .like-btn {
   background-color: transparent;
   border: none;
   cursor: pointer;
-  font-size: 24px;
+  font-size: 28px;
   color: #ccc;
   transition: color 0.3s ease;
 }

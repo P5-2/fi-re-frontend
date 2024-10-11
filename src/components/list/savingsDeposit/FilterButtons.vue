@@ -1,13 +1,13 @@
 <template>
   <div class="filter-buttons">
     <button
-      @click="$emit('filter', 'DE')"
+      @click="toggleFilter('DE')"
       :class="{ active: currentFilter === 'DE' }"
     >
       예금
     </button>
     <button
-      @click="$emit('filter', 'SA')"
+      @click="toggleFilter('SA')"
       :class="{ active: currentFilter === 'SA' }"
     >
       적금
@@ -16,7 +16,20 @@
 </template>
 
 <script setup>
-defineProps(["currentFilter"]);
+import { ref } from "vue";
+
+const props = defineProps(["currentFilter"]);
+const emit = defineEmits(["filter"]);
+
+const toggleFilter = (filter) => {
+  if (props.currentFilter === filter) {
+    // 현재 필터와 같은 버튼을 클릭하면 필터를 해제
+    emit("filter", "ALL");
+  } else {
+    // 다른 필터를 선택하면 해당 필터 적용
+    emit("filter", filter);
+  }
+};
 </script>
 
 <style scoped>
