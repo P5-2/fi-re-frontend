@@ -43,7 +43,7 @@ export default {
       type: Number,
       required: true,
     },
-    userName: {
+    nickname: {
       type: String,
     },
   },
