@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h4>네이버 로그인 콜백 처리 중...</h4>
+        <h4>네이버 로그인 중...</h4>
     </div>
 </template>
 
@@ -19,7 +19,7 @@ export default {
 
         const handleNaverCallback = async (code, state) => {
             try {
-                alert('네이버 로그인 중...');
+                // alert('네이버 로그인 중...');
                 // 인증 코드를 서버에 전달하여 토큰 요청
                 const response = await axios.get('http://localhost:9000/naver/callback', {
                     // 서버에서 토큰 처리할 엔드포인트
@@ -45,7 +45,7 @@ export default {
                 // Pinia의 login 함수 호출
                 userStore.login(username, nickName); // 로그인 상태 업데이트
                 
-                alert('네이버 로그인 성공!');
+                // alert('네이버 로그인 성공!');
 
                 // 성공하면 메인화면으로 고!
                 router.push('/');
