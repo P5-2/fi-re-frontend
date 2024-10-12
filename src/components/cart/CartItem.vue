@@ -1,31 +1,19 @@
 <template>
-  <li class="cart-item">
+  <li class="cart-item" @click="handleItemClick">
     <div class="item-row">
       <div class="item-left">
         <label class="custom-checkbox">
-          <input
-            type="checkbox"
-            :checked="isSelected"
-            @change="emitSelectedItems"
-          />
+          <input type="checkbox" :checked="isSelected" @change="emitSelectedItems" />
           <span class="checkmark"></span>
         </label>
 
         <!-- Bank Icon Images -->
         <div class="item-bank">
-          <img
-            class="bank-logo"
-            :src="getBankLogo(item, type)"
-            alt="Logo"
-            @error="setDefaultBankLogo"
-          />
-          <span
-            v-if="
-              (type === 'saving' || type === 'deposit') &&
-              getBankName(item, type).length > 4
-            "
-            class="bank-name"
-          >
+          <img class="bank-logo" :src="getBankLogo(item, type)" alt="Logo" @error="setDefaultBankLogo" />
+          <span v-if="
+            (type === 'saving' || type === 'deposit') &&
+            getBankName(item, type).length > 4
+          " class="bank-name">
             {{ getBankName(item, type).slice(0, 4) }}<br />{{
               getBankName(item, type).slice(4)
             }}
@@ -117,6 +105,36 @@ export default {
       }
       return ""; // 기본값 반환
     },
+    handleItemClick() {
+      if (this.type === "fund") {
+        console.log("fund 페이지로 이동");
+        this.viewDetailsFund(this.item.prdNo);
+      } else if (this.type === "saving" || this.type === "deposit") {
+        this.viewDetailsSD();
+      }
+    },
+    // 예적금 상세 페이지로 이동
+    viewDetailsSD() {
+      // item 및 options가 정의되어 있는지 확인
+      console.log("예적금 페이지에 들어간 데이터 " + JSON.stringify(this.item));
+      if (this.item && this.item.savingsDeposit && this.item.options && this.item.options.length > 0) {
+        const productId = this.item.savingsDeposit.fin_prdt_cd;
+        const intrRateTypeNm = this.item.options[0].intr_rate_type_nm;
+        const rsrvType = this.item.options[0].rsrv_type;
+
+        this.$router.push(
+          `/itemDetail/savings/${productId}/${intrRateTypeNm}/${rsrvType}`
+        );
+      } else {
+        console.error("savingsDeposit 또는 options 데이터가 누락되었습니다.");
+      }
+    },
+
+    // FUND 상세페이지로 이동
+    viewDetailsFund(prdNo) {
+      this.$router.push("/itemDetail/fund/" + prdNo);
+      console.log(prdNo + "번 펀드가 클릭되었습니다.");
+    },
   },
 };
 </script>
@@ -157,9 +175,11 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 5px;
-  min-width: 100px; /* 일정한 너비 설정 */
+  min-width: 100px;
+  /* 일정한 너비 설정 */
   text-align: center;
-  flex-shrink: 0; /* 요소의 크기가 줄어들지 않도록 설정 */
+  flex-shrink: 0;
+  /* 요소의 크기가 줄어들지 않도록 설정 */
 }
 
 .bank-logo {
@@ -180,7 +200,8 @@ export default {
   flex-direction: column;
   white-space: nowrap;
   flex-grow: 1;
-  margin-left: 30px; /* 추가 간격 설정 */
+  margin-left: 30px;
+  /* 추가 간격 설정 */
 }
 
 .item-details {
@@ -220,7 +241,7 @@ export default {
   transition: background-color 0.3s ease;
 }
 
-.custom-checkbox input:checked ~ .checkmark {
+.custom-checkbox input:checked~.checkmark {
   background-color: #007bff;
 }
 
@@ -230,7 +251,7 @@ export default {
   display: none;
 }
 
-.custom-checkbox input:checked ~ .checkmark:after {
+.custom-checkbox input:checked~.checkmark:after {
   display: block;
 }
 
