@@ -92,7 +92,7 @@ export default {
     },
     async toggleLike(event, fund) {
       event.stopPropagation();
-      if (this.userStore.username) {
+      if (!this.userStore.username) {
         alert("로그인 후 이용 가능 합니다.");
         return;
       }

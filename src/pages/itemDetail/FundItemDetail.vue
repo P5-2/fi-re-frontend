@@ -52,6 +52,7 @@
 import { calculatorStore } from '@/stores/calculator';
 import axios from 'axios';
 import { mapActions } from 'pinia';
+import { addFundToCart, checkFundInCart } from '@/services/cartServiceFund.js'
 
 export default {
     name: 'FundItemDetail',
@@ -123,54 +124,69 @@ export default {
     },
     methods: {
         ...mapActions(calculatorStore, ['addFund']),
-        back : function(){
+        back: function () {
             this.$router.go(-1);
         },
         calcBtn: function () {
             this.fund.amount = 0;
             this.addFund(this.fund)
         },
-        compareProduct() {
-            // sessionStorage에서 token 값을 가져와 파싱
-            const tokenData = JSON.parse(sessionStorage.getItem('token'));
-            if(tokenData === null){
-                return alert("로그인이 필요한 기능입니다");
+        getUsername() {
+            // 로컬 스토리지에서 user 데이터를 가져옴
+            const userData = JSON.parse(localStorage.getItem("user"));
+
+            // user 데이터가 존재하고, username이 있을 경우 반환
+            if (userData && userData.username) {
+                return userData.username;
+            } else {
+                console.error("Username not found in localStorage");
+                return null;
             }
-            // accessToken을 가져온다
-            const accessToken = tokenData.accessToken;
+        },
 
-            // accessToken을 기반으로 사용자별 로컬 스토리지 키 생성
-            const userKey = `cart_data_${accessToken}`;
+        // 좋아요 상태 로드
+        async loadLikeStatus() {
+            try {
+                const username = this.getUsername();
 
-            // 로컬 스토리지에서 비교함 데이터를 불러온다
-            const cartData = JSON.parse(localStorage.getItem(userKey)) || { savings: [], funds: [] };
+                // 서버에서 현재 사용자가 이 펀드를 장바구니에 담았는지 확인
+                const isInCart = await checkFundInCart(
+                    username,
+                    this.fund.prdNo
+                );
+                this.fund.userLiked = isInCart;
+            } catch (error) {
+                console.error("좋아요 상태 로드 에러났습니다: \n", error);
+            }
+        },
 
-            // 추가하려는 상품이 이미 비교함에 있는지 확인
-            const isProductInCart = cartData.funds.some(fund => fund.prdNo === this.fund.prdNo);
+
+        async compareProduct() {
+            const username = this.getUsername();
+            if (!username) {
+                return alert("로그인이 필요한 기능입니다.");
+            }
+
+            // 추가하려는 상품이 이미 비교함에 있는지 확인 (await 추가)
+            const isProductInCart = await this.loadLikeStatus();
 
             if (isProductInCart) {
+                console.log(isProductInCart);
                 alert("이 상품은 이미 비교함에 담겨 있습니다.");
                 return;
             }
 
-            // 비교함에 상품 추가
-            cartData.funds.push({
-                prdNo: this.fund.prdNo,
-                pname: this.fund.pname,
-                type: this.fund.type,
-                nav: this.fund.nav,
-                rate: this.fund.rate,
-                region: this.fund.region,
-                selectCount: this.fund.selectCount,
-                dngrGrade: this.fund.dngrGrade
-            });
-
-            // 업데이트된 비교함 데이터를 로컬 스토리지에 저장
-            localStorage.setItem(userKey, JSON.stringify(cartData));
-
-            console.log(this.fund.prdNo + "번 상품을 비교함에 담았습니다.");
-            alert("상품을 비교함에 담았습니다.");
+            // 서버에 즐겨찾기 추가 요청
+            try {
+                await addFundToCart(username, this.fund.prdNo);
+                console.log(this.fund.prdNo + "번 상품을 비교함에 담았습니다.");
+                alert("상품을 비교함에 담았습니다.");
+            } catch (error) {
+                console.error("장바구니 추가 중 오류 발생:", error);
+                alert("상품을 비교함에 담는 중 오류가 발생했습니다.");
+            }
         }
+
     }
 }
 </script>
@@ -241,7 +257,7 @@ export default {
     font-size: 22px;
     border-collapse: separate;
     border-spacing: 20px 5px;
-    border : 1px solid black;
+    border: 1px solid black;
     border-radius: 20px;
     background-color: white;
 }
@@ -252,7 +268,7 @@ th {
     width: 200px;
 }
 
-td{
+td {
     text-align: left;
 }
 
@@ -274,17 +290,21 @@ td{
     font-weight: bold;
     transition: 0.3s;
 }
+
 .calc-btn:hover {
     background-color: #112D4E;
 }
+
 .left-btn {
     margin-right: 60px;
     background-color: #A9A9A9;
 }
-.left-btn:hover{
+
+.left-btn:hover {
     background-color: #696969;
 }
-.back{
+
+.back {
     float: left;
     cursor: pointer;
 }

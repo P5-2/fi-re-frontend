@@ -75,32 +75,33 @@ import axios from 'axios';
 import { mapActions } from 'pinia';
 import DefaultIcon from '@/assets/bank/defaultbank.png';
 import OptionsCheckBox from './OptionsCheckBox.vue';
+import { addSavingsToCart, addDepositToCart, checkSavingsInCart, checkDepositInCart } from '@/services/cartServiceSD.js'
 
 export default {
     name: 'SavingsItemDetail',
-    components : {OptionsCheckBox},
+    components: { OptionsCheckBox },
     data() {
         return {
             savings: {
-                savingsDeposit : {},
-                options : []
+                savingsDeposit: {},
+                options: []
             },
-            isOptionsOpen : false,
+            isOptionsOpen: false,
         }
     },
     created() {
         this.prdNo = this.$route.params.prdNo;
         this.intrRateTypeNm = this.$route.params.intrRateTypeNm;
-        if(this.$route.params.rsrvType === 'null'){
+        if (this.$route.params.rsrvType === 'null') {
             this.rsrvType = null
-        }else{
+        } else {
             this.rsrvType = this.$route.params.rsrvType;
         }
         console.log(this.prdNo);
         axios.get("http://localhost:9000/finance/get", { params: { finPrdtCd: this.prdNo, intrRateTypeNm: this.intrRateTypeNm, rsrvType: this.rsrvType } })
             .then((res) => {
                 this.savings.savingsDeposit = res.data[0].savingsDeposit;
-                for(let data of res.data){
+                for (let data of res.data) {
                     this.savings.options.push(data.options[0]);
                 }
                 console.log(res.data);
@@ -112,77 +113,85 @@ export default {
     },
     methods: {
         ...mapActions(calculatorStore, ['addSavings']),
-        back : function(){
+        back: function () {
             this.$router.go(-1);
         },
-        closeOptions: function(){
+        closeOptions: function () {
             this.isOptionsOpen = false;
         },
-        optionsControl: function(value){
+        optionsControl: function (value) {
             this.isOptionsOpen = false;
             let selectedSavings = {
-                amount : 0,
-                savingsDeposit : this.savings.savingsDeposit,
-                options : [this.savings.options[value]]
+                amount: 0,
+                savingsDeposit: this.savings.savingsDeposit,
+                options: [this.savings.options[value]]
             }
             this.addSavings(selectedSavings);
         },
         calcBtn: function () {
             this.isOptionsOpen = true;
         },
-        compareProduct() {
+        getUsername() {
+            // 로컬 스토리지에서 user 데이터를 가져옴
+            const userData = JSON.parse(localStorage.getItem("user"));
 
-            // sessionStorage에서 token 값을 가져와 파싱
-            const tokenData = JSON.parse(sessionStorage.getItem('token'));
+            // user 데이터가 존재하고, username이 있을 경우 반환
+            if (userData && userData.username) {
+                return userData.username;
+            } else {
+                console.error("Username not found in localStorage");
+                return null;
+            }
+        },
 
-            // accessToken을 가져온다
-            const accessToken = tokenData.accessToken;
-
-            // accessToken을 기반으로 사용자별 로컬 스토리지 키 생성
-            const userKey = `cart_data_${accessToken}`;
-
-            // 로컬 스토리지에서 비교함 데이터를 불러온다
-            const cartData = JSON.parse(localStorage.getItem(userKey)) || { savings: [], funds: [] };
-
-            // 추가하려는 상품이 이미 비교함에 있는지 확인
-            const isProductInCart = cartData.savings.some(saving => saving.prdNo === this.prdNo);
-
-            if (isProductInCart) {
-                alert("이 상품은 이미 비교함에 담겨 있습니다.");
-                return;
+        async compareProduct() {
+            const username = this.getUsername();
+            if (!username) {
+                return alert("로그인이 필요한 기능입니다.");
             }
 
-            // 비교함에 상품 추가
-            cartData.savings.push({
-                prdNo: this.savings.prdNo,
-                pname: this.savings.pname,
-                bname: this.savings.bname,
-                minRate: this.savings.minRate,
-                maxRate: this.savings.maxRate,
-                subPeriod: this.savings.subPeriod,
-                description: this.savings.description,
-                type: this.savings.type,
-                selectCount: this.savings.selectCount || 0,  // selectCount이 존재하지 않을 경우 기본값 0 설정
-            });
+            const finPrdtCd = this.savings.savingsDeposit.fin_prdt_cd;
+            const intrRateTypeNm = this.savings.options[0].intr_rate_type_nm;
+            const isSavings = this.savings.savingsDeposit.prdt_div === 'S';
 
-            // 업데이트된 비교함 데이터를 로컬 스토리지에 저장
-            localStorage.setItem(userKey, JSON.stringify(cartData));
+            try {
+                // 적금 또는 예금 항목이 장바구니에 있는지 확인
+                const isInCart = isSavings
+                    ? await checkSavingsInCart(username, finPrdtCd, intrRateTypeNm)
+                    : await checkDepositInCart(username, finPrdtCd, intrRateTypeNm);
 
-            console.log(this.prdNo + "번 상품을 비교함에 담았습니다.");
-            alert("상품을 비교함에 담았습니다.");
-        },
+                if (isInCart) {
+                    alert("이 상품은 이미 비교함에 담겨 있습니다.");
+                    return;
+                }
+
+                // 장바구니에 항목 추가
+                if (isSavings) {
+                    await addSavingsToCart(username, finPrdtCd, intrRateTypeNm);
+                } else {
+                    await addDepositToCart(username, finPrdtCd, intrRateTypeNm);
+                }
+
+                console.log(finPrdtCd + "번 상품을 비교함에 담았습니다.");
+                alert("상품을 비교함에 담았습니다.");
+            } catch (error) {
+                console.error("장바구니 추가 중 오류 발생:", error);
+                alert("상품을 비교함에 담는 중 오류가 발생했습니다.");
+            }
+        }
+
     },
-    setup(){
+    setup() {
         const iconMap = ref({});
 
         const getBankIcon = async (bankName) => {
             const formats = ['png', 'jpg']; // 지원하는 이미지 형식
             for (const format of formats) {
                 try {
-                const icon = await import(`@/assets/bank/${bankName}.${format}`);
-                return icon.default;
+                    const icon = await import(`@/assets/bank/${bankName}.${format}`);
+                    return icon.default;
                 } catch (error) {
-                // Ignore the error and try the next format
+                    // Ignore the error and try the next format
                 }
             }
             return DefaultIcon; // 모든 형식에서 아이콘이 없으면 기본 아이콘 반환
@@ -199,7 +208,7 @@ export default {
             const promises = banks.map(async (bank) => {
                 iconMap.value[bank] = await getBankIcon(bank);
             });
-            
+
             await Promise.all(promises);
         };
 
@@ -212,8 +221,8 @@ export default {
         });
 
         return {
-        iconMap,
-        getIcon,
+            iconMap,
+            getIcon,
         };
     }
 }
@@ -256,7 +265,7 @@ export default {
 }
 
 .logo {
-    border : 2px solid black;
+    border: 2px solid black;
     border-radius: 100%;
 }
 
@@ -273,7 +282,7 @@ export default {
     border-spacing: 20px 5px;
     background-color: white;
     border-radius: 20px;
-    border : 1px solid black;
+    border: 1px solid black;
 }
 
 th {
@@ -282,9 +291,10 @@ th {
     width: 200px;
 }
 
-td{
+td {
     text-align: left;
 }
+
 .calc-btn {
     background-color: #3F72AF;
     color: #fff;
@@ -296,20 +306,25 @@ td{
     font-weight: bold;
     transition: 0.3s;
 }
+
 .calc-btn:hover {
     background-color: #112D4E;
 }
+
 .left-btn {
     margin-right: 60px;
     background-color: #A9A9A9;
 }
-.left-btn:hover{
+
+.left-btn:hover {
     background-color: #696969;
 }
-.myColor{
+
+.myColor {
     color: #3F72AF;
 }
-.back{
+
+.back {
     float: left;
     cursor: pointer;
 }
