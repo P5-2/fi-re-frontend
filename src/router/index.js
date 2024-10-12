@@ -29,4 +29,13 @@ const router = createRouter({
   ],
 });
 
+router.beforeEach((to)=>{
+  if(to.path == '/cart' || to.path.includes('survey') || to.path == '/recmd' || to.path == '/profile'){
+    const user = JSON.parse(localStorage.getItem('user'));
+    if(user == null){//로그인 안한 경우 접근을 막음
+      alert("로그인이 필요한 페이지입니다");
+      return { name : 'MainPage' }
+    }
+  }
+})
 export default router;

@@ -35,11 +35,7 @@
         </button>
 
         <button @click.stop="calcBtn" class="calc-btn">
-          <img
-            src="@/assets/calculator/calc.png"
-            alt="Calculate"
-            class="icon"
-          />
+          <img src="@/assets/calculator/calc.png" alt="Calculate" class="icon" />
         </button>
       </div>
     </div>
@@ -76,7 +72,13 @@ export default {
   },
   mounted() {
     this.loadCheckboxState(); // 컴포넌트가 마운트될 때 체크박스 상태 로드
-    this.loadLikeStatus(); // 컴포넌트가 마운트될 때 좋아요 상태 로드
+
+
+    // username 값이 있는 경우에만 좋아요 상태 로드
+    if (this.userStore.username) {
+      this.loadLikeStatus();
+    }
+
 
     if (this.fund.userLiked === undefined) {
       this.fund.userLiked = false;
@@ -90,6 +92,10 @@ export default {
     },
     async toggleLike(event, fund) {
       event.stopPropagation();
+      if (this.userStore.username) {
+        alert("로그인 후 이용 가능 합니다.");
+        return;
+      }
 
       // 좋아요 상태 변경
       fund.userLiked = !fund.userLiked;
@@ -318,15 +324,14 @@ export default {
 .calc-btn .icon {
   width: 35px;
   height: auto;
-  filter: brightness(0) saturate(100%) invert(60%) sepia(10%) saturate(800%)
-    hue-rotate(180deg) brightness(85%) contrast(95%);
+  filter: brightness(0) saturate(100%) invert(60%) sepia(10%) saturate(800%) hue-rotate(180deg) brightness(85%) contrast(95%);
   transition: filter 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
 .calc-btn:hover .icon {
-  filter: brightness(0) saturate(100%) invert(20%) sepia(100%) saturate(8000%)
-    hue-rotate(200deg) brightness(95%) contrast(110%);
-  transform: scale(1.1); /* 호버 시 확대 효과 */
+  filter: brightness(0) saturate(100%) invert(20%) sepia(100%) saturate(8000%) hue-rotate(200deg) brightness(95%) contrast(110%);
+  transform: scale(1.1);
+  /* 호버 시 확대 효과 */
 }
 
 .like-btn {
@@ -355,7 +360,8 @@ export default {
 .custom-checkbox {
   position: relative;
   display: inline-block;
-  padding-left: 40px; /* 체크박스가 커지므로 패딩 조정 */
+  padding-left: 40px;
+  /* 체크박스가 커지므로 패딩 조정 */
   margin-right: 15px;
   cursor: pointer;
   user-select: none;
@@ -374,14 +380,15 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
-  height: 30px; /* 체크박스 크기 증가 */
+  height: 30px;
+  /* 체크박스 크기 증가 */
   width: 30px;
   background-color: #eee;
   border-radius: 4px;
   transition: background-color 0.3s ease;
 }
 
-.custom-checkbox input:checked ~ .checkmark {
+.custom-checkbox input:checked~.checkmark {
   background-color: #007bff;
 }
 
@@ -391,14 +398,16 @@ export default {
   display: none;
 }
 
-.custom-checkbox input:checked ~ .checkmark:after {
+.custom-checkbox input:checked~.checkmark:after {
   display: block;
 }
 
 .custom-checkbox .checkmark:after {
-  left: 10px; /* 체크 표시 위치 조정 */
+  left: 10px;
+  /* 체크 표시 위치 조정 */
   top: 7px;
-  width: 7px; /* 체크 표시 크기 증가 */
+  width: 7px;
+  /* 체크 표시 크기 증가 */
   height: 14px;
   border: solid white;
   border-width: 0 3px 3px 0;

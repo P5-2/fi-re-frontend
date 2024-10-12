@@ -1,5 +1,5 @@
 <template>
-    <CartItem :item="item.savingsDeposit" type="saving" :isSelected="isSelected"
+    <CartItem :item="item" type="saving" :isSelected="isSelected"
         @update-selected-items="emitSelectedItems">
         <template #default>
             <div class="item-name">{{ item.savingsDeposit.fin_prdt_nm }}({{ item.options[0].intr_rate_type_nm }})</div>
