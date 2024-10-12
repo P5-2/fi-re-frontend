@@ -9,7 +9,8 @@
                 <!-- 투자 금액 입력 -->
                 <div class="investment-input">
                     <label for="investmentAmount">투자 금액:</label>
-                    <input type="number" v-model="investmentAmount" id="investmentAmount" placeholder="투자 금액을 입력하세요" /> 만원
+                    <input type="number" v-model="investmentAmount" id="investmentAmount" placeholder="투자 금액을 입력하세요" />
+                    만원
                 </div>
 
                 <table class="comparison-table">
@@ -25,7 +26,7 @@
                     <tbody>
                         <!-- 상품 별로 기간이 12개월인 옵션만 필터링 -->
                         <tr v-for="deposit in filteredDeposits" :key="deposit.savingsDeposit.fin_prdt_cd">
-                            <td>{{ deposit.savingsDeposit.fin_prdt_nm }}</td>
+                            <td>{{ deposit.savingsDeposit.fin_prdt_nm }} ({{ deposit.options[0].intr_rate_type_nm }})</td>
                             <td>{{ deposit.options[0].intr_rate }}%</td>
                             <td>{{ deposit.options[0].intr_rate2 }}%</td>
                             <!-- 1년 기준 기본 금리로 수익 계산 -->
@@ -61,6 +62,15 @@ export default {
             investmentAmount: 100, // 기본 투자 금액 설정 (단위: 만원)
         };
     },
+    watch: {
+        isComparisonModalVisible(newVal) {
+            if (newVal) {
+                // 모달이 열릴 때 selectedDeposits 데이터 확인
+                console.log("selectedDeposits 데이터:", this.selectedDeposits);
+            }
+        }
+    }
+    ,
     computed: {
         filteredDeposits() {
             // selectedDeposits에서 save_trm이 "12"인 옵션만 필터링

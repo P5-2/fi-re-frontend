@@ -3,7 +3,7 @@
     <div class="card-body">
       <div class="result-summary">
         <p class="investment-style" style="color: black">
-          {{ userStore.userName }}님의 투자 성향은
+          {{ nickname }}님의 투자 성향은
           <span :style="{ color: investmentStyleColor }">
             <strong>{{ investmentStyle }}</strong>
           </span>
@@ -43,7 +43,7 @@ export default {
       type: Number,
       required: true,
     },
-    userName: {
+    nickname: {
       type: String,
     },
   },

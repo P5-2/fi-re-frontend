@@ -3,7 +3,7 @@
     <h2>설문 결과</h2>
     <div class="result-summary">
       <p class="investment-style">
-        {{ userStore.userName }}님의 투자 성향은
+        {{ usertwo.nickname }}님의 투자 성향은
         <span :style="{ color: investmentStyleColor }">
           <strong>{{ investmentStyle }}</strong>
         </span>
@@ -28,14 +28,16 @@
         </tr>
       </tbody>
     </table>
-    <button
-      class="btn btn-primary"
-      @click="restartSurvey"
-      style="margin-right: 10px"
-    >
-      다시 시작하기
-    </button>
-    <a href="/recmd" class="btn btn-primary"> 추천상품 보러가기 </a>
+    <div class="button-container">
+      <button
+        class="btn btn-primary"
+        @click="restartSurvey"
+        style="margin-right: 10px"
+      >
+        다시 시작하기
+      </button>
+      <a href="/recmd" class="btn btn-primary"> 추천상품 보러가기 </a>
+    </div>
   </div>
 </template>
 
@@ -43,28 +45,17 @@
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
+import { useProfileStore } from '@/stores/profileStore';
 import { useSurveyStore } from '../../stores/surveyStore';
 
 export default {
-  props: {
-    totalScore: {
-      type: String,
-      required: true,
-    },
-    results: {
-      type: Array,
-      required: true,
-    },
-    specificScores: {
-      type: String,
-      required: true,
-    },
-  },
-  setup(props) {
+  setup() {
     const router = useRouter();
     const surveyStore = useSurveyStore();
     const userStore = useUserStore();
+    const profileStore = useProfileStore();
     userStore.checkLoginStatus(); // 로그인 상태 확인
+
     onMounted(async () => {
       // 설문 결과를 제출합니다.
       await surveyStore.submitSurvey();
@@ -99,18 +90,18 @@ export default {
     ];
 
     const investmentStyle = computed(() => {
-      if (props.totalScore <= 15) return '매우 보수적';
-      if (props.totalScore <= 21) return '보수적';
-      if (props.totalScore <= 27) return '중립적';
-      if (props.totalScore <= 33) return '적극적';
+      if (userStore.usertwo?.riskPoint <= 15) return '매우 보수적';
+      if (userStore.usertwo?.riskPoint <= 21) return '보수적';
+      if (userStore.usertwo?.riskPoint <= 27) return '중립적';
+      if (userStore.usertwo?.riskPoint <= 33) return '적극적';
       return '매우 적극적';
     });
 
     const investmentStyleColor = computed(() => {
-      if (props.totalScore <= 15) return '#A8E6CF'; // 연한 초록색
-      if (props.totalScore <= 21) return '#B3E5FC'; // 연한 파란색
-      if (props.totalScore <= 27) return '#FFEB3B'; // 밝은 노란색
-      if (props.totalScore <= 33) return '#FF9800'; // 중간 주황색
+      if (userStore.usertwo?.riskPoint <= 15) return '#A8E6CF'; // 연한 초록색
+      if (userStore.usertwo?.riskPoint <= 21) return '#B3E5FC'; // 연한 파란색
+      if (userStore.usertwo?.riskPoint <= 27) return '#FFEB3B'; // 밝은 노란색
+      if (userStore.usertwo?.riskPoint <= 33) return '#FF9800'; // 중간 주황색
       return '#FF5722'; // 밝은 빨간색
     });
 
@@ -124,7 +115,7 @@ export default {
       investmentStyle,
       investmentStyleColor,
       investmentStyles,
-      userStore,
+      usertwo: profileStore.usertwo, // usertwo 추가
     };
   },
 };
@@ -182,6 +173,10 @@ export default {
 
 .highlight td {
   font-weight: 1000; /* 하이라이트된 셀의 텍스트를 더 굵게 설정 */
+}
+
+.button-container {
+  margin-top: 20px; /* 버튼 간 간격 추가 */
 }
 
 .btn {

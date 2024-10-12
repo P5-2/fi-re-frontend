@@ -73,4 +73,6 @@ gradle-app.setting
 # Java heap dump
 *.hprof
 
+node_modules/.vite/deps
+
 # End of https://www.toptal.com/developers/gitignore/api/gradle,java,visualstudiocode
