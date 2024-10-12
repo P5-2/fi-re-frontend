@@ -1,16 +1,23 @@
 <template>
   <div class="product-card" @click="viewDetails">
-
     <label class="custom-checkbox" @click.stop>
-      <input type="checkbox" :checked="isSelected" @change="emitSelectedItems" />
+      <input
+        type="checkbox"
+        :checked="isSelected"
+        @change="emitSelectedItems"
+      />
       <span class="checkmark"></span>
     </label>
 
     <div class="product-content">
       <!-- 상품명과 은행로고-->
       <div class="product-main-info">
-        <img :src="getBankLogo(savingsDeposit.kor_co_nm)" :alt="savingsDeposit.kor_co_nm" class="bank-logo"
-          :title="savingsDeposit.kor_co_nm" />
+        <img
+          :src="getBankLogo(savingsDeposit.kor_co_nm)"
+          :alt="savingsDeposit.kor_co_nm"
+          class="bank-logo"
+          :title="savingsDeposit.kor_co_nm"
+        />
         <div class="product-info">
           <!-- 상품명 위에 위치한 정보 박스들 -->
           <div class="info-boxes">
@@ -85,6 +92,7 @@ export default {
       );
     };
 
+    // 은행 로고 변환
     const getBankLogo = (bankName) => {
       const formattedBankName = bankName.replace(/\s+/g, "");
       return imageMap[formattedBankName] || imageMap["bluebank"];
@@ -107,13 +115,12 @@ export default {
     ...mapActions(calculatorStore, ["addSavings"]),
 
     emitSelectedItems() {
-      this.$emit('updateSelected', {
+      this.$emit("updateSelected", {
         savingsDeposit: this.savingsDeposit, // savingsDeposit 데이터를 전달
         options: this.options, // options 데이터를 함께 전달
         isSelected: !this.isSelected, // 선택 여부
       });
     },
-
 
     getRsrvTypeLabel(rsrvType) {
       if (rsrvType === "F") {
@@ -148,6 +155,10 @@ export default {
       this.addSavings(savingsData);
       // alert("상품을 계산기에 추가했습니다");
     },
+    isUserLoggedIn() {
+      const userData = JSON.parse(localStorage.getItem("user"));
+      return userData && userData.username;
+    },
     getUsername() {
       // 로컬 스토리지에서 user 데이터를 가져옴
       const userData = JSON.parse(localStorage.getItem("user"));
@@ -161,6 +172,11 @@ export default {
       }
     },
     async toggleFavorite() {
+      if (!this.isUserLoggedIn()) {
+        alert("로그인 후 즐겨찾기 기능을 사용할 수 있습니다.");
+        // Optionally redirect to login page
+        return;
+      }
       const username = this.getUsername();
       if (this.savingsDeposit.prdt_div === "S") {
         const alreadyInCart = await checkSavingsInCart(
