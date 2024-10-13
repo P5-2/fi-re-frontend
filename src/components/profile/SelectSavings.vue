@@ -5,16 +5,8 @@
       <ul class="product-list">
         <li v-for="product in filteredProducts" :key="product.finPrdtCd" class="product-item">
           <label class="product-label">
-            <input
-              type="radio"
-              v-model="selectedProductId"
-              :value="product.finPrdtCd"
-              class="radio-input"
-            />
-            <span
-              class="product-info"
-              :class="{ 'selected': selectedProductId === product.finPrdtCd }"
-            >
+            <input type="radio" v-model="selectedProductId" :value="product.finPrdtCd" class="radio-input" />
+            <span class="product-info" :class="{ 'selected': selectedProductId === product.finPrdtCd }">
               <span class="product-name">{{ product.finPrdtNm }}</span> <br />
               <span class="company-name">{{ product.korCoNm }}</span><br />
               <span class="interest-rate">금리: {{ product.intrRate }}%</span>
@@ -151,14 +143,33 @@ export default {
 <style scoped>
 .select-product {
   padding: 20px;
-  max-width: 600px;
-  margin: auto;
+  width: 100%;
+  max-height: 500px;
+  margin: 0px;
   border: 1px solid #e0e0e0;
   border-radius: 10px;
   background-color: #ffffff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
-  max-height: 400px;
+  box-sizing: border-box;
+}
+
+.select-product::-webkit-scrollbar {
+  width: 8px;
+}
+
+.select-product::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+
+.select-product::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+  border: 2px solid #f0f0f0;
+}
+
+.select-product::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
 }
 
 .product-container {
@@ -185,7 +196,7 @@ export default {
 }
 
 .product-info.selected {
-  background-color: #DBE2EF; /* 선택된 카드 색상 */
+  background-color: #DBE2EF;
   border-color: #DBE2EF;
 }
 
@@ -206,10 +217,12 @@ export default {
   margin-bottom: 10px;
   width: 100%;
 }
+
 .product-info.selected {
-  background-color: #DBE2EF; /* 선택된 카드 색상 */
+  background-color: #DBE2EF;
   border-color: #DBE2EF;
 }
+
 .product-name {
   font-size: 18px;
   font-weight: bold;
@@ -219,7 +232,6 @@ export default {
 
 .product-name:hover {
   color: #007BFF;
-  /* 호버 시 색상 변경 */
 }
 
 .company-name {
@@ -241,12 +253,11 @@ export default {
 input[type="radio"] {
   margin-right: 10px;
   accent-color: #007BFF;
-  /* Custom radio button color */
 }
 
 .submit-button {
-  position: absolute; /* 절대 위치 */
-  bottom: 15%; /* 상품 카드에서 20px 아래 */
+  position: absolute;
+  bottom: 15%;
   right: 37%;
   background-color: #4caf50;
   color: white;
@@ -255,7 +266,7 @@ input[type="radio"] {
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
-  z-index: 10; /* 모달창보다 낮은 z-index 설정 */
+  z-index: 10;
 }
 
 .submit-button:disabled {
@@ -272,6 +283,7 @@ h2 {
   margin-bottom: 20px;
   color: #333;
 }
+
 .radio-input {
   display: none;
 }
