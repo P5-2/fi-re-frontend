@@ -48,7 +48,7 @@ import DepositRecommendation from '@/components/recommendation/DepositRecommenda
 import FundRecommendation from '@/components/recommendation/FundRecommendation.vue';
 import MemberComponent from '@/components/recommendation/MemberComponent.vue';
 import SavingsRecommendation from '@/components/recommendation/SavingsRecommendation.vue';
-import axios from 'axios'; // axios 추가
+import axios from 'axios';
 
 export default {
   components: {
@@ -82,7 +82,7 @@ export default {
         await axios.post(
           `http://localhost:9000/exp`,
           {
-            page: 'recommaendation', // 현재 페이지 이름
+            page: 'recommaendation',
           },
           {
             headers: {
