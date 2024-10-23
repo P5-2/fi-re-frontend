@@ -53,7 +53,6 @@ export default {
     const fundList = ref([]);
     const router = useRouter();
 
-    // 펀드 목록을 가져오는 비동기 함수
     const fetchFunds = async () => {
       const accessToken = getAccessToken();
       const config = {
@@ -70,23 +69,19 @@ export default {
       }
     };
 
-    // 세션에서 액세스 토큰을 가져오는 함수
     const getAccessToken = () => {
       const tokenData = JSON.parse(sessionStorage.getItem("token"));
       return tokenData.accessToken;
     };
 
-    // 펀드 카드 클릭 시 상세 페이지로 이동
     const savingsItemClick = (prdNo) => {
       router.push('/itemDetail/fund/' + prdNo);
     };
 
-    // 설문조사 페이지로 이동
     const goToSurvey = () => {
       router.push('/survey/start');
     };
 
-    // 위험 등급 텍스트 반환
     const gradeText = (grade) => {
       switch (grade) {
         case 6: return '매우 낮은 위험';
@@ -99,7 +94,6 @@ export default {
       }
     };
 
-    // 위험 등급에 따른 색상 반환
     const gradeColor = (grade) => {
       switch (grade) {
         case 6: return '#146138'; // 매우 낮은 위험
@@ -112,7 +106,6 @@ export default {
       }
     };
 
-    // 컴포넌트가 마운트될 때 펀드 목록 가져오기
     onMounted(() => {
       fetchFunds();
     });
@@ -132,7 +125,6 @@ export default {
 .recommend-container {
   padding: 20px;
   background-color: #DFE7F2;
-  /* 배경 색상 */
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   margin: 0 auto;
@@ -160,7 +152,6 @@ export default {
   padding: 1em;
   border-radius: 12px;
   background-color: #ffffff;
-  /* 카드 배경 색상 */
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
   width: 100%;
@@ -189,7 +180,6 @@ export default {
   font-size: 1.4em;
   font-weight: 700;
   color: #3C74A6;
-  /* 펀드 이름 색상 */
 }
 
 .info-row {
@@ -206,20 +196,15 @@ export default {
 
 .rate-container {
   display: flex;
-  /* Flexbox 사용 */
   flex-wrap: wrap;
-  /* 항목이 가로로 넘치면 줄바꿈 */
   justify-content: space-between;
-  /* 공간을 균등하게 분배 */
 }
 
 .fund-type,
 .fund-rate {
   color: #000000;
-  /* 펀드 유형 및 수익률 색상 */
   font-size: 0.9em;
   font-weight: 600;
-  /* margin: 0; */
   flex: 1 1 auto;
   min-width: 100px;
   margin: 5px;
@@ -231,50 +216,39 @@ export default {
 
 .empty-message {
   color: #999;
-  /* 빈 메시지 색상 */
   font-style: italic;
   text-align: center;
   padding: 1em;
   border: 1px dashed #0A3459;
-  /* 경계 색상 */
   border-radius: 8px;
   background-color: #F2F2F2;
-  /* 빈 메시지 배경 색상 */
 }
 
 button {
   background-color: #0A3459;
-  /* 버튼 색상 */
   color: white;
   border: none;
   padding: 0.6em 1.2em;
-  /* 버튼 패딩 조정 */
   font-size: 1em;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.3s;
   margin-top: 1em;
-  /* 버튼과 텍스트 간 간격 */
 }
 
 button:hover {
   background-color: #3C74A6;
-  /* 버튼 hover 색상 */
   transform: scale(1.05);
-  /* 버튼 hover 시 확대 효과 */
 }
 
 .grade-section {
   flex: 0 0 100px;
-  /* 섹션의 최대 너비를 100px로 제한 */
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* 중앙 정렬 */
   min-width: 50px;
-  /* 최소 너비 설정 */
 }
 
 .grade-icon {
@@ -287,7 +261,6 @@ button:hover {
   font-size: 18px;
   color: white;
   background-color: #0A3459;
-  /* 등급 아이콘 배경 색상 */
 }
 
 .grade-text {

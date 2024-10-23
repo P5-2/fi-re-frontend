@@ -65,16 +65,16 @@ export default {
     const iconMap = ref({});
 
     const getBankIcon = async (bankName) => {
-      const formats = ['png', 'jpg']; // 지원하는 이미지 형식
+      const formats = ['png', 'jpg'];
       for (const format of formats) {
         try {
           const icon = await import(`@/assets/bank/${bankName}.${format}`);
           return icon.default;
         } catch (error) {
-          // Ignore the error and try the next format
+          console.log(error);
         }
       }
-      return DefaultIcon; // 모든 형식에서 아이콘이 없으면 기본 아이콘 반환
+      return DefaultIcon;
     };
 
     const loadIcons = async () => {
@@ -102,8 +102,8 @@ export default {
 
       try {
         const response = await axios.get('http://localhost:9000/recommend/savings', config);
-        depositList.value = response.data.savingsDeposits; // DTO에서 필터링된 적금 목록 할당
-        usedKeywords.value = response.data.usedKeywords; // 사용된 키워드 할당
+        depositList.value = response.data.savingsDeposits; 
+        usedKeywords.value = response.data.usedKeywords;
         console.log('savings : ', depositList.value);
       } catch (error) {
         console.error('Error fetching deposits:', error);
@@ -124,7 +124,7 @@ export default {
     };
 
     const getIcon = (bname) => {
-      return iconMap.value[bname] || DefaultIcon; // 기본 아이콘
+      return iconMap.value[bname] || DefaultIcon;
     };
 
     onMounted(() => {
@@ -175,7 +175,6 @@ export default {
   padding: 0.5em;
   border-radius: 12px;
   background-color: #ffffff;
-  /* 카드 배경 색상 */
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
   width: 100%;
@@ -185,89 +184,69 @@ export default {
 
 .deposit-card:hover {
   transform: translateY(-2px);
-  /* 카드 hover 효과 */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  /* hover 시 그림자 증가 */
 }
 
 .icon {
   width: 60px;
-  /* 아이콘 크기 조정 */
   height: auto;
   margin-right: 20px;
-  /* 오른쪽 여백 줄이기 */
 }
 
 .deposit-info {
   flex-grow: 1;
-  /* 남은 공간 차지 */
   text-align: left;
-  /* 텍스트 왼쪽 정렬 */
 }
 
 .deposit-name {
   margin: 0;
   font-size: 1.4em;
-  /* 상품명 크기 조정 */
   font-weight: 700;
   color: #007bff;
-  /* 브랜드 색상 */
 }
 
 .deposit-rate,
 .deposit-period {
   color: #0a3459;
-  /* 텍스트 색상 */
   font-size: 0.9em;
-  /* 텍스트 크기 조정 */
   margin-bottom: 8px;
 }
 
 .rate {
   font-weight: bold;
   color: #333;
-  /* 강조된 금리 색상 */
 }
 
 .period {
   font-style: italic;
   color: #007bff;
-  /* 기간 강조 색상 */
 }
 
 .empty-message {
   color: #999;
-  /* 빈 메시지 텍스트 색상 */
   font-style: italic;
   text-align: center;
   padding: 1em;
   border: 1px dashed #0a3459;
-  /* 경계 색상 */
   border-radius: 8px;
   background-color: #f2f2f2;
-  /* 부드러운 배경색 추가 */
 }
 
 button {
   background-color: #0a3459;
-  /* 버튼 색상 */
   color: white;
   border: none;
   padding: 0.6em 1.2em;
-  /* 버튼 패딩 조정 */
   font-size: 1em;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.3s;
   margin-top: 1em;
-  /* 버튼과 텍스트 간 간격 */
 }
 
 button:hover {
   background-color: #3c74a6;
-  /* 버튼 hover 색상 */
   transform: scale(1.05);
-  /* 버튼 hover 시 확대 효과 */
 }
 
 .keywords-section {
@@ -276,27 +255,20 @@ button:hover {
 
 .keyword-list {
   display: flex;
-  /* 가로 정렬을 위해 flexbox 사용 */
   flex-wrap: wrap;
-  /* 줄바꿈을 허용하여 공간에 맞게 정렬 */
 }
 
 .hashtag {
   display: inline-block;
   background-color: #3c74a6;
-  /* 연한 파란색 배경 */
   border-radius: 12px;
   padding: 6px 12px;
   margin-right: 6px;
   margin-top: 5px;
   font-size: 14px;
-  /* 해시태그 폰트 크기 조정 */
   color: #f2f2f2;
-  /* 어두운 파란색 글자 */
   transition: background-color 0.3s ease;
-  /* 배경 색상 전환 효과 */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  /* 그림자 추가 */
 }
 
 .hashtag:hover {
