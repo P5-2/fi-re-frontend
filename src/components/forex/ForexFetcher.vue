@@ -26,7 +26,7 @@ export default {
 
         // 날짜를 'yyyyMMdd' 형식으로 변환
         const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0'); // 0부터 시작하므로 +1
+        const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
         const formattedDate = `${year}${month}${day}`;
         
@@ -47,7 +47,7 @@ export default {
         await axios.post(
           `http://localhost:9000/exp`,
           {
-            page: 'forex', // 현재 페이지 이름
+            page: 'forex',
           },
           {
             headers: {
