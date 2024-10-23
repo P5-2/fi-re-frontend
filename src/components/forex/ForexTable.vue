@@ -120,8 +120,7 @@ export default {
   padding: 20px;
   border-radius: 10px;
   margin-bottom: 30px;
-  width: 100%; /* 부모 컴포넌트의 너비만큼 설정 */
-  /* box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); */
+  width: 100%;
 }
 
 
@@ -162,7 +161,7 @@ export default {
 .currency-info {
   display: flex;
   flex-direction: column;
-  text-align: left; /* 좌측 정렬 적용 */
+  text-align: left;
 }
 
 .currency-info h3 {
