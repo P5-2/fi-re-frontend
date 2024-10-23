@@ -49,7 +49,7 @@ export default {
   },
   setup() {
     const userStore = useUserStore();
-    userStore.checkLoginStatus(); // 로그인 상태 확인
+    userStore.checkLoginStatus(); 
     return {
       userStore,
     };
@@ -108,7 +108,7 @@ export default {
   border: 1px solid #ffffff;
   border-radius: 8px;
   background-color: #ffffff;
-  margin: 60px 0 20px; /* 상단 마진을 추가하여 헤더와의 간격을 확보 */
+  margin: 60px 0 20px;
   text-align: center;
 }
 
@@ -138,20 +138,20 @@ export default {
 
 .score-table td {
   font-weight: normal;
-  color: black; /* 모든 텍스트를 검은색으로 설정 */
+  color: black;
 }
 
 .score-table th {
   background-color: #f0f0f0;
-  color: black; /* 헤더 글씨 색상 검은색 */
+  color: black;
 }
 
 .highlight {
-  border: 2px solid #000; /* 강조를 위한 테두리 */
-  font-weight: bold; /* 하이라이트된 부분의 폰트 굵게 설정 */
+  border: 2px solid #000;
+  font-weight: bold;
 }
 
 .highlight td {
-  font-weight: bold; /* 하이라이트된 셀의 텍스트 굵게 설정 */
+  font-weight: bold;
 }
 </style>

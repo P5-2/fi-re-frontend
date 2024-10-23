@@ -77,7 +77,6 @@ export default {
     const loadProducts = async () => {
       await fetchMemberSavings();
       const products = await fetchProducts();
-      // 중복된 finPrdtCd 제거
       const uniqueProducts = Array.from(new Set(products.map(product => product.finPrdtCd)))
         .map(finPrdtCd => products.find(product => product.finPrdtCd === finPrdtCd));
       filteredProducts.value = uniqueProducts.filter(product => !memberSavings.value.includes(product.finPrdtCd));

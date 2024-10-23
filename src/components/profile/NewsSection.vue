@@ -96,7 +96,7 @@ export default {
 }
 
 .news-title {
-  font-size: 1.5rem; /* 제목 크기 조정 */
+  font-size: 1.5rem;
   color: #333;
   margin-bottom: 10px;
 }
@@ -113,21 +113,21 @@ export default {
 }
 
 .news-item-title a {
-  font-size: 1.2rem; /* 제목 크기 조정 */
-  color: #007bff; /* 강조 색상 */
-  text-decoration: none; /* 링크 밑줄 제거 */
+  font-size: 1.2rem; 
+  color: #007bff;
+  text-decoration: none;
 }
 
 .news-item-title a:hover {
-  text-decoration: underline; /* 마우스 오버 시 밑줄 추가 */
+  text-decoration: underline;
 }
 
 .news-description {
   color: #555;
-  margin: 5px 0 0; /* 위쪽 마진 추가 */
+  margin: 5px 0 0; 
 }
 
 .news-item:last-child {
-  border-bottom: none; /* 마지막 항목의 테두리 제거 */
+  border-bottom: none;
 }
 </style>
