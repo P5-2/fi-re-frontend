@@ -51,9 +51,8 @@ export default {
         targetAmount: targetAmount.value
       });
 
-      emit('goal-set', { goalName: goalName.value, targetAmount: targetAmount.value }); // 부모에게 목표 설정 알림
+      emit('goal-set', { goalName: goalName.value, targetAmount: targetAmount.value });
 
-      // 입력 필드 초기화
       goalName.value = '';
       targetAmount.value = 0;
     };

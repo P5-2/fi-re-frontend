@@ -62,7 +62,7 @@ export default {
     },
     characterImage() {
       if (!this.usertwo || typeof this.usertwo.exp !== 'number') {
-        return defaultImage; // 기본 이미지 반환
+        return defaultImage; 
       }
 
       if (this.level === 1) {
@@ -76,20 +76,18 @@ export default {
       }
     },
     expNeededForNextLevel() {
-      return 6 * this.level; // 다음 레벨까지 필요한 경험치
+      return 6 * this.level; 
     },
     displayedExp() {
-      return this.level === 4 ? 24 : this.usertwo.exp; // 레벨 4일 때 exp를 24로 고정
+      return this.level === 4 ? 24 : this.usertwo.exp; 
     },
   },
   methods: {
     calculateLevel(exp) {
-      // 최대 레벨 4로 제한
       if (exp >= 24) return 4;
-      return Math.floor(exp / 6) + 1; // 레벨 계산
+      return Math.floor(exp / 6) + 1; 
     },
     calculateProgressPercentage(exp) {
-      // 레벨 4인 경우 100% 고정
       if (this.level === 4) {
         return '100%';
       }
@@ -97,7 +95,7 @@ export default {
       return `${(currentLevelExp / 6) * 100}%`;
     },
     calculateExpInCurrentLevel(exp) {
-      return exp % 6; // 현재 레벨에서의 경험치
+      return exp % 6;
     },
   },
 };
@@ -105,75 +103,75 @@ export default {
 
 <style scoped>
 .profile-layout {
-  display: flex; /* 좌우로 나누기 */
-  gap: 20px; /* 좌측과 우측 사이의 간격 추가 */
+  display: flex;
+  gap: 20px; 
 }
 
 .character-container {
-  flex: 1; /* 왼쪽 영역 1로 설정 */
+  flex: 1; 
   display: flex;
   align-items: center;
-  justify-content: center; /* 수직, 수평 중앙 정렬 */
+  justify-content: center;
 }
 
 .character-image {
-  width: 100%; /* 이미지 너비 100%로 설정 */
+  width: 100%;
   height: auto;
 }
 
 .user-info {
-  flex: 1; /* 오른쪽 영역 1로 설정 */
+  flex: 1;
   display: flex;
-  flex-direction: column; /* 세로 방향으로 정렬 */
-  justify-content: center; /* 중앙 정렬 */
-  align-items: center; /* 가로 중앙 정렬 */
+  flex-direction: column; 
+  justify-content: center;
+  align-items: center;
 }
 
 .nickname-container {
-  margin-bottom: 10px; /* 닉네임과 프로그래스 바 간격 */
-  text-align: center; /* 중앙 정렬 */
+  margin-bottom: 10px;
+  text-align: center;
 }
 
 .nickname {
   display: flex;
-  align-items: center; /* 수직 정렬 */
+  align-items: center;
 }
 
 .nickname h3 {
-  margin: 0; /* 기본 마진 제거 */
-  font-size: 22px; /* 이름 크기 증가 */
+  margin: 0;
+  font-size: 22px;
 }
 
 .badge {
-  padding: 3px 6px; /* 배지 패딩 증가 */
-  margin-left: 5px; /* 이름과 배지 간의 간격 */
-  font-size: 16px; /* 배지 텍스트 크기 */
+  padding: 3px 6px; 
+  margin-left: 5px;
+  font-size: 16px;
 }
 
 .level-badge {
-  background-color: #3f72af; /* 배지 색상 */
-  color: white; /* 텍스트 색상 */
+  background-color: #3f72af;
+  color: white; 
   border-radius: 5px;
 }
 
 .progress-container {
-  width: 100%; /* 프로그래스 바 너비 100%로 설정 */
+  width: 100%;
 }
 
 .progress {
-  background-color: #f9f7f7; /* 프로그래스 바 배경색 */
+  background-color: #f9f7f7; 
   border-radius: 5px;
-  overflow: hidden; /* 프로그래스 바 안의 요소를 잘라줌 */
+  overflow: hidden; 
 }
 
 .progress-bar {
-  background-color: #3f72af; /* 프로그래스 바 색상 */
-  height: 20px; /* 프로그래스 바 높이 */
+  background-color: #3f72af; 
+  height: 20px;
 }
 
 .exp-text {
-  margin-top: 5px; /* 경험치 텍스트와 프로그래스 바 간격 */
-  font-size: 16px; /* 경험치 텍스트 크기 */
-  text-align: center; /* 중앙 정렬 */
+  margin-top: 5px; 
+  font-size: 16px;
+  text-align: center; 
 }
 </style>

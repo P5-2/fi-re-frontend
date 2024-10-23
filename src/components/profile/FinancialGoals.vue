@@ -20,7 +20,6 @@
         </div>
       </div>
 
-      <!-- <h2>나의 예적금 상품들</h2> -->
       <div v-for="product in userProducts" :key="product.finPrdtCd" class="goal-card"
         :class="{ expanded: product.isExpanded }">
         <div class="goal-card-header" @click="toggleCard(product.finPrdtCd)">
@@ -68,7 +67,6 @@
       <button @click="showSetGoalModal" class="btn-primary">추가 목표 설정</button>
     </div>
 
-    <!-- SetGoal 모달 -->
     <div v-if="isSetGoalModalVisible" class="modal show" @click.self="closeSetGoalModal">
       <div class="modal-content show">
         <SetGoal @goal-set="handleGoalSet" />
@@ -76,7 +74,6 @@
       </div>
     </div>
 
-    <!-- SelectSavings 모달 -->
     <div v-if="isSelectSavingsModalVisible" class="modal show" @click.self="closeSelectSavingsModal">
       <div class="modal-content show">
         <SelectProduct @product-selected="handleProductSelected" />
@@ -120,7 +117,6 @@ export default {
         if (Array.isArray(response.data)) {
           const uniqueProductsMap = new Map();
 
-          // finPrdtCd를 이용해서 중복 제거
           response.data.forEach(product => {
             if (!uniqueProductsMap.has(product.finPrdtCd)) {
               uniqueProductsMap.set(product.finPrdtCd, {
@@ -141,7 +137,6 @@ export default {
 
         goalStore.updateTotals(userProducts.value);
 
-        // 상품이 없을 경우 모달 보여주기
         if (userProducts.value.length === 0 && shouldShowModal) {
           showSetGoalModal();
         }
@@ -152,25 +147,21 @@ export default {
     };
 
     const toggleCard = (finPrdtCd) => {
-      // finPrdtCd가 유효한지 확인
       if (!finPrdtCd) {
         console.warn("finPrdtCd is undefined or null.");
-        return; // finPrdtCd가 유효하지 않으면 함수 종료
+        return;
       }
 
-      console.log("finPrdtCd: ", finPrdtCd); // finPrdtCd 로그 출력
-
       userProducts.value = userProducts.value.map(product => {
-        // product.finPrdtCd가 유효한지 확인
         if (product.finPrdtCd !== undefined && product.finPrdtCd === finPrdtCd) {
           return {
             ...product,
-            isExpanded: !product.isExpanded // 선택한 카드만 열고 닫기
+            isExpanded: !product.isExpanded
           };
         } else {
           return {
             ...product,
-            isExpanded: false // 나머지는 닫힌 상태 유지
+            isExpanded: false 
           };
         }
       });
@@ -212,7 +203,7 @@ export default {
           console.error(`Error loading icon for ${bankName}: ${error.message}`);
         }
       }
-      return DefaultIcon; // 모든 형식에서 아이콘이 없으면 기본 아이콘 반환
+      return DefaultIcon;
     };
 
     const loadIcons = async () => {
@@ -238,14 +229,14 @@ export default {
       ];
 
       const promises = banks.map(async (bank) => {
-        iconMap.value[bank] = await getBankIcon(bank); // 아이콘을 iconMap에 저장
+        iconMap.value[bank] = await getBankIcon(bank); 
       });
 
-      await Promise.all(promises); // 모든 아이콘 로드 완료 대기
+      await Promise.all(promises); 
     };
 
     const getIcon = (bname) => {
-      return iconMap.value[bname] || DefaultIcon; // 기본 아이콘
+      return iconMap.value[bname] || DefaultIcon;
     };
 
     const showSetGoalModal = () => {
@@ -276,28 +267,25 @@ export default {
 
     // 적금 월 불입액 계산
     const calculateMonthlyDeposit = (product) => {
-      // 
-      // 모든 값이 유효한 숫자인지 확인
       if (typeof product.targetAmount === 'number' && typeof product.savedAmount === 'number' && typeof remainingMonths(product.endDate) === 'number') {
         const remainingAmount = product.targetAmount - product.savedAmount;
         const remainingMonthlyAmount = (remainingAmount / remainingMonths(product.endDate)) - product.monthlyDeposit;
-        // 남은 개월이 0보다 큰지 확인하여 나눗셈 오류 방지
+        
         if (remainingMonths(product.endDate) > 0) {
-          // return (remainingAmount / remainingMonths(product.endDate)).toFixed(2);
           return remainingMonthlyAmount.toFixed(0);
         } else {
-          return 0; // 남은 기간이 없으면 0 반환
+          return 0; 
         }
       }
-      return 0; // 유효하지 않은 값이면 0 반환
+      return 0;
     };
 
     // 만기시 총액 계산
     function calculateMaturityAmount(product) {
-      const principal = product.savedAmount; // 원금
+      const principal = product.savedAmount; 
       const interestRate = ((product.minRate + product.maxRate) / 2) / 100; // 이자율 합산 후 소수점으로 변환
       const period = remainingMonths(product.endDate); // 남은 기간을 월 단위로 계산
-      const interestType = product.intrRateTypeNm; // 이자 계산 방식
+      const interestType = product.intrRateTypeNm;
       const taxRate = 0.154; // 세율 15.4%
       let maturityAmount = 0;
 
@@ -317,7 +305,6 @@ export default {
       return finalAmount.toFixed(2); // 소수점 2자리까지 반올림하여 반환
     }
 
-    // 삭제 메서드
     const deleteMemberSavings = async (prdNo) => {
       try {
         const accessToken = goalStore.getAccessToken();
@@ -329,19 +316,16 @@ export default {
 
         const response = await axios.delete(`http://localhost:9000/profile/goal/${prdNo}`, config);
 
-        // 성공적으로 삭제된 경우
         if (response.status === 200) {
-          // 상품 목록 갱신
           await updateUserProducts();
-          alert('삭제가 완료되었습니다.'); // 성공 메시지 표시
+          alert('삭제가 완료되었습니다.');
         }
       } catch (error) {
         console.error('삭제 중 오류 발생:', error);
-        alert('삭제 중 오류가 발생했습니다.'); // 오류 메시지 표시
+        alert('삭제 중 오류가 발생했습니다.');
       }
     };
 
-    // UI에 삭제 버튼 추가 및 삭제 확인
     const showDeleteConfirmation = (product) => {
       const prdNo = product.finPrdtCd;
       if (confirm('정말로 삭제하시겠습니까?')) {
@@ -373,19 +357,15 @@ export default {
       const today = new Date();
       const end = new Date(endDate);
 
-      // 종료일이 오늘보다 이전이면 0 반환
       if (end <= today) {
         return 0;
       }
 
-      // 종료일과 현재 날짜 사이의 연도 차이와 월 차이를 계산
       const yearsDifference = end.getFullYear() - today.getFullYear();
       const monthsDifference = end.getMonth() - today.getMonth();
 
-      // 총 남은 개월 수를 계산
       let remainingMonths = yearsDifference * 12 + monthsDifference;
 
-      // 만약 종료일이 현재 날짜보다 이후일 경우, 추가로 1개월을 더함
       if (end.getDate() > today.getDate()) {
         remainingMonths++;
       }
@@ -540,7 +520,6 @@ progress::-webkit-progress-value {
   border-radius: 10px;
 }
 
-/* 카드 기본 스타일 */
 .goal-card {
   background-color: #ffffff;
   border-radius: 10px;
@@ -550,12 +529,9 @@ progress::-webkit-progress-value {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* 카드가 확장된 상태의 스타일 */
 .goal-card.expanded {
   border: 2px solid #143959;
-  /* 확장된 상태의 강조 스타일 */
   height: auto;
-  /* 자동 높이 */
 }
 
 .goal-icon {
@@ -568,12 +544,9 @@ progress::-webkit-progress-value {
   align-items: center;
 }
 
-/* 카드가 확장될 때의 아이콘 크기 변경 */
 .goal-card.expanded .goal-icon {
   width: 70px;
-  /* 확장된 아이콘 크기 */
   height: 70px;
-  /* 확장된 아이콘 크기 */
 }
 
 .goal-card-header {
@@ -611,7 +584,6 @@ progress::-webkit-progress-value {
 
 .goal-detail-item:hover {
   background-color: #e9eff1;
-  /* 호버 시 배경 색상 */
 }
 
 .goal-detail-item i {
@@ -633,7 +605,6 @@ progress::-webkit-progress-value {
 
 .goal-detail-item:last-child {
   margin-right: 0;
-  /* 마지막 항목에는 오른쪽 여백 제거 */
 }
 
 .goal-details-enter-active {
@@ -655,18 +626,13 @@ progress::-webkit-progress-value {
 
 .progress-container {
   margin: 15px 0;
-  /* 간격 추가 */
   background-color: #ecf0f1;
-  /* 배경색 추가 */
   border-radius: 8px;
-  /* 둥근 모서리 */
   padding: 10px;
-  /* 패딩 추가 */
 }
 
 .delete-button {
   background-color: #e74c3c;
-  /* 삭제 버튼 색상 */
   color: white;
   border: none;
   padding: 10px 15px;
@@ -677,7 +643,6 @@ progress::-webkit-progress-value {
 
 .delete-button:hover {
   background-color: #c0392b;
-  /* 삭제 버튼 호버 효과 */
 }
 
 .modal.show {
@@ -742,7 +707,6 @@ progress::-webkit-progress-value {
   .goal-card {
     padding: 10px;
     flex-direction: column;
-    /* 작은 화면에서 세로 정렬 */
   }
 }
 </style>
