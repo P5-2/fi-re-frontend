@@ -202,13 +202,13 @@ export const useSurveyStore = defineStore('survey', {
           // 나이대 문자열 변환
           if (selectedAge === 1) {
             this.age = '10'; // 10대
-          } else if (selectedAge === 2) {
-            this.age = '20'; // 20대
           } else if (selectedAge === 3) {
-            this.age = '30'; // 30대
+            this.age = '20'; // 20대
           } else if (selectedAge === 4) {
-            this.age = '40'; // 40대
+            this.age = '30'; // 30대
           } else if (selectedAge === 5) {
+            this.age = '40'; // 40대
+          } else if (selectedAge === 6) {
             this.age = '60'; // 60대 이상
           }
         }

@@ -2,8 +2,8 @@
   <li class="cart-item" @click="handleItemClick">
     <div class="item-row">
       <div class="item-left">
-        <label class="custom-checkbox">
-          <input type="checkbox" :checked="isSelected" @change="emitSelectedItems" />
+        <label class="custom-checkbox" @click.stop>
+          <input type="checkbox" :checked="isSelected" @change="emitSelectedItems($event)" />
           <span class="checkmark"></span>
         </label>
 
@@ -60,11 +60,9 @@ export default {
   },
   methods: {
     emitSelectedItems(event) {
-      // prdNo를 한 줄로 간결하게 처리
-      const prdNo = this.item.prdNo || this.item.fin_prdt_cd;
 
+      const prdNo = this.item.prdNo || this.item.savingsDeposit.fin_prdt_cd;
       if (prdNo) {
-        // prdNo와 선택 상태를 emit
         this.$emit("update-selected-items", {
           prdNo: prdNo,
           isSelected: event.target.checked,

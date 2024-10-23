@@ -44,15 +44,13 @@ export default {
                     
                 // Pinia의 login 함수 호출
                 userStore.login(username, nickName); // 로그인 상태 업데이트
-                
-                // alert('네이버 로그인 성공!');
 
                 // 성공하면 메인화면으로 고!
                 router.push('/');
 
             } catch (error) {
                 console.error('Error fetching the token:', error);
-                alert('네이버 로그인 실패!');
+                alert('네이버 로그인 실패했습니다.');
             }
         };
 
@@ -66,7 +64,7 @@ export default {
                 // 서버로 인증 코드와 상태 값을 전달하여 토큰 요청
                 handleNaverCallback(code, state);
             } else {
-                alert('네이버 로그인에 실패하였습니다.');
+                alert('네이버 로그인에 실패했습니다.');
             }
         });
 

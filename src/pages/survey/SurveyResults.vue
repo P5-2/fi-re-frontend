@@ -18,22 +18,15 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="(style, index) in investmentStyles"
-          :key="index"
-          :class="{ highlight: investmentStyle === style.type }"
-        >
+        <tr v-for="(style, index) in investmentStyles" :key="index"
+          :class="{ highlight: investmentStyle === style.type }">
           <td :style="{ backgroundColor: style.color }">{{ style.type }}</td>
           <td>{{ style.recommendations }}</td>
         </tr>
       </tbody>
     </table>
     <div class="button-container">
-      <button
-        class="btn btn-primary"
-        @click="restartSurvey"
-        style="margin-right: 10px"
-      >
+      <button class="btn btn-primary" @click="restartSurvey" style="margin-right: 10px">
         다시 시작하기
       </button>
       <a href="/recmd" class="btn btn-primary"> 추천상품 보러가기 </a>
@@ -90,18 +83,18 @@ export default {
     ];
 
     const investmentStyle = computed(() => {
-      if (userStore.usertwo?.riskPoint <= 15) return '매우 보수적';
-      if (userStore.usertwo?.riskPoint <= 21) return '보수적';
-      if (userStore.usertwo?.riskPoint <= 27) return '중립적';
-      if (userStore.usertwo?.riskPoint <= 33) return '적극적';
+      if (surveyStore.totalScore <= 15) return '매우 보수적';
+      if (surveyStore.totalScore <= 21) return '보수적';
+      if (surveyStore.totalScore <= 27) return '중립적';
+      if (surveyStore.totalScore <= 33) return '적극적';
       return '매우 적극적';
     });
 
     const investmentStyleColor = computed(() => {
-      if (userStore.usertwo?.riskPoint <= 15) return '#A8E6CF'; // 연한 초록색
-      if (userStore.usertwo?.riskPoint <= 21) return '#B3E5FC'; // 연한 파란색
-      if (userStore.usertwo?.riskPoint <= 27) return '#FFEB3B'; // 밝은 노란색
-      if (userStore.usertwo?.riskPoint <= 33) return '#FF9800'; // 중간 주황색
+      if (surveyStore.totalScore <= 15) return '#A8E6CF'; // 연한 초록색
+      if (surveyStore.totalScore <= 21) return '#B3E5FC'; // 연한 파란색
+      if (surveyStore.totalScore <= 27) return '#FFEB3B'; // 밝은 노란색
+      if (surveyStore.totalScore <= 33) return '#FF9800'; // 중간 주황색
       return '#FF5722'; // 밝은 빨간색
     });
 
@@ -166,17 +159,21 @@ export default {
 }
 
 .highlight {
-  border: 2px solid #000; /* 강조를 위한 테두리 */
-  font-weight: 1000; /* 더 굵은 폰트 설정 */
+  border: 2px solid #000;
+  /* 강조를 위한 테두리 */
+  font-weight: 1000;
+  /* 더 굵은 폰트 설정 */
   background-color: #dbe2ef;
 }
 
 .highlight td {
-  font-weight: 1000; /* 하이라이트된 셀의 텍스트를 더 굵게 설정 */
+  font-weight: 1000;
+  /* 하이라이트된 셀의 텍스트를 더 굵게 설정 */
 }
 
 .button-container {
-  margin-top: 20px; /* 버튼 간 간격 추가 */
+  margin-top: 20px;
+  /* 버튼 간 간격 추가 */
 }
 
 .btn {
@@ -184,16 +181,24 @@ export default {
   font-size: 16px;
   transition: background-color 0.3s ease, transform 0.3s ease,
     box-shadow 0.3s ease;
-  border: 2px solid transparent; /* 기본 테두리 설정 */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 기본 그림자 */
-  text-transform: uppercase; /* 대문자화 */
-  font-weight: bold; /* 두껍게 설정 */
+  border: 2px solid transparent;
+  /* 기본 테두리 설정 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* 기본 그림자 */
+  text-transform: uppercase;
+  /* 대문자화 */
+  font-weight: bold;
+  /* 두껍게 설정 */
 }
 
 .btn:hover {
-  background-color: #007bff; /* 버튼 호버 시 색상 변경 */
-  transform: scale(1.002); /* 호버 시 크기 증가 */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 호버 시 그림자 변화 */
-  border: 2px solid #007bff; /* 호버 시 테두리 색상 변경 */
+  background-color: #007bff;
+  /* 버튼 호버 시 색상 변경 */
+  transform: scale(1.002);
+  /* 호버 시 크기 증가 */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  /* 호버 시 그림자 변화 */
+  border: 2px solid #007bff;
+  /* 호버 시 테두리 색상 변경 */
 }
 </style>

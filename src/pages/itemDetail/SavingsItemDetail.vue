@@ -97,15 +97,13 @@ export default {
         } else {
             this.rsrvType = this.$route.params.rsrvType;
         }
-        console.log(this.prdNo);
+
         axios.get("http://localhost:9000/finance/get", { params: { finPrdtCd: this.prdNo, intrRateTypeNm: this.intrRateTypeNm, rsrvType: this.rsrvType } })
             .then((res) => {
                 this.savings.savingsDeposit = res.data[0].savingsDeposit;
                 for (let data of res.data) {
                     this.savings.options.push(data.options[0]);
                 }
-                console.log(res.data);
-                console.log(this.savings);
             })
             .catch((err) => {
                 console.log(err);
@@ -172,7 +170,6 @@ export default {
                     await addDepositToCart(username, finPrdtCd, intrRateTypeNm);
                 }
 
-                console.log(finPrdtCd + "번 상품을 비교함에 담았습니다.");
                 alert("상품을 비교함에 담았습니다.");
             } catch (error) {
                 console.error("장바구니 추가 중 오류 발생:", error);
