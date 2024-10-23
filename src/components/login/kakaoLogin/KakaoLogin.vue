@@ -52,13 +52,11 @@ export default {
         // Pinia의 login 함수 호출
         userStore.login(username, nickName); // 로그인 상태 업데이트
 
-        // alert("카카오 로그인 성공!");
-
         // 성공하면 메인화면으로 감
         router.push("/");
       } catch (error) {
         console.error("Error fetching the token:", error);
-        alert("카카오 로그인 실패!");
+        alert("카카오 로그인에 실패했습니다.");
       }
     };
 
@@ -72,7 +70,7 @@ export default {
         console.log("code: " + code);
         handleKakaoCallback(code);
       } else {
-        alert("카카오 로그인에 실패하였습니다.");
+        alert("카카오 로그인에 실패했습니다.");
       }
     });
 
@@ -81,4 +79,3 @@ export default {
 };
 </script>
 
-<style scoped></style>

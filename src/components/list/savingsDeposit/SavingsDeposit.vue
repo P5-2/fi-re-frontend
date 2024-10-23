@@ -153,7 +153,6 @@ export default {
       };
 
       this.addSavings(savingsData);
-      // alert("상품을 계산기에 추가했습니다");
     },
     isUserLoggedIn() {
       const userData = JSON.parse(localStorage.getItem("user"));
@@ -173,7 +172,7 @@ export default {
     },
     async toggleFavorite() {
       if (!this.isUserLoggedIn()) {
-        alert("로그인 후 즐겨찾기 기능을 사용할 수 있습니다.");
+        alert("로그인 후 이용가능 합니다.");
         // Optionally redirect to login page
         return;
       }
@@ -212,11 +211,11 @@ export default {
             this.productId,
             this.intrRateTypeNm
           );
-          alert("장바구니에 삭제되었습니다.");
+          alert("즐겨찾기에 삭제되었습니다.");
           this.isInCart = false;
         } else {
           await addDepositToCart(username, this.productId, this.intrRateTypeNm);
-          alert("장바구니에 추가되었습니다.");
+          alert("즐겨찾기에 추가되었습니다.");
           this.isInCart = true;
         }
       }

@@ -126,7 +126,7 @@ export default {
   setup() {
     const userStore = useUserStore();
     userStore.checkLoginStatus(); // 로그인 상태 확인
-    console.log("NickName:", userStore.NickName); // 닉네임 확인
+     //console.log("NickName:", userStore.NickName); 닉네임 확인
     return {
       userStore,
     };

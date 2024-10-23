@@ -17,9 +17,6 @@
         :key="`${product.savingsDeposit.fin_prdt_cd}_${product.options[0].intr_rate_type_nm}`"
         :savingsDeposit="product.savingsDeposit" :options="product.options" :isSelected="isItemSelected(product)"
         @updateSelected="handleUpdateSelected" />
-
-
-
     </div>
 
     <div v-else>
@@ -135,7 +132,6 @@ export default {
 
     const isItemSelected = (product) => {
       const uniqueKey = `${product.savingsDeposit.fin_prdt_cd}_${product.options[0].intr_rate_type_nm}`;
-      console.log("isItemSelected :" + uniqueKey)
       if (prdtDiv.value === "DE") {
         return selectedDepositList.value.some(
           (item) =>
@@ -188,12 +184,10 @@ export default {
 
     const showComparisonModal = () => {
       if (prdtDiv.value === 'DE') {
-        console.log("selectedDepositList: ", selectedDepositList.value);
         if (selectedDepositList.value.length > 0 && selectedDepositList.value.length <= 3) {
           isComparisonModalVisible.value = true;
         }
       } else if (prdtDiv.value === 'SA') {
-        console.log("selectedSavingsList: ", selectedSavingsList.value);
         if (selectedSavingsList.value.length > 0 && selectedSavingsList.value.length <= 3) {
           isComparisonModalVisible.value = true;
         }

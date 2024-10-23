@@ -211,7 +211,6 @@ export default {
       try {
         const username = this.getUsername();
         const fundsData = await loadFundsInCart(username);
-        console.log("Loaded funds:", fundsData);
         this.funds = fundsData; // 펀드 데이터 할당
       } catch (error) {
         console.error("Error loading funds:", error);
@@ -245,36 +244,30 @@ export default {
     },
     updateSelectedItemsSavings({ prdNo, intr_rate_type_nm, isSelected }) {
       if (intr_rate_type_nm === undefined) {
-        console.log(
-          "intr_rate_type_nm is undefined, not adding to selectedItems."
-        );
         return;
       }
       const itemKey = `${prdNo}-${intr_rate_type_nm}`;
-      console.log("itemKey: ", itemKey);
+
       if (isSelected.isSelected) {
         this.selectedSavingsItems.add(itemKey);
-        console.log("Item added:", itemKey);
+
       } else {
-        const isDeleted = this.selectedSavingsItems.delete(itemKey);
-        console.log("Item deleted:", isDeleted, "itemKey:", itemKey);
+        this.selectedSavingsItems.delete(itemKey);
+
       }
       this.updateSelectedData("saving");
     },
     updateSelectedItemsDeposit({ prdNo, intr_rate_type_nm, isSelected }) {
       if (intr_rate_type_nm === undefined) {
-        console.log(
-          "intr_rate_type_nm is undefined, not adding to selectedItems."
-        );
+
         return;
       }
       const itemKey = `${prdNo}-${intr_rate_type_nm}`;
-      console.log("itemKey: ", itemKey);
+
       if (isSelected.isSelected) {
         this.selectedDepositsItems.add(itemKey);
       } else {
-        const isDeleted = this.selectedDepositsItems.delete(itemKey);
-        console.log("Item deleted:", isDeleted, "itemKey:", itemKey);
+        this.selectedDepositsItems.delete(itemKey);
       }
       this.updateSelectedData("deposit");
     },
