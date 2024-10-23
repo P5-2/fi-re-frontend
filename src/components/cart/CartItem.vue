@@ -60,7 +60,6 @@ export default {
   },
   methods: {
     emitSelectedItems(event) {
-     // event.stopPropagation(); // 클릭 이벤트가 부모로 전파되지 않도록 막음
 
       const prdNo = this.item.prdNo || this.item.savingsDeposit.fin_prdt_cd;
       if (prdNo) {

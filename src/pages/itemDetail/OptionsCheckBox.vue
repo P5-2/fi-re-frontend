@@ -16,10 +16,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <!-- <div v-for="(option, index) in options">
-                    <input type="radio" :id="index" v-model="radioValue" :value="index" style="width:16px; height:16px;">
-                    <label :for="index" class="select">{{ index+1 }}. {{ option.save_trm }}개월</label>
-                </div> -->
+
                 <div class="btnWrapper">
                     <button id="submit" class="btn btn-success" @click="$emit('submit', radioValue)">선택</button>
                 </div>

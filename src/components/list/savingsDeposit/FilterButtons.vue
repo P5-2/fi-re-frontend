@@ -16,7 +16,6 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
 
 const props = defineProps(["currentFilter"]);
 const emit = defineEmits(["filter"]);
