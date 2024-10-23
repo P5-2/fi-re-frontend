@@ -123,12 +123,12 @@ export default {
         lastestDate.value = goldData.value[goldData.value.length - 1].basDt;
         lastestPrice.value = goldData.value[goldData.value.length - 1].clpr;
         calculateYesterdayPrice();
-        await nextTick(); // DOM 업데이트 후 차트 렌더링
+        await nextTick();
         renderChart();
       } catch (error) {
         console.error('Error fetching gold data:', error);
       } finally {
-        isLoading.value = false; // 로딩 종료
+        isLoading.value = false;
       }
     };
 
@@ -253,7 +253,7 @@ export default {
               callbacks: {
                 title: (tooltipItems) => {
                   const date = tooltipItems[0].label;
-                  return date.replace(/(\d{4})(\d{2})(\d{2})/, '$1.$2.$3'); // 날짜 형식 변환
+                  return date.replace(/(\d{4})(\d{2})(\d{2})/, '$1.$2.$3');
                 },
                 label: (tooltipItem) => {
                   const price = tooltipItem.raw;
@@ -261,23 +261,19 @@ export default {
                     .toString()
                     .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
 
-                  const currentDate = tooltipItem.label; // currentDate가 YYYYMMDD 형식인지 확인
-                  console.log(`Current Date: ${currentDate}`); // 확인용 로그
+                  const currentDate = tooltipItem.label;
 
-                  // YYYYMMDD 형식에서 Date 객체로 변환
                   const parsedCurrentDate = new Date(
-                    currentDate.slice(0, 4), // 연도
-                    currentDate.slice(4, 6) - 1, // 월 (0부터 시작)
-                    currentDate.slice(6, 8) // 일
+                    currentDate.slice(0, 4), 
+                    currentDate.slice(4, 6) - 1, 
+                    currentDate.slice(6, 8) 
                   );
 
-                  // 유효한 날짜인지 확인
                   if (isNaN(parsedCurrentDate.getTime())) {
                     console.error('Invalid currentDate:', currentDate);
                     return [formattedPrice, '유효하지 않은 날짜입니다.'];
                   }
 
-                  // 날짜 계산
                   const oneDayAgo = new Date(parsedCurrentDate);
                   oneDayAgo.setDate(parsedCurrentDate.getDate() - 1);
 
@@ -290,7 +286,6 @@ export default {
                   const oneYearAgo = new Date(parsedCurrentDate);
                   oneYearAgo.setFullYear(parsedCurrentDate.getFullYear() - 1);
 
-                  // YYYYMMDD 형식으로 변환
                   const oneDayAgoStr = oneDayAgo
                     .toISOString()
                     .slice(0, 10)
@@ -308,7 +303,6 @@ export default {
                     .slice(0, 10)
                     .replace(/-/g, '');
 
-                  // 로컬 스토리지에서 데이터 검색
                   const oneDayAgoPriceData = findPriceDataByDate(oneDayAgoStr);
                   const oneMonthAgoPriceData =
                     findPriceDataByDate(oneMonthAgoStr);
@@ -386,7 +380,7 @@ export default {
         await axios.post(
           `http://localhost:9000/exp`,
           {
-            page: 'goldprice', // 현재 페이지 이름
+            page: 'goldprice',
           },
           {
             headers: {
@@ -456,19 +450,15 @@ body {
 .container {
   padding: 30px;
   border-radius: 15px;
-  /* 둥근 모서리 */
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  /* 깊이감 있는 그림자 */
 }
 
 .text-title {
   color: #2c3e50;
   font-weight: 800;
-  /* 두꺼운 글씨 */
   font-size: 2.5rem;
   text-transform: uppercase;
   margin-bottom: 30px;
-  /* 여백 추가 */
 }
 
 .info-box {
@@ -477,9 +467,7 @@ body {
   padding: 30px;
   background-color: #ffffff;
   border-radius: 15px;
-  /* 더 둥근 모서리 */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-  /* 부드러운 그림자 */
 }
 
 .info-date {
@@ -497,35 +485,26 @@ body {
 .chart-container {
   background-color: #ffffff;
   border-radius: 15px;
-  /* 둥근 모서리 */
   padding: 20px;
   border: none;
-  /* 카드 테두리 제거 */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   margin: 20px auto;
-  /* 중앙 정렬 */
 }
 
 .btn {
   background-color: #3f72af;
-  /* 단색 버튼 */
   color: white;
   border: none;
   border-radius: 10px;
-  /* 둥근 모서리 */
   padding: 12px 20px;
-  /* 패딩 조정 */
   margin-right: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
-  /* 애니메이션 효과 */
 }
 
 .btn:hover {
   background-color: #112d4e;
-  /* Hover 시 색상 변경 */
   transform: scale(1.02);
-  /* Hover 시 크기 증가 */
   color: white;
 }
 
@@ -536,7 +515,6 @@ body {
   margin: 10px 0;
 }
 
-/* 추가 스타일 */
 .loading {
   text-align: center;
   font-size: 1.5rem;
@@ -569,22 +547,21 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh; /* 화면 전체 높이 */
-  background-color: #ffffff; /* 하얀 배경 */
-  position: absolute; /* 다른 요소 위에 위치 */
+  height: 100vh;
+  background-color: #ffffff;
+  position: absolute; 
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1000; /* 다른 요소들 위에 오도록 설정 */
+  z-index: 1000; 
 }
 
 .loading {
   font-size: 1.5rem;
-  color: #333; /* 텍스트 색상 */
+  color: #333;
 }
 
-/* 반응형 디자인 */
 @media (max-width: 768px) {
   .container {
     padding: 10px;
@@ -601,6 +578,5 @@ body {
 
 .text-right {
   text-align: right;
-  /* 텍스트를 오른쪽으로 정렬 */
 }
 </style>
